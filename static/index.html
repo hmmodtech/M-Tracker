@@ -277,15 +277,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
     <!-- RIGHT: Clock + Top Source + Gaza Map -->
     <div>
       <!-- Digital Clock -->
-      <div class="clock-card">
-        <div class="clk-t" id="clk-time">00:00:00</div>
-        <div class="clk-d" id="clk-date">Loading...</div>
-        <div class="clk-wx">
-          <span id="wx-ico" style="font-size:20px">&#127777;</span>
-          <span class="wt" id="wx-temp">&#8212;</span>
-          <span class="wd" id="wx-desc">Gaza Strip</span>
-        </div>
-      </div>
+     <div class="clock-card">
+  <div class="clk-t" id="clk-time">00:00:00</div>
+  <div class="clk-d" id="clk-date">Loading...</div>
+  <div class="clk-wx">
+    <span id="wx-ico" style="font-size:20px">☁️</span>
+    <span class="wt" id="wx-temp">--°C</span>
+    <span class="wd" id="wx-desc">Gaza Strip</span>
+  </div>
+</div>
       <!-- Top Source -->
       <div style="background:var(--card);border:1px solid var(--b1);border-radius:12px;padding:13px;margin-bottom:10px">
         <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cy);margin-bottom:5px">&#9650; TOP SOURCE (7d)</div>
@@ -420,7 +420,29 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
 
 <script>
 /* T-TRACKER v6 FINAL — All var, no arrow fns, no template literals */
+/* ---- WEATHER WIDGET ---- */
+function fetchWeather() {
+  // Free API, no key required. Coordinates set for Gaza.
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude=31.4167&longitude=34.3333&current_weather=true';
+  
+  doGet(url, function(data) {
+    if (data && data.current_weather) {
+      // Get the temperature and round it (e.g., 22.4 becomes 22)
+      var temp = Math.round(data.current_weather.temperature);
+      document.getElementById('wx-temp').textContent = temp + '°C';
+      
+      // Bonus: Switch the icon to Sun if it's day, Moon if it's night
+      var isDay = data.current_weather.is_day;
+      document.getElementById('wx-ico').textContent = isDay ? '☀️' : '🌙';
+    }
+  });
+}
 
+// Fetch weather immediately when the page loads
+fetchWeather();
+
+// Update the weather automatically every 30 minutes (1800000 milliseconds)
+setInterval(fetchWeather, 1800000);
 var API='';
 var S={channels:[],messages:[],bookmarks:[],keywords:[]};
 var feedMode='all',chFilter='ALL',chTab='all',mType='telegram';
