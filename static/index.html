@@ -49,6 +49,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
 .live{display:inline-flex;align-items:center;gap:5px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:20px;padding:3px 9px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:#ef4444;letter-spacing:1px;flex-shrink:0}
 .ldot{width:6px;height:6px;border-radius:50%;background:#e8b86d;animation:blink 1.4s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1;box-shadow:none}50%{opacity:.2;box-shadow:none}}
+@keyframes newCardIn{
+  0%  {opacity:0;transform:translateY(-10px);border-color:rgba(232,184,109,.7);box-shadow:0 0 0 2px rgba(232,184,109,.25),var(--sha)}
+  30% {opacity:1;transform:translateY(0);border-color:rgba(232,184,109,.7);box-shadow:0 0 0 2px rgba(232,184,109,.25),var(--sha)}
+  100%{opacity:1;transform:translateY(0);border-color:var(--b1);box-shadow:var(--sha)}
+}
+@keyframes newCardInCrit{
+  0%  {opacity:0;transform:translateY(-10px);border-color:rgba(239,68,68,.8);box-shadow:0 0 0 2px rgba(239,68,68,.3),var(--sha)}
+  30% {opacity:1;transform:translateY(0);border-color:rgba(239,68,68,.8);box-shadow:0 0 0 2px rgba(239,68,68,.3),var(--sha)}
+  100%{opacity:1;transform:translateY(0);border-color:var(--red);box-shadow:var(--sha)}
+}
+.card-new{animation:newCardIn 1.8s ease forwards;}
+.card-new-crit{animation:newCardInCrit 1.8s ease forwards;}
 /* STATS */
 .sg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 .sc{background:var(--card);border:1px solid var(--b1);border-radius:12px;padding:14px}
@@ -832,13 +844,15 @@ var WAICO='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><
 var TGICO='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>';
 var SMICO='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
 
-function buildCard(m,standalone){
+function buildCard(m,standalone,isNew){
   var bm=!!m.bookmarked;
   var isLong=(m.text||'').length>200;
   var hasLoc=!!(m.location_coords&&m.location_name);
   var id=m.id;
   var crit=m.has_critical?' crit':'';
-  var cls=standalone?' mcs'+crit:' mc'+crit;
+  /* isNew: adds entrance animation class */
+  var newCls=isNew?(m.has_critical?' card-new-crit':' card-new'):'';
+  var cls=standalone?' mcs'+crit:' mc'+crit+newCls;
   var txt=encodeURIComponent((m.channel_display||m.channel)+': '+m.text);
   var tgu=encodeURIComponent(m.link||('https://t.me/'+m.channel));
 
@@ -1112,7 +1126,40 @@ function autoRefresh(){
       }
     }
     prevTotal=total;S.messages=arr(data.messages);
-    if(activePg()==='overview'){renderFeed();drawMap();}
+    if(activePg()==='overview'){
+      if(diff>0){
+        /* Prepend new cards to the top and scroll to them */
+        var feedEl=document.getElementById('feed-list');
+        if(feedEl&&feedEl.children.length>0&&!document.getElementById('ov-q').value){
+          /* Build HTML for new cards only (first `diff` messages = newest) */
+          var newMsgs=S.messages.slice(0,diff);
+          var newHtml='';
+          newMsgs.forEach(function(m){
+            newHtml+=buildCard(m,false,true); /* true = mark as new */
+          });
+          /* Wrap in a temp div to parse */
+          var tmp=document.createElement('div');
+          tmp.innerHTML=newHtml;
+          /* Insert each new card before the first existing child */
+          var ref=feedEl.firstChild;
+          while(tmp.firstChild){
+            feedEl.insertBefore(tmp.firstChild,ref);
+          }
+          /* Scroll the feed container to show the new cards */
+          var container=feedEl.closest('.feed-body')||feedEl.parentElement;
+          if(container){container.scrollTop=0;}
+          /* Trigger translations for new cards */
+          newMsgs.slice(0,5).forEach(function(m,i){
+            setTimeout(function(){loadTrans(m);},i*120);
+          });
+        } else {
+          renderFeed();
+        }
+      } else {
+        renderFeed();
+      }
+      drawMap();
+    }
   });
 }
 
