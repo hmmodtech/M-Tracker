@@ -4,22 +4,81 @@ from datetime import datetime, timedelta
 logger = logging.getLogger(__name__)
 DB_PATH = os.environ.get('DB_PATH', 'ttracker.db')
 
+# ── Default channels seeded from Database - Media and Open Source Information ──
+# Telegram channels (38) + Website sources (23) from the ACF source database.
+# Uses INSERT OR IGNORE so re-running init_db() never creates duplicates.
 DEFAULT_CHANNELS = [
-    ("hamza20300",            "حمزة 20300"),
-    ("QudsN",                 "قدس نيوز"),
-    ("alraqib98",             "الرقيب"),
-    ("alhodhud",              "الهدهد"),
-    ("asmailpress",           "اسماعيل برس"),
-    ("hanialshaer",           "هاني الشاعر"),
-    ("Almustashaar",          "المستشار"),
-    ("hpress",                "اچ برس"),
-    ("EabriLive",             "عابر لايف"),
-    ("mumenjmmeqdad",         "مؤمن المقداد"),
-    ("alburaij",              "البريج نيوز"),
-    ("IDFSpokespersonArabic", "الناطق الإسرائيلي"),
-    ("mediagovps",            "الإعلام الحكومي"),
-    ("TheTimesOfIsrael2022",  "تايمز أوف إسرائيل"),
-    ("muthanapress84",        "مثنى برس"),
+    # ── Original Gaza-focused Telegram channels ──────────────────────────────
+    ("hamza20300",                    "حمزة 20300",                  "telegram", ""),
+    ("QudsN",                         "قدس نيوز",                    "telegram", ""),
+    ("alraqib98",                     "الرقيب",                      "telegram", ""),
+    ("alhodhud",                      "الهدهد",                      "telegram", ""),
+    ("asmailpress",                   "اسماعيل برس",                 "telegram", ""),
+    ("hanialshaer",                   "هاني الشاعر",                 "telegram", ""),
+    ("Almustashaar",                  "المستشار",                    "telegram", ""),
+    ("EabriLive",                     "عابر لايف",                   "telegram", ""),
+    ("mumenjmmeqdad",                 "مؤمن المقداد",                "telegram", ""),
+    ("alburaij",                      "البريج نيوز",                 "telegram", ""),
+    ("IDFSpokespersonArabic",         "الناطق الإسرائيلي",           "telegram", ""),
+    ("mediagovps",                    "الإعلام الحكومي",             "telegram", ""),
+    ("muthanapress84",                "مثنى برس",                    "telegram", ""),
+    # ── Telegram channels from source database ───────────────────────────────
+    ("Balata12",                      "Ahrar Balata",                "telegram", ""),
+    ("AhrarNoorShams",                "Ahrar Noor Shams",            "telegram", ""),
+    ("a7rartullkarm",                 "Ahrar Tulkarm",               "telegram", ""),
+    ("a7walstreet",                   "Ahwal Street",                "telegram", ""),
+    ("alakhbar_news",                 "Al Akhbar Newspaper",         "telegram", ""),
+    ("AlarabyTelevision",             "Al Araby TV",                 "telegram", ""),
+    ("ALJADEED_NEWS",                 "Al Jadeed News",              "telegram", ""),
+    ("AjaNews",                       "Al Jazeera News",             "telegram", ""),
+    ("almayadeen",                    "Al Mayadeen",                 "telegram", ""),
+    ("mtqdmon",                       "AlMutaqadimun",               "telegram", ""),
+    ("BenTzionM",                     "Ben Tzion Mekalles",          "telegram", ""),
+    ("bintjbeilnews",                 "Bint Jbeil News",             "telegram", ""),
+    ("CumtaAlertsEnglishChannel",     "Cumta Red Alert",             "telegram", ""),
+    ("fajernews",                     "Fajer News",                  "telegram", ""),
+    ("From_hebron",                   "From Hebron",                 "telegram", ""),
+    ("hpress",                        "Hassan Aslih | Journalist",   "telegram", ""),
+    ("IranNuances",                   "Iran Nuances",                "telegram", ""),
+    ("idf_telegram",                  "IDF Official",                "telegram", ""),
+    ("JewishBreakingNewsTelegram",    "Jewish Breaking News",        "telegram", ""),
+    ("Lebanon_24",                    "Lebanon 24",                  "telegram", ""),
+    ("manniefabian",                  "Mannie's War Room",           "telegram", ""),
+    ("Middle_East_Spectator",         "Middle East Spectator",       "telegram", ""),
+    ("palmoh",                        "MoH Palestine",               "telegram", ""),
+    ("MTVLebanonNews",                "MTV Lebanon",                 "telegram", ""),
+    ("Nablusgheer",                   "Nablus is not news",          "telegram", ""),
+    ("rassd",                         "Nablus Monitor",              "telegram", ""),
+    ("nabuls_news",                   "Nablus News",                 "telegram", ""),
+    ("nablus_5",                      "Nablus Urgent",               "telegram", ""),
+    ("noursams",                      "Nour Shams",                  "telegram", ""),
+    ("Sadanews12",                    "Sada News",                   "telegram", ""),
+    ("safaps",                        "Safa PS",                     "telegram", ""),
+    ("salamtv1",                      "Salam TV",                    "telegram", ""),
+    ("TheTimesOfIsrael2022",          "The Times of Israel",         "telegram", ""),
+    ("tulkarembaladna10",             "Tulkarm Baladna",             "telegram", ""),
+    ("tolkarem_news",                 "Tulkarm News",                "telegram", ""),
+    ("warmonitors",                   "War Monitor",                 "telegram", ""),
+    # ── Website / news sources from source database ───────────────────────────
+    ("acaps",                         "ACAPS",                       "website",  "https://www.acaps.org/en"),
+    ("acled",                         "ACLED",                       "website",  "https://acleddata.com/"),
+    ("al_monitor",                    "Al-Monitor",                  "website",  "https://www.al-monitor.com/"),
+    ("btselem",                       "B'Tselem",                   "website",  "https://www.btselem.org/"),
+    ("channel_12_il",                 "Channel 12 (Israel)",         "website",  "https://www.n12.co.il/"),
+    ("gisha",                         "GISHA",                       "website",  "https://gisha.org/en/"),
+    ("haaretz",                       "Haaretz",                     "website",  "https://www.haaretz.com/"),
+    ("jerusalem_post",                "Jerusalem Post",              "website",  "https://www.jpost.com/"),
+    ("liveuamap",                     "Liveuamap",                   "website",  "https://liveuamap.com/"),
+    ("mapping_pal_politics",          "Mapping Palestinian Politics","website",  "https://ecfr.eu/special/mapping_palestinian_politics/"),
+    ("middle_east_monitor",           "Middle East Monitor",         "website",  "https://www.middleeastmonitor.com/"),
+    ("middle_east_eye",               "Middle East Eye",             "website",  "https://www.middleeasteye.net/"),
+    ("ocha_opt",                      "OCHA oPt",                    "website",  "https://www.ochaopt.org/updates"),
+    ("the_new_humanitarian",          "The New Humanitarian",        "website",  "https://www.thenewhumanitarian.org/"),
+    ("humdata",                       "Humanitarian Data Exchange",  "website",  "https://data.humdata.org/"),
+    ("washington_institute",          "Washington Institute",        "website",  "https://www.washingtoninstitute.org/"),
+    ("crisis_group",                  "Crisis Group",                "website",  "https://www.crisisgroup.org/"),
+    ("middle_eastern_institute",      "Middle East Institute",       "website",  "https://mei.edu/"),
+    ("the_soufan_institute",          "The Soufan Institute",        "website",  "https://thesoufancenter.org/"),
 ]
 
 CRITICAL_KW = [
@@ -95,10 +154,12 @@ def init_db():
     conn.commit()
 
     # Always ensure all default channels exist (INSERT OR IGNORE is safe)
-    for username, display in DEFAULT_CHANNELS:
+    # Each entry is (username, display, source_type, source_url)
+    for entry in DEFAULT_CHANNELS:
+        username, display, source_type, source_url = entry
         conn.execute(
-            'INSERT OR IGNORE INTO channels (username, display, source_type) VALUES (?, ?, ?)',
-            (username, display, 'telegram')
+            'INSERT OR IGNORE INTO channels (username, display, source_type, source_url) VALUES (?, ?, ?, ?)',
+            (username, display, source_type, source_url)
         )
     conn.commit()
 
