@@ -104,6 +104,36 @@ def scrape_telegram(username):
     return new_count
 
 # ── Website ───────────────────────────────────────────────────
+# English keywords for website filtering (mirrors Arabic keywords in intent)
+WEB_KEYWORDS = [
+    # Military / strikes
+    'strike', 'attack', 'bomb', 'shell', 'shelling', 'airstrike', 'air strike',
+    'missile', 'rocket', 'drone', 'explosion', 'blast', 'fire',
+    'invasion', 'offensive', 'assault', 'raid', 'operation',
+    # Casualties
+    'killed', 'dead', 'death', 'deaths', 'martyr', 'wounded', 'injured',
+    'casualties', 'toll', 'victim', 'massacre', 'genocide',
+    # Locations / conflict zones
+    'gaza', 'rafah', 'jabalia', 'khan yunis', 'deir al-balah', 'nuseirat',
+    'west bank', 'jenin', 'nablus', 'tulkarm', 'hebron', 'ramallah',
+    'lebanon', 'lebanese', 'beirut', 'iran', 'iranian', 'hamas', 'hezbollah', 'idf', 'israel', 'israeli',
+    'palestine', 'palestinian',
+    # Humanitarian
+    'displaced', 'displacement', 'refugee', 'evacuation', 'famine',
+    'aid', 'humanitarian', 'ceasefire', 'hostage', 'prisoner', 'detain',
+    # Diplomacy / politics
+    'negotiation', 'deal', 'agreement', 'sanction', 'resolution',
+    'crossing', 'blockade', 'siege',
+    # Arabic words that may appear in English sites
+    'استهداف', 'قصف', 'شهيد', 'شهداء', 'جرحى', 'إصابات', 'انتشال',
+    'تحت الأنقاض', 'أشلاء', 'غارة', 'عاجل',
+]
+
+def _has_web_keyword(text):
+    """Check if an English/Arabic website title is relevant."""
+    tl = text.lower()
+    return any(k.lower() in tl for k in WEB_KEYWORDS)
+
 def scrape_website(username, source_url):
     if not source_url:
         return 0
@@ -114,28 +144,50 @@ def scrape_website(username, source_url):
         logger.warning(f'[WEB] {username} {source_url} failed: {e}')
         return 0
 
-    soup  = BeautifulSoup(resp.text, 'lxml')
+    soup = BeautifulSoup(resp.text, 'lxml')
     seen  = set()
     items = []
 
+    # Broad selector list covering most news site structures
     selectors = [
-        'article a', 'h2 a', 'h3 a',
-        '.article-card a', '[class*="article"] a',
-        '[class*="story"] a', '[class*="card"] a',
+        # Standard semantic tags
+        'article a', 'h1 a', 'h2 a', 'h3 a', 'h4 a',
+        # Common class patterns
+        '[class*="article"] a', '[class*="story"] a', '[class*="card"] a',
+        '[class*="headline"] a', '[class*="title"] a', '[class*="teaser"] a',
+        '[class*="post"] a', '[class*="entry"] a', '[class*="item"] a',
+        '[class*="news"] a', '[class*="report"] a', '[class*="update"] a',
+        # List-based layouts
+        'li a', '.content a',
+        # OCHA / UN site patterns
+        '.views-row a', '.view-content a', '.field-content a',
     ]
+
     for sel in selectors:
         for a in soup.select(sel):
-            title = a.get_text(strip=True)
+            title = a.get_text(separator=' ', strip=True)
             href  = a.get('href', '')
+            if not title or not href:
+                continue
+            # Resolve relative URLs
             if not href.startswith('http'):
                 href = urljoin(source_url, href)
-            if len(title) > 20 and href not in seen:
+            # Skip navigation, footer, social links, anchors
+            if href == source_url or href.endswith(('#', 'javascript:void(0)')):
+                continue
+            skip_patterns = ['/tag/', '/category/', '/author/', '/page/', '/search',
+                             'facebook.com', 'twitter.com', 'x.com', 'instagram.com',
+                             'youtube.com', 'linkedin.com', 'mailto:', 'tel:']
+            if any(p in href for p in skip_patterns):
+                continue
+            if len(title) >= 12 and href not in seen:
                 seen.add(href)
                 items.append((href, title))
 
     new_count = 0
-    for href, title in items[:30]:
-        if not _has_keyword(title):
+    for href, title in items[:60]:   # increased from 30 to 60
+        # Use web-aware keyword filter (supports English + Arabic)
+        if not _has_web_keyword(title):
             continue
         loc = find_location(title)
         added = db.add_message(
@@ -152,7 +204,7 @@ def scrape_website(username, source_url):
         if added:
             new_count += 1
 
-    logger.info(f'[WEB] {username}: {new_count} new items saved')
+    logger.info(f'[WEB] {username}: {new_count} new items saved (scanned {len(items)} links)')
     return new_count
 
 # ── Public API ────────────────────────────────────────────────
