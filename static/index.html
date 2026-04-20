@@ -69,7 +69,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
 .feed-ttl{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--cy);display:flex;align-items:center;gap:6px;text-shadow:0 0 8px rgba(232,184,109,.24)}
 .feed-body{max-height:600px;overflow-y:auto}
 /* PILLS */
-.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.pills-wrap{position:relative;margin-bottom:9px}
+.pills{display:flex;gap:6px;flex-wrap:wrap;max-height:34px;overflow:hidden;transition:max-height .35s ease}
+.pills.expanded{max-height:600px}
+.pills-toggle{display:inline-flex;align-items:center;gap:5px;margin-top:5px;background:none;border:1px solid var(--b1);border-radius:20px;padding:3px 11px;font-size:11px;color:var(--dm);cursor:pointer;font-family:inherit;transition:.15s}
+.pills-toggle:hover{border-color:var(--cyd);color:var(--cy)}
+.pills-toggle svg{transition:transform .3s}
+.pills-toggle.open svg{transform:rotate(180deg)}
 .pill{background:var(--card);border:1px solid var(--b1);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--dm);cursor:pointer;transition:.15s;user-select:none;font-family:inherit}
 .pill:hover{border-color:var(--b2);color:var(--tx)}
 .pill.on{background:var(--cy);border-color:var(--cy);color:#000;font-weight:700}
@@ -306,7 +312,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
   <div class="ov-grid">
     <!-- LEFT: Live Feed -->
     <div>
-      <div class="pills" id="ov-pills"></div>
+      <div class="pills-wrap">
+        <div class="pills" id="ov-pills"></div>
+        <button class="pills-toggle" id="pills-toggle" onclick="togglePills()" style="display:none">
+          <span id="pills-toggle-lbl">Show more</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
       <div class="srow">
         <div class="si">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--dm)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -782,6 +794,24 @@ function buildPills(){
     h+='<div class="pill" onclick="setChFilter(\''+c.username+'\',this)">'+esc(c.display)+'</div>';
   });
   el.innerHTML=h;
+  /* show toggle only if content overflows one row */
+  el.classList.remove('expanded');
+  setTimeout(function(){
+    var btn=document.getElementById('pills-toggle');
+    if(!btn)return;
+    var overflows=el.scrollHeight>el.offsetHeight+4;
+    btn.style.display=overflows?'inline-flex':'none';
+  },50);
+}
+
+function togglePills(){
+  var el=document.getElementById('ov-pills');
+  var btn=document.getElementById('pills-toggle');
+  var lbl=document.getElementById('pills-toggle-lbl');
+  if(!el||!btn)return;
+  var open=el.classList.toggle('expanded');
+  btn.className='pills-toggle'+(open?' open':'');
+  lbl.textContent=open?'Show less':'Show more';
 }
 function setChFilter(val,el){
   chFilter=val;
