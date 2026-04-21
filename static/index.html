@@ -274,6 +274,74 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
 .gc-empty{text-align:center;padding:40px 20px;color:var(--dm)}
 .gc-empty-ico{font-size:36px;margin-bottom:10px}
 .gc-empty-msg{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.5px}
+
+/* ══════════════════════════════════════════
+   PROJECTION MODE
+   Triggered by .proj on <body>
+   Hides sidebar + right panel, expands feed
+   to full width with larger fonts/cards.
+══════════════════════════════════════════ */
+body.proj #sb            { display:none; }
+body.proj #main          { background:var(--bg); }
+body.proj .inner         { padding:14px 28px 28px; max-width:100%; }
+body.proj .ov-grid       { grid-template-columns:1fr; }
+body.proj .ov-grid > div:last-child { display:none; }   /* hide right panel */
+body.proj .sg            { grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+body.proj .sl            { font-size:11px; letter-spacing:1.8px; }
+body.proj .sv            { font-size:38px; }
+body.proj .ss            { font-size:13px; }
+body.proj .feed-body     { max-height:calc(100vh - 280px); }
+/* Cards — bigger everything */
+body.proj .ct            { font-size:24px !important; line-height:1.65; -webkit-line-clamp:3; }
+body.proj .ct.exp        { -webkit-line-clamp:unset; }
+body.proj .ct-ar         { font-size:24px !important; line-height:1.65; -webkit-line-clamp:3; }
+body.proj .ct-ar.exp     { -webkit-line-clamp:unset; }
+body.proj .csrc          { font-size:16px; }
+body.proj .feed-ts       { font-size:13px; padding:3px 13px; }
+body.proj .loc-b         { font-size:16px; padding:4px 14px; }
+body.proj .tbox          { font-size:18px; line-height:1.65; padding:11px 16px; }
+body.proj .tbox-lbl      { font-size:13px; }
+body.proj .cmeta         { font-size:14px; }
+body.proj .rdm           { font-size:15px; }
+body.proj .kh, body.proj .kc { font-size:inherit; padding:0 4px; border-radius:4px; }
+body.proj .mc, body.proj .mcs { padding:0; }  /* handled by inner cbody */
+body.proj .shr           { padding:10px 0 0; }
+body.proj .sha           { font-size:15px; padding:6px 16px; }
+body.proj .bmbtn         { font-size:15px; padding:6px 16px; }
+body.proj .slbl          { font-size:13px; }
+body.proj .live          { font-size:11px; padding:4px 12px; }
+body.proj .ldot          { width:8px; height:8px; }
+body.proj .feed-ttl      { font-size:14px; }
+body.proj .feed-hdr      { padding:13px 18px; }
+body.proj .phd .ttl      { font-size:22px; }
+body.proj .phd .sub      { font-size:13px; }
+body.proj .pills-wrap    { margin-bottom:10px; }
+body.proj .pill          { font-size:14px; padding:6px 16px; }
+body.proj .mb            { font-size:14px; padding:9px 14px; }
+body.proj .si input      { font-size:16px; }
+body.proj .si            { padding:9px 14px; }
+body.proj .fmeta         { font-size:12px; margin-bottom:10px; }
+
+/* Projection button — glowing amber */
+.btn.proj-btn {
+  background: rgba(232,184,109,.12);
+  border-color: rgba(232,184,109,.45);
+  color: var(--cy);
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.btn.proj-btn:hover {
+  background: var(--cy);
+  border-color: var(--cy);
+  color: #000;
+}
+body.proj .btn.proj-btn {
+  background: var(--cy);
+  border-color: var(--cy);
+  color: #000;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(232,184,109,.4);
+}
 </style>
 </head>
 <body>
@@ -518,7 +586,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
 var API='';
 var S={channels:[],messages:[],bookmarks:[],keywords:[]};
 var feedMode='all',chFilter='ALL',chTab='all',mType='telegram';
-var dark=true,muted=false;
+var dark=true,muted=false,projMode=false;
 var prevTotal=0,newCount=0;
 var CRIT_SET={};
 var TC={}; /* translation cache: msgId->text */
@@ -748,7 +816,8 @@ function buildActs(){
   var h='<div class="live"><span class="ldot"></span>LIVE</div>'+
     '<button class="btn" onclick="exportData(false)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'+
     '<button class="btn" onclick="setTheme('+(dark?'false':'true')+')">'+(dark?sun:moon)+'</button>'+
-    '<button class="btn bell" onclick="toggleMute()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+bsvg+'</svg>'+badge+'</button>';
+    '<button class="btn bell" onclick="toggleMute()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+bsvg+'</svg>'+badge+'</button>'+
+    '<button class="btn proj-btn" onclick="toggleProj()" title="Toggle projection mode"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'+( projMode ? 'Exit Projection' : 'Project' )+'</button>';
   document.querySelectorAll('[id^="acts-"]').forEach(function(e){e.innerHTML=h;});
 }
 
@@ -1060,6 +1129,19 @@ function scrapeNow(){showToast('Scraping...');doPost('/api/scrape',{},function()
 
 /* ---- BELL ---- */
 function toggleMute(){muted=!muted;buildActs();showToast(muted?'Notifications muted':'Notifications enabled');}
+
+function toggleProj(){
+  projMode=!projMode;
+  document.body.classList.toggle('proj',projMode);
+  buildActs();
+  /* Recalc feed height after layout change */
+  setTimeout(function(){
+    var fb=document.getElementById('feed-list');
+    if(fb)fb.scrollTop=0;
+    drawMap();
+  },80);
+  showToast(projMode?'Projection mode ON — feed expanded':'Projection mode OFF');
+}
 
 function beep(isCrit){
   if(muted)return;
