@@ -361,6 +361,31 @@ body.proj .btn.proj-btn {
   font-weight: 700;
   box-shadow: 0 2px 8px rgba(0,151,167,.2);
 }
+/* ── GEO FILTER ── */
+.geo-filter-wrap{position:relative;display:inline-flex}
+.btn.geo-active{color:var(--cy);border-color:var(--cyd);background:var(--cyg)}
+.geo-dot{position:absolute;top:-4px;right:-4px;width:8px;height:8px;border-radius:50%;background:var(--cy);display:none;box-shadow:0 0 6px var(--cy)}
+.geo-dot.on{display:block}
+.geo-panel{position:absolute;top:calc(100% + 8px);right:0;background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--b1);border-radius:14px;padding:14px;min-width:230px;box-shadow:0 12px 40px rgba(0,0,0,.6);z-index:200;display:none;flex-direction:column;gap:4px}
+.geo-panel.open{display:flex}
+.geo-panel-title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dm);text-transform:uppercase;margin-bottom:6px;padding-bottom:8px;border-bottom:1px solid var(--b1)}
+.geo-opt{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:9px;cursor:pointer;transition:.15s;user-select:none;border:1px solid transparent}
+.geo-opt:hover{background:rgba(255,255,255,.05);border-color:var(--b1)}
+.geo-opt.active{background:var(--cyg);border-color:var(--cyd)}
+.geo-opt-left{display:flex;align-items:center;gap:9px}
+.geo-opt-flag{font-size:17px;line-height:1;flex-shrink:0}
+.geo-opt-en{font-size:13px;font-weight:600;color:var(--tx);line-height:1.2}
+.geo-opt-ar{font-size:11px;color:var(--dm);margin-top:2px;direction:rtl}
+.geo-opt-check{width:16px;height:16px;border-radius:50%;border:2px solid var(--b2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s}
+.geo-opt.active .geo-opt-check{background:var(--cy);border-color:var(--cy)}
+.geo-opt.active .geo-opt-check::after{content:'';width:5px;height:5px;border-radius:50%;background:#000}
+.geo-divider{height:1px;background:var(--b1);margin:4px 0}
+/* ── INLINE LINK BUTTONS ── */
+.link-btns{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;direction:ltr}
+.link-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(0,151,167,.08);border:1px solid rgba(0,151,167,.3);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--cy);cursor:pointer;text-decoration:none;transition:.15s;font-family:inherit;white-space:nowrap;max-width:280px}
+.link-btn:hover{background:rgba(0,151,167,.18);border-color:var(--cy);transform:translateY(-1px)}
+.link-btn svg{flex-shrink:0;opacity:.8}
+.link-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -606,6 +631,22 @@ var API='';
 var S={channels:[],messages:[],bookmarks:[],keywords:[]};
 var feedMode='all',chFilter='ALL',chTab='all',mType='telegram';
 var dark=true,muted=false,projMode=false;
+/* geoFilter: 'gaza'|'palestine'|'lebanon'|'iran'|'mideast'|'world'|'ALL' */
+var geoFilter='ALL';
+var GEO_CATS=[
+  {id:'gaza',     en:'Gaza',          ar:'غزة',           flag:'🇵🇸',
+   kw:['gaza','غزة','غزه','رفح','rafah','jabalia','جباليا','khan yunis','خان يونس','deir al balah','دير البلح','beit hanoun','بيت حانون','beit lahiya','بيت لاهيا','nuseirat','النصيرات','shifa','الشفاء','al shati','الشاطئ','شجاعية','shejaiya']},
+  {id:'palestine',en:'Palestine',      ar:'فلسطين',        flag:'🇵🇸',
+   kw:['palestine','فلسطين','فلسطيني','palestinian','west bank','الضفة','ramallah','رام الله','hebron','الخليل','nablus','نابلس','jenin','جنين','tulkarm','طولكرم','قلقيلية','qalqilya']},
+  {id:'lebanon',  en:'Lebanon',        ar:'لبنان',         flag:'🇱🇧',
+   kw:['lebanon','لبنان','لبناني','lebanese','beirut','بيروت','hezbollah','حزب الله','south lebanon','جنوب لبنان']},
+  {id:'iran',     en:'Iran',           ar:'إيران',         flag:'🇮🇷',
+   kw:['iran','إيران','ايران','iranian','tehran','طهران','irgc','الحرس الثوري']},
+  {id:'mideast',  en:'Middle East',    ar:'الشرق الأوسط',  flag:'🌍',
+   kw:['middle east','الشرق الأوسط','syria','سوريا','iraq','العراق','yemen','اليمن','jordan','الأردن','egypt','مصر','saudi','السعودية']},
+  {id:'world',    en:'Worldwide',      ar:'العالم',        flag:'🌐',
+   kw:[]}
+];
 var prevTotal=0,newCount=0;
 var CRIT_SET={};
 var TC={}; /* translation cache: msgId->text */
@@ -832,13 +873,58 @@ function buildActs(){
   var bsvg=muted?'<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="1" y1="1" x2="23" y2="23"/>':
                  '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>';
   var badge=newCount>0?('<span class="bbn on">'+newCount+'</span>'):'<span class="bbn"></span>';
+  var fsvg='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>';
+  var activeCat=geoFilter!=='ALL'?GEO_CATS.find(function(c){return c.id===geoFilter;}):null;
+  var filterLabel=activeCat?fsvg+' '+activeCat.flag+' '+activeCat.en:fsvg+' Filter';
   var h='<div class="live"><span class="ldot"></span>LIVE</div>'+
     '<button class="btn" onclick="exportData(false)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'+
     '<button class="btn" onclick="setTheme('+(dark?'false':'true')+')">'+(dark?sun:moon)+'</button>'+
     '<button class="btn bell" onclick="toggleMute()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+bsvg+'</svg>'+badge+'</button>'+
+    '<div class="geo-filter-wrap">'+
+      '<button class="btn'+(geoFilter!=='ALL'?' geo-active':'')+'" onclick="toggleGeoPanel(event)">'+filterLabel+'</button>'+
+      '<span class="geo-dot'+(geoFilter!=='ALL'?' on':'')+'"></span>'+
+      '<div class="geo-panel" id="geo-panel">'+buildGeoPanelHTML()+'</div>'+
+    '</div>'+
     '<button class="btn proj-btn" onclick="toggleProj()" title="Toggle projection mode"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'+( projMode ? 'Exit Projection' : 'Project' )+'</button>';
   document.querySelectorAll('[id^="acts-"]').forEach(function(e){e.innerHTML=h;});
+  document.querySelectorAll('.geo-panel').forEach(function(p){
+    p.addEventListener('click',function(e){e.stopPropagation();});
+  });
 }
+
+/* ── GEO FILTER FUNCTIONS ── */
+function buildGeoPanelHTML(){
+  var h='<div class="geo-panel-title">Filter by Region</div>';
+  h+='<div class="geo-opt'+(geoFilter==='ALL'?' active':'')+'" onclick="setGeoFilter(\'ALL\')">'
+    +'<div class="geo-opt-left"><span class="geo-opt-flag">🌐</span><div class="geo-opt-labels"><div class="geo-opt-en">All Regions</div><div class="geo-opt-ar">كل المناطق</div></div></div>'
+    +'<div class="geo-opt-check"></div></div>';
+  h+='<div class="geo-divider"></div>';
+  GEO_CATS.forEach(function(c){
+    h+='<div class="geo-opt'+(geoFilter===c.id?' active':'')+'" onclick="setGeoFilter(\''+c.id+'\')">'
+      +'<div class="geo-opt-left"><span class="geo-opt-flag">'+c.flag+'</span><div class="geo-opt-labels"><div class="geo-opt-en">'+c.en+'</div><div class="geo-opt-ar">'+c.ar+'</div></div></div>'
+      +'<div class="geo-opt-check"></div></div>';
+  });
+  return h;
+}
+function toggleGeoPanel(e){
+  e.stopPropagation();
+  var panels=document.querySelectorAll('.geo-panel');
+  var anyOpen=false;
+  panels.forEach(function(p){if(p.classList.contains('open'))anyOpen=true;});
+  panels.forEach(function(p){p.classList.remove('open');});
+  if(!anyOpen){panels.forEach(function(p){p.classList.add('open');});}
+}
+function setGeoFilter(id){
+  geoFilter=id;
+  document.querySelectorAll('.geo-panel').forEach(function(p){p.classList.remove('open');});
+  buildActs();
+  renderFeed();
+  var label=id==='ALL'?'All Regions':(GEO_CATS.find(function(c){return c.id===id;})||{en:id}).en;
+  showToast('Filter: '+label);
+}
+document.addEventListener('click',function(){
+  document.querySelectorAll('.geo-panel').forEach(function(p){p.classList.remove('open');});
+});
 
 /* ---- ROUTING ---- */
 function showPage(name){
@@ -934,6 +1020,25 @@ function renderFeed(){
       return S.keywords.some(function(k){return m.text.toLowerCase().indexOf((k.word||'').toLowerCase())>=0;});
     });
   }
+  /* ── GEO FILTER ── */
+  if(geoFilter!=='ALL'){
+    var cat=GEO_CATS.find(function(c){return c.id===geoFilter;});
+    if(cat){
+      if(cat.id==='world'){
+        var allKw=[];
+        GEO_CATS.forEach(function(c){if(c.id!=='world')allKw=allKw.concat(c.kw);});
+        msgs=msgs.filter(function(m){
+          var t=(m.text||'').toLowerCase();
+          return !allKw.some(function(kw){return t.indexOf(kw)>=0;});
+        });
+      } else {
+        msgs=msgs.filter(function(m){
+          var t=(m.text||'').toLowerCase();
+          return cat.kw.some(function(kw){return t.indexOf(kw)>=0;});
+        });
+      }
+    }
+  }
   setEl('f-cnt',msgs.length);
   var el=document.getElementById('feed-list');if(!el)return;
   if(!msgs.length){el.innerHTML=emptyEl('NO MESSAGES MATCH');return;}
@@ -952,12 +1057,21 @@ var SMICO='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="c
 
 function buildCard(m,standalone){
   var bm=!!m.bookmarked;
-  var isLong=(m.text||'').length>200;
   var hasLoc=!!(m.location_coords&&m.location_name);
   var id=m.id;
   var crit=m.has_critical?' crit':'';
   var cls=standalone?' mcs'+crit:' mc'+crit;
-  var txt=encodeURIComponent((m.channel_display||m.channel)+': '+m.text);
+
+  /* ── Strip URLs from text, collect them as buttons ── */
+  var rawText=m.text||'';
+  var urlRegex=/(https?:\/\/[^\s\u0600-\u06FF،؛؟!\]\)>]+)/g;
+  var foundUrls=[];
+  var match;
+  while((match=urlRegex.exec(rawText))!==null){foundUrls.push(match[1]);}
+  var cleanText=rawText.replace(urlRegex,'').replace(/\s{2,}/g,' ').trim();
+
+  var isLong=cleanText.length>200;
+  var txt=encodeURIComponent((m.channel_display||m.channel)+': '+cleanText);
   var tgu=encodeURIComponent(m.link||('https://t.me/'+m.channel));
 
   var locH='';
@@ -969,15 +1083,26 @@ function buildCard(m,standalone){
         +'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
         +esc(lname)+'</span>';
   }
+
+  /* ── Link buttons ── */
+  var linkBtnsH='';
+  if(foundUrls.length){
+    var extIco='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+    linkBtnsH='<div class="link-btns">';
+    foundUrls.forEach(function(u){
+      var label=u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0];
+      if(label.length>30)label=label.substring(0,30)+'…';
+      linkBtnsH+='<a class="link-btn" href="'+esc(u)+'" target="_blank" rel="noopener">'+extIco+'<span>'+esc(label)+'</span></a>';
+    });
+    linkBtnsH+='</div>';
+  }
+
   var rdm=isLong?'<span class="rdm" id="rdm-'+id+'" onclick="toggleCard('+id+')">Read more &#9662;</span>':'';
   var tgLink=m.link?('<a class="tgl" href="'+m.link+'" target="_blank" rel="noopener"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>Telegram</a>'):'';
   var bmfill=bm?'currentColor':'none';
   var bmtxt=bm?'Saved':'Save';
-
-  /* Padding for standalone vs feed-list items */
   var bodyPad=standalone?'style="padding:0 14px 10px"':'';
   var topPad=standalone?'style="padding:12px 14px 0"':'';
-
   var gazaTs=toGazaTime(m.msg_date||m.scraped_at||'');
   var tsH=gazaTs?'<span class="feed-ts">&#128336; '+esc(gazaTs)+'</span>':'';
 
@@ -989,13 +1114,11 @@ function buildCard(m,standalone){
     +'<button class="cclose" onclick="var e=document.getElementById(\'mc-'+id+'\');if(e)e.remove()">&#215;</button>'
     +'</div></div>'
     +'<div class="cbody" '+bodyPad+'>'
-    +locH
-    +tsH
-    /* Arabic original text — RTL */
+    +locH+tsH
     +'<div class="ct-ar-lbl">&#128483; Original (Arabic)</div>'
-    +'<div class="ct-ar'+(isLong?'':' exp')+'" id="ct-'+id+'" dir="rtl">'+hlText(esc(isLong&&m.summary?m.summary:m.text))+'</div>'
+    +'<div class="ct-ar'+(isLong?'':' exp')+'" id="ct-'+id+'" dir="rtl">'+hlText(esc(isLong&&m.summary?m.summary:cleanText))+'</div>'
     +rdm
-    /* English translation via Claude AI */
+    +linkBtnsH
     +'<div id="tr-'+id+'" class="tload">Translating...</div>'
     +'<div class="cmeta">'+tgLink+'</div>'
     +'</div>'
@@ -1013,9 +1136,15 @@ function toggleCard(id){
   var ct=document.getElementById('ct-'+id),rdm=document.getElementById('rdm-'+id);if(!ct)return;
   var isExp=ct.classList.toggle('exp');
   var msg=null;for(var i=0;i<S.messages.length;i++){if(String(S.messages[i].id)===String(id)){msg=S.messages[i];break;}}
-  if(msg){ct.innerHTML=hlText(esc(isExp?msg.text:(msg.summary||msg.text)));if(isExp)loadTrans(msg);}
+  if(msg){
+    var rawT=isExp?msg.text:(msg.summary||msg.text);
+    var cleanT=(rawT||'').replace(/(https?:\/\/[^\s\u0600-\u06FF،؛؟!\]\)>]+)/g,'').replace(/\s{2,}/g,' ').trim();
+    ct.innerHTML=hlText(esc(cleanT));
+    if(isExp)loadTrans(msg);
+  }
   if(rdm)rdm.textContent=isExp?'Show less \u25b4':'Read more \u25be';
 }
+
 
 /* ---- MAP ---- */
 function openMap(name,coords,gmaps){
