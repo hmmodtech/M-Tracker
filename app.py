@@ -26,7 +26,21 @@ ADMIN_USER = {
     "password": "801165226",
     "role": "admin",
     "created": "2024-01-01T00:00:00Z",
-    "isBuiltIn": True
+    "isBuiltIn": True,
+    "isSuperAdmin": True
+}
+
+ADMIN_USER2 = {
+    "id": "u_admin2",
+    "username": "aaljojo",
+    "email": "aaljojo@pt.acfspain.org",
+    "email2": "",
+    "name": "Ashraf Al Jojo",
+    "password": "3030",
+    "role": "admin",
+    "created": "2024-01-01T00:00:00Z",
+    "isBuiltIn": True,
+    "isSuperAdmin": False
 }
 
 def _load_users():
@@ -37,12 +51,22 @@ def _load_users():
                 users = json.load(f)
         except Exception:
             users = []
-    # Always ensure admin is present and up-to-date
+    # Always lock superadmin fields
     has_admin = any(u.get('id') == 'u_admin' for u in users)
     if has_admin:
         users = [{**u, **ADMIN_USER} if u.get('id') == 'u_admin' else u for u in users]
     else:
         users.insert(0, dict(ADMIN_USER))
+    # Ensure second built-in admin exists (but allow edits by superadmin)
+    has_admin2 = any(u.get('id') == 'u_admin2' for u in users)
+    if not has_admin2:
+        idx = next((i for i,u in enumerate(users) if u.get('id')=='u_admin'), 0)
+        users.insert(idx+1, dict(ADMIN_USER2))
+    else:
+        for u in users:
+            if u.get('id') == 'u_admin2':
+                u['isBuiltIn'] = True
+                u['isSuperAdmin'] = False
     return users
 
 def _save_users(users):
@@ -59,12 +83,17 @@ def api_save_users():
         data = request.get_json(force=True, silent=True)
         if not isinstance(data, list):
             return jsonify({'error': 'Expected a list'}), 400
-        # Always keep admin intact
+        # Always lock superadmin
         has_admin = any(u.get('id') == 'u_admin' for u in data)
         if not has_admin:
             data.insert(0, dict(ADMIN_USER))
         else:
             data = [{**u, **ADMIN_USER} if u.get('id') == 'u_admin' else u for u in data]
+        # Ensure second admin exists (allow edits)
+        has_admin2 = any(u.get('id') == 'u_admin2' for u in data)
+        if not has_admin2:
+            idx = next((i for i,u in enumerate(data) if u.get('id')=='u_admin'), 0)
+            data.insert(idx+1, dict(ADMIN_USER2))
         _save_users(data)
         return jsonify({'ok': True, 'count': len(data)})
     except Exception as e:
