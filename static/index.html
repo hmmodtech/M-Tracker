@@ -514,6 +514,21 @@ body.proj .btn.proj-btn {
 .access-denied .ad-ico{font-size:42px}
 .access-denied .ad-title{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1.5px;color:var(--red);text-transform:uppercase}
 .access-denied .ad-msg{font-size:13px;max-width:300px;line-height:1.6}
+
+/* ── Field-level validation errors ── */
+.cu-field .fi.field-error{border-color:#ef4444!important;background:rgba(239,68,68,0.05)!important;box-shadow:0 0 0 3px rgba(239,68,68,0.1)!important}
+.cu-field-err{font-size:11px;color:#ef4444;font-family:'JetBrains Mono',monospace;margin-top:4px;min-height:15px;letter-spacing:0.3px}
+
+/* ── User detail modal ── */
+.ud-row{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:var(--card);border:1px solid var(--b1);border-radius:8px;margin-bottom:6px}
+.ud-row-ico{font-size:15px;flex-shrink:0;margin-top:1px}
+.ud-row-body{flex:1;min-width:0}
+.ud-row-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--dm);text-transform:uppercase;margin-bottom:2px}
+.ud-row-val{font-size:13px;font-weight:600;color:var(--tx-head);word-break:break-all}
+.ud-row-val.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+.ud-perm-tag{border-radius:6px;padding:5px 11px;font-size:12px;font-weight:600;margin-right:4px;margin-bottom:4px;display:inline-block}
+.ud-perm-yes{background:rgba(0,151,167,0.1);border:1px solid rgba(0,151,167,0.25);color:var(--cy)}
+.ud-perm-no{background:rgba(107,122,141,0.07);border:1px solid rgba(107,122,141,0.15);color:var(--dm);text-decoration:line-through;opacity:0.6}
 </style>
 </head>
 <body>
@@ -746,11 +761,37 @@ body.proj .btn.proj-btn {
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
         CREATE NEW USER
       </div>
+      <!-- Global form error banner -->
+      <div id="cu-err" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:8px;padding:10px 14px;font-size:12px;color:#ef4444;font-family:'JetBrains Mono',monospace;margin-bottom:12px;display:none;align-items:center;gap:8px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="cu-err-msg"></span>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
-        <div class="fg"><label class="fl">Full Name</label><input class="fi" id="cu-name" placeholder="Full name"></div>
-        <div class="fg"><label class="fl">Username</label><input class="fi" id="cu-uname" placeholder="username" dir="ltr"></div>
-        <div class="fg"><label class="fl">Email</label><input class="fi" id="cu-email" placeholder="user@example.com" dir="ltr" type="email"></div>
-        <div class="fg"><label class="fl">Password</label><input class="fi" id="cu-pass" placeholder="Password" type="password"></div>
+        <div class="fg cu-field" id="cu-field-name">
+          <label class="fl">Full Name <span style="color:#ef4444">*</span></label>
+          <input class="fi" id="cu-name" placeholder="Full name" oninput="cuClearErr('cu-field-name')">
+          <div class="cu-field-err" id="cu-err-name"></div>
+        </div>
+        <div class="fg cu-field" id="cu-field-uname">
+          <label class="fl">Username <span style="color:#ef4444">*</span></label>
+          <input class="fi" id="cu-uname" placeholder="username" dir="ltr" oninput="cuClearErr('cu-field-uname')">
+          <div class="cu-field-err" id="cu-err-uname"></div>
+        </div>
+        <div class="fg cu-field" id="cu-field-email">
+          <label class="fl">Email <span style="color:#ef4444">*</span></label>
+          <input class="fi" id="cu-email" placeholder="user@example.com" dir="ltr" type="email" oninput="cuClearErr('cu-field-email')">
+          <div class="cu-field-err" id="cu-err-email"></div>
+        </div>
+        <div class="fg cu-field" id="cu-field-pass">
+          <label class="fl">Password <span style="color:#ef4444">*</span></label>
+          <div style="position:relative">
+            <input class="fi" id="cu-pass" placeholder="Password" type="password" oninput="cuClearErr('cu-field-pass')" style="padding-right:38px">
+            <button type="button" onclick="cuTogglePass()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--dm);cursor:pointer;padding:2px;display:flex" title="Show/hide password">
+              <svg id="cu-pass-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="cu-field-err" id="cu-err-pass"></div>
+        </div>
       </div>
       <div class="fg" style="margin-top:4px">
         <label class="fl">Role & Permissions</label>
@@ -770,17 +811,47 @@ body.proj .btn.proj-btn {
           <b>EDITOR PERMISSIONS:</b> View all content · Add/edit/delete channels · Add/remove keywords · Use geocoding system
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-top:6px">
-        <button class="btn cyan" onclick="createUser()" style="padding:10px 18px">
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+        <button class="btn cyan" onclick="createUser()" style="padding:10px 20px;font-size:13px">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Create User
         </button>
-        <span id="cu-msg" style="font-size:12px;color:var(--cy);align-self:center;font-family:'JetBrains Mono',monospace"></span>
+        <button class="btn" onclick="cuReset()" style="padding:10px 14px">Clear</button>
+        <span id="cu-success" style="font-size:12px;color:var(--cy);font-family:'JetBrains Mono',monospace;display:none;align-items:center;gap:5px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span id="cu-success-msg"></span>
+        </span>
       </div>
     </div>
-    <!-- User list -->
-    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--dm);margin-bottom:10px">ALL USERS</div>
+
+    <!-- User list header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--dm)">ALL USERS (<span id="um-count">0</span>)</div>
+      <div style="font-size:11px;color:var(--dm)">Click <b style="color:var(--cy)">View</b> to see full user details</div>
+    </div>
     <div class="um-grid" id="um-list"></div>
+  </div>
+</div>
+
+<!-- ══ USER DETAIL MODAL ══ -->
+<div class="ovm" id="m-user-detail">
+  <div class="modal" style="max-width:480px">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <div class="um-av" id="ud-av" style="width:52px;height:52px;font-size:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;color:#000;flex-shrink:0"></div>
+      <div>
+        <div style="font-size:16px;font-weight:700;color:var(--tx-head)" id="ud-name"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dm);margin-top:2px" id="ud-role-line"></div>
+      </div>
+      <button class="cclose" onclick="closeM('m-user-detail')" style="margin-left:auto">×</button>
+    </div>
+    <div style="display:grid;gap:8px" id="ud-fields"></div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--b1)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dm);margin-bottom:8px">PERMISSIONS</div>
+      <div id="ud-perms" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+    <div class="mbtns" style="margin-top:16px">
+      <button class="bcan" onclick="closeM('m-user-detail')">Close</button>
+    </div>
   </div>
 </div>
 
@@ -836,37 +907,142 @@ body.proj .btn.proj-btn {
 /* T-TRACKER v6 FINAL — All var, no arrow fns, no template literals */
 
 /* ══════════════════════════════════════════
-   AUTH SYSTEM
+   AUTH SYSTEM — Persistent Storage v2
+   Priority: Backend API → localStorage fallback
 ══════════════════════════════════════════ */
-var AUTH_USERS_KEY='mtracker_users';
-var AUTH_SESSION_KEY='mtracker_session';
+var AUTH_USERS_KEY='mtracker_users_v2';
+var AUTH_SESSION_KEY='mtracker_session_v2';
+var AUTH_DB_VERSION='2';
 
-/* Default users DB — stored in localStorage */
-var DEFAULT_USERS=[
-  {
-    id:'u_admin',
-    username:'aabujami',
-    email:'admin@acf-gaza.org',
-    name:'Admin User',
-    password:'801165226',
-    role:'admin',
-    created:'2024-01-01T00:00:00Z'
+/* ── MASTER ADMIN — always present, cannot be deleted ── */
+var ADMIN_USER={
+  id:'u_admin',
+  username:'aabujami',
+  email:'hmmodtech@gmail.com',
+  email2:'aabujami@pt.acfspain.org',
+  name:'Ahmed Abu Jami',
+  password:'801165226',
+  role:'admin',
+  created:'2024-01-01T00:00:00Z',
+  isBuiltIn:true
+};
+
+/* ── Merge admin into any user list (ensures admin always exists) ── */
+function mergeAdmin(users){
+  var list=users||[];
+  var hasAdmin=false;
+  for(var i=0;i<list.length;i++){
+    if(list[i].id===ADMIN_USER.id){
+      /* Always update admin details to latest */
+      list[i].username=ADMIN_USER.username;
+      list[i].email=ADMIN_USER.email;
+      list[i].email2=ADMIN_USER.email2;
+      list[i].name=ADMIN_USER.name;
+      list[i].password=ADMIN_USER.password;
+      list[i].role=ADMIN_USER.role;
+      list[i].isBuiltIn=true;
+      hasAdmin=true;break;
+    }
   }
-];
-
-function getUsers(){
-  try{
-    var raw=localStorage.getItem(AUTH_USERS_KEY);
-    if(raw)return JSON.parse(raw);
-  }catch(e){}
-  localStorage.setItem(AUTH_USERS_KEY,JSON.stringify(DEFAULT_USERS));
-  return DEFAULT_USERS;
+  if(!hasAdmin)list.unshift(JSON.parse(JSON.stringify(ADMIN_USER)));
+  return list;
 }
 
-function saveUsers(users){
+/* ── localStorage helpers ── */
+function getUsersLocal(){
+  try{
+    var raw=localStorage.getItem(AUTH_USERS_KEY);
+    if(raw){
+      var parsed=JSON.parse(raw);
+      return mergeAdmin(parsed);
+    }
+  }catch(e){}
+  var fresh=mergeAdmin([]);
+  localStorage.setItem(AUTH_USERS_KEY,JSON.stringify(fresh));
+  return fresh;
+}
+
+function saveUsersLocal(users){
   localStorage.setItem(AUTH_USERS_KEY,JSON.stringify(users));
 }
 
+/* ── Backend API helpers (saves to server users.json) ── */
+var _backendAvailable=null; /* null=unknown, true/false */
+
+function checkBackend(cb){
+  if(_backendAvailable!==null){cb(_backendAvailable);return;}
+  var x=new XMLHttpRequest();
+  x.open('GET',API+'/api/users',true);
+  x.timeout=2000;
+  x.onreadystatechange=function(){
+    if(x.readyState!==4)return;
+    _backendAvailable=(x.status===200||x.status===201);
+    cb(_backendAvailable);
+  };
+  x.ontimeout=function(){_backendAvailable=false;cb(false);};
+  x.onerror=function(){_backendAvailable=false;cb(false);};
+  x.send();
+}
+
+function getUsersFromBackend(cb){
+  var x=new XMLHttpRequest();
+  x.open('GET',API+'/api/users',true);
+  x.timeout=3000;
+  x.onreadystatechange=function(){
+    if(x.readyState!==4)return;
+    try{
+      var data=JSON.parse(x.responseText);
+      var merged=mergeAdmin(data);
+      saveUsersLocal(merged); /* keep local in sync */
+      cb(merged);
+    }catch(e){cb(getUsersLocal());}
+  };
+  x.ontimeout=function(){cb(getUsersLocal());};
+  x.onerror=function(){cb(getUsersLocal());};
+  x.send();
+}
+
+function saveUsersToBackend(users,cb){
+  var x=new XMLHttpRequest();
+  x.open('POST',API+'/api/users',true);
+  x.setRequestHeader('Content-Type','application/json');
+  x.timeout=3000;
+  x.onreadystatechange=function(){if(x.readyState===4&&cb)cb(x.status===200||x.status===201);};
+  x.ontimeout=function(){if(cb)cb(false);};
+  x.onerror=function(){if(cb)cb(false);};
+  x.send(JSON.stringify(users));
+}
+
+/* ── Public API used throughout the app ── */
+function getUsers(){
+  /* Always return sync result from localStorage (merged with admin) */
+  return getUsersLocal();
+}
+
+function saveUsers(users){
+  var merged=mergeAdmin(users);
+  saveUsersLocal(merged);
+  /* Also try to push to backend if available */
+  checkBackend(function(ok){
+    if(ok)saveUsersToBackend(merged,null);
+  });
+}
+
+/* ── On startup: pull from backend if available, sync to local ── */
+function initUsers(cb){
+  checkBackend(function(ok){
+    if(ok){
+      getUsersFromBackend(function(users){
+        saveUsersLocal(users);
+        if(cb)cb(users);
+      });
+    }else{
+      if(cb)cb(getUsersLocal());
+    }
+  });
+}
+
+/* ── Session ── */
 function getSession(){
   try{
     var raw=localStorage.getItem(AUTH_SESSION_KEY);
@@ -876,7 +1052,11 @@ function getSession(){
 }
 
 function setSession(user){
-  var s={id:user.id,username:user.username,name:user.name,role:user.role,email:user.email};
+  var s={
+    id:user.id,username:user.username,
+    name:user.name,role:user.role,
+    email:user.email,email2:user.email2||''
+  };
   localStorage.setItem(AUTH_SESSION_KEY,JSON.stringify(s));
   return s;
 }
@@ -910,14 +1090,14 @@ function doLogin(){
   var found=null;
   for(var i=0;i<users.length;i++){
     var usr=users[i];
-    if((usr.username.toLowerCase()===u||usr.email.toLowerCase()===u)&&usr.password===p){
-      found=usr;break;
-    }
+    var matchId=(usr.username||'').toLowerCase()===u
+             ||(usr.email||'').toLowerCase()===u
+             ||(usr.email2||'').toLowerCase()===u;
+    if(matchId&&usr.password===p){found=usr;break;}
   }
   if(!found){
     err.textContent='Invalid username or password. Access denied.';
     err.classList.add('on');
-    /* shake animation */
     var card=document.querySelector('.login-card');
     card.style.animation='none';
     setTimeout(function(){card.style.animation='shake 0.4s ease';},10);
@@ -1004,44 +1184,189 @@ function selectRole(role){
   }
 }
 
+/* ── Field error helpers ── */
+function cuSetErr(fieldId,inputId,msg){
+  var f=document.getElementById(fieldId);
+  var inp=document.getElementById(inputId);
+  var errEl=document.getElementById('cu-err-'+inputId.replace('cu-',''));
+  if(f)f.querySelector('.fi')&&f.querySelector('.fi').classList.add('field-error');
+  if(inp)inp.classList.add('field-error');
+  if(errEl)errEl.textContent=msg;
+}
+function cuClearErr(fieldId){
+  var f=document.getElementById(fieldId);
+  if(!f)return;
+  var inp=f.querySelector('.fi');
+  if(inp)inp.classList.remove('field-error');
+  var e=f.querySelector('.cu-field-err');
+  if(e)e.textContent='';
+  /* Hide global error banner if all fields clean */
+  var anyErr=document.querySelector('.cu-field .fi.field-error');
+  if(!anyErr){var b=document.getElementById('cu-err');if(b)b.style.display='none';}
+}
+function cuShowBanner(msg){
+  var b=document.getElementById('cu-err');
+  var m=document.getElementById('cu-err-msg');
+  if(b&&m){m.textContent=msg;b.style.display='flex';}
+}
+function cuTogglePass(){
+  var inp=document.getElementById('cu-pass');
+  if(!inp)return;
+  inp.type=inp.type==='password'?'text':'password';
+}
+function cuReset(){
+  ['cu-name','cu-uname','cu-email','cu-pass'].forEach(function(id){
+    var el=document.getElementById(id);if(el){el.value='';el.classList.remove('field-error');}
+  });
+  document.querySelectorAll('.cu-field-err').forEach(function(e){e.textContent='';});
+  var b=document.getElementById('cu-err');if(b)b.style.display='none';
+  var s=document.getElementById('cu-success');if(s)s.style.display='none';
+}
+
 function createUser(){
   var name=(document.getElementById('cu-name').value||'').trim();
   var uname=(document.getElementById('cu-uname').value||'').trim();
   var email=(document.getElementById('cu-email').value||'').trim();
   var pass=(document.getElementById('cu-pass').value||'').trim();
-  var msg=document.getElementById('cu-msg');
-  if(!name||!uname||!pass){msg.style.color='#ef4444';msg.textContent='Name, username and password are required.';return;}
+
+  /* Reset all errors first */
+  cuReset();
+  document.getElementById('cu-success').style.display='none';
+
+  /* Validate all required fields */
+  var valid=true;
+  if(!name){cuSetErr('cu-field-name','cu-name','Full name is required');valid=false;}
+  if(!uname){cuSetErr('cu-field-uname','cu-uname','Username is required');valid=false;}
+  else if(uname.length<3){cuSetErr('cu-field-uname','cu-uname','Minimum 3 characters');valid=false;}
+  if(!email){cuSetErr('cu-field-email','cu-email','Email is required');valid=false;}
+  else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){cuSetErr('cu-field-email','cu-email','Enter a valid email address');valid=false;}
+  if(!pass){cuSetErr('cu-field-pass','cu-pass','Password is required');valid=false;}
+  else if(pass.length<4){cuSetErr('cu-field-pass','cu-pass','Minimum 4 characters');valid=false;}
+
+  if(!valid){
+    cuShowBanner('Please fill all required fields correctly before creating the user.');
+    /* Shake the form */
+    var fw=document.getElementById('cu-form-wrap');
+    if(fw){fw.style.animation='none';setTimeout(function(){fw.style.animation='shake 0.4s ease';},10);}
+    return;
+  }
+
+  /* Check duplicate username or email */
   var users=getUsers();
   for(var i=0;i<users.length;i++){
-    if(users[i].username.toLowerCase()===uname.toLowerCase()){
-      msg.style.color='#ef4444';msg.textContent='Username already exists.';return;
+    if((users[i].username||'').toLowerCase()===uname.toLowerCase()){
+      cuSetErr('cu-field-uname','cu-uname','Username already exists');
+      cuShowBanner('This username is already taken. Choose a different one.');
+      return;
+    }
+    if((users[i].email||'').toLowerCase()===email.toLowerCase()){
+      cuSetErr('cu-field-email','cu-email','Email already registered');
+      cuShowBanner('This email is already registered to another user.');
+      return;
     }
   }
+
+  /* Create and immediately save */
   var newUser={
     id:'u_'+Date.now(),
     username:uname,
-    email:email||'',
+    email:email,
+    email2:'',
     name:name,
     password:pass,
     role:selectedRole,
-    created:new Date().toISOString()
+    created:new Date().toISOString(),
+    isBuiltIn:false
   };
   users.push(newUser);
-  saveUsers(users);
-  document.getElementById('cu-name').value='';
-  document.getElementById('cu-uname').value='';
-  document.getElementById('cu-email').value='';
-  document.getElementById('cu-pass').value='';
-  msg.style.color='var(--cy)';
-  msg.textContent='User "'+uname+'" created successfully!';
-  setTimeout(function(){msg.textContent='';},3000);
+  saveUsers(users); /* saves to localStorage AND backend — user can login IMMEDIATELY */
+
+  /* Show success */
+  var s=document.getElementById('cu-success');
+  var sm=document.getElementById('cu-success-msg');
+  if(s&&sm){sm.textContent='User "'+uname+'" created — they can log in now!';s.style.display='flex';}
+  setTimeout(function(){var s2=document.getElementById('cu-success');if(s2)s2.style.display='none';},4000);
+
+  /* Clear form */
+  ['cu-name','cu-uname','cu-email','cu-pass'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+
   renderUserList();
-  showToast('User '+uname+' created');
+  showToast('✓ User '+uname+' created — login enabled immediately');
+}
+
+function viewUser(id){
+  var users=getUsers();
+  var u=null;
+  for(var i=0;i<users.length;i++){if(users[i].id===id){u=users[i];break;}}
+  if(!u)return;
+
+  /* Avatar */
+  var av=document.getElementById('ud-av');
+  if(av){
+    av.textContent=(u.name||u.username).substring(0,2).toUpperCase();
+    av.className='um-av '+u.role;
+    av.style.width='52px';av.style.height='52px';av.style.fontSize='16px';
+    av.style.borderRadius='50%';av.style.display='flex';av.style.alignItems='center';
+    av.style.justifyContent='center';av.style.fontFamily="'JetBrains Mono',monospace";
+    av.style.fontWeight='700';av.style.color='#000';av.style.flexShrink='0';
+  }
+  setEl('ud-name',u.name||u.username);
+
+  var roleLabels={admin:'Administrator · Full Control',editor:'Editor · Can add/edit content',viewer:'Viewer · Read-only access'};
+  setEl('ud-role-line',(roleLabels[u.role]||u.role).toUpperCase());
+
+  var p=PERMS[u.role]||{};
+  var fields=document.getElementById('ud-fields');
+  if(fields){
+    var maskPass='';for(var k=0;k<(u.password||'').length;k++)maskPass+='•';
+    fields.innerHTML=
+      udRow('👤','Full Name',esc(u.name),'')
+      +udRow('🔖','Username','@'+esc(u.username),'mono')
+      +udRow('📧','Primary Email',esc(u.email)||'—','mono')
+      +(u.email2?udRow('📧','Secondary Email',esc(u.email2),'mono'):'')
+      +udRow('🔑','Password','<span style="letter-spacing:2px">'+maskPass+'</span> &nbsp;<span style="font-size:10px;color:var(--dm)">('+((u.password||'').length)+' chars)</span>','mono')
+      +udRow('🛡️','Role','<span class="um-role-badge '+u.role+'">'+u.role+'</span>','')
+      +udRow('📅','Created',new Date(u.created||Date.now()).toLocaleString(),'mono')
+      +(u.isBuiltIn?udRow('🔒','Account Type','Built-in Administrator · Cannot be deleted or demoted',''):'');
+  }
+
+  /* Permissions */
+  var pd=document.getElementById('ud-perms');
+  if(pd){
+    var allPerms=[
+      {key:'canView',label:'View Content'},
+      {key:'canAddChannels',label:'Add/Edit Channels'},
+      {key:'canAddKeywords',label:'Add/Edit Keywords'},
+      {key:'canUseGeocode',label:'Geocoder'},
+      {key:'canManageUsers',label:'Manage Users'}
+    ];
+    var ph='';
+    allPerms.forEach(function(pm){
+      var has=!!p[pm.key];
+      ph+='<span class="ud-perm-tag '+(has?'ud-perm-yes':'ud-perm-no')+'">'+
+          (has?'✓ ':'✗ ')+pm.label+'</span>';
+    });
+    pd.innerHTML=ph;
+  }
+
+  openM('m-user-detail');
+}
+
+function udRow(ico,label,val,valClass){
+  return '<div class="ud-row">'
+    +'<div class="ud-row-ico">'+ico+'</div>'
+    +'<div class="ud-row-body">'
+      +'<div class="ud-row-label">'+label+'</div>'
+      +'<div class="ud-row-val'+(valClass?' '+valClass:'')+'">'+val+'</div>'
+    +'</div></div>';
 }
 
 function deleteUser(id){
-  if(!confirm('Delete this user?'))return;
   var users=getUsers();
+  for(var i=0;i<users.length;i++){if(users[i].id===id&&users[i].isBuiltIn){showToast('Cannot delete the built-in admin');return;}}
+  if(!confirm('Delete this user? They will lose access immediately.'))return;
   users=users.filter(function(u){return u.id!==id;});
   saveUsers(users);
   renderUserList();
@@ -1062,32 +1387,48 @@ function renderUserList(){
   var el=document.getElementById('um-list');
   if(!el)return;
   var users=getUsers();
+  var countEl=document.getElementById('um-count');
+  if(countEl)countEl.textContent=users.length;
   if(!users.length){el.innerHTML='<div class="empty"><div class="emptylbl">NO USERS</div></div>';return;}
-  var roleIco={admin:'🔴',editor:'✏️',viewer:'👁️'};
   var h='';
   users.forEach(function(u){
     var isMe=(currentUser&&u.id===currentUser.id);
-    var permStr='';
+    var isBuiltIn=u.isBuiltIn;
     var p=PERMS[u.role]||{};
+    var permStr='';
     if(p.canAddChannels)permStr+='<span class="um-perm-tag">Channels</span>';
     if(p.canAddKeywords)permStr+='<span class="um-perm-tag">Keywords</span>';
     if(p.canUseGeocode)permStr+='<span class="um-perm-tag">Geocoder</span>';
-    if(!p.canAddChannels&&!p.canAddKeywords)permStr+='<span class="um-perm-tag" style="color:var(--dm)">View Only</span>';
-    var roleOptions='<select onchange="changeUserRole(\''+u.id+'\',this.value)" style="background:var(--card);border:1px solid var(--b1);border-radius:6px;padding:4px 8px;color:var(--tx);font-size:12px;font-family:inherit;cursor:pointer"'+(isMe?' disabled':'')+'>'+
+    if(p.canManageUsers)permStr+='<span class="um-perm-tag" style="color:#ef4444;border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.07)">Admin</span>';
+    if(!p.canAddChannels&&!p.canAddKeywords&&!p.canManageUsers)permStr+='<span class="um-perm-tag" style="color:var(--dm)">View Only</span>';
+    var emailInfo=esc(u.email||'—');
+    if(u.email2)emailInfo+=' <span style="color:var(--dm);font-size:9px">+1 more</span>';
+    var roleOptions='<select onchange="changeUserRole(\''+u.id+'\',this.value)" style="background:var(--card);border:1px solid var(--b1);border-radius:6px;padding:4px 8px;color:var(--tx);font-size:12px;font-family:inherit;cursor:pointer"'+(isBuiltIn?' disabled title="Built-in admin cannot be changed"':'')+'>'+
       '<option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option>'+
       '<option value="editor"'+(u.role==='editor'?' selected':'')+'>Editor</option>'+
       '<option value="viewer"'+(u.role==='viewer'?' selected':'')+'>Viewer</option>'+
       '</select>';
+    var deleteBtn=isBuiltIn
+      ?'<span title="Built-in admin" style="font-size:13px;padding:4px 6px">🔒</span>'
+      :'<button class="icb del" onclick="deleteUser(\''+u.id+'\')" title="Delete user"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>';
     h+='<div class="um-card">'
       +'<div class="um-av '+u.role+'">'+(u.name||u.username).substring(0,2).toUpperCase()+'</div>'
-      +'<div class="um-info">'
-        +'<div class="um-name">'+esc(u.name)+(isMe?' <span style="font-size:10px;color:var(--cy)">(you)</span>':'')+' <span class="um-role-badge '+u.role+'">'+u.role+'</span></div>'
-        +'<div class="um-uname">@'+esc(u.username)+(u.email?' · '+esc(u.email):'')+' · Created: '+new Date(u.created).toLocaleDateString()+'</div>'
-        +'<div class="um-perms">'+permStr+'</div>'
+      +'<div class="um-info" style="flex:1;min-width:0">'
+        +'<div class="um-name">'+esc(u.name||u.username)
+          +(isMe?' <span style="font-size:10px;color:var(--cy)">(you)</span>':'')
+          +(isBuiltIn?' <span style="font-size:9px;color:var(--dm);font-family:JetBrains Mono,monospace;opacity:.7">BUILT-IN</span>':'')
+          +' <span class="um-role-badge '+u.role+'">'+u.role+'</span>'
+        +'</div>'
+        +'<div class="um-uname" style="margin-top:2px">@'+esc(u.username)+' &nbsp;·&nbsp; '+emailInfo+'</div>'
+        +'<div class="um-perms" style="margin-top:4px">'+permStr+'</div>'
       +'</div>'
-      +'<div class="um-acts">'
+      +'<div class="um-acts" style="display:flex;gap:5px;align-items:center;flex-shrink:0">'
+        +'<button class="btn" onclick="viewUser(\''+u.id+'\')" style="padding:6px 11px;font-size:12px" title="View user details">'
+          +'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+          +' View'
+        +'</button>'
         +roleOptions
-        +(isMe?'':('<button class="icb del" onclick="deleteUser(\''+u.id+'\')" title="Delete user"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>'))
+        +deleteBtn
       +'</div>'
       +'</div>';
   });
@@ -1164,7 +1505,12 @@ document.addEventListener('DOMContentLoaded',function(){
   if(session){
     currentUser=session;
     document.getElementById('login-overlay').classList.add('hidden');
+    /* Re-sync users from backend in background */
+    initUsers(null);
     onLoginSuccess();
+  }else{
+    /* Pre-load users in background so login is instant */
+    initUsers(null);
   }
   /* Otherwise show login overlay (already visible by default) */
 });
