@@ -2621,8 +2621,8 @@ function hlText(text){
 }
 function fmtDate(d){if(!d)return'';try{return new Date(d).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}catch(e){return String(d);}}
 function emptyEl(lbl){return'<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg><div class="emptylbl">'+lbl+'</div></div>';}
-</script>
-  // Disable right-click
+
+ // Disable right-click
 document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
 
 // Disable F12, Ctrl+Shift+I, Ctrl+U
@@ -2644,5 +2644,6 @@ setInterval(function(){
     document.body.innerHTML = '<h2 style="text-align:center;margin-top:40vh;color:red">Access Restricted</h2>';
   }
 }, 1000);
+</script>
 </body>
 </html>
