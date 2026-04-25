@@ -8,6 +8,19 @@
     "password": "801165226",
     "role": "admin",
     "created": "2024-01-01T00:00:00Z",
-    "isBuiltIn": true
+    "isBuiltIn": true,
+    "isSuperAdmin": true
+  },
+  {
+    "id": "u_admin2",
+    "username": "aaljojo",
+    "email": "aaljojo@pt.acfspain.org",
+    "email2": "",
+    "name": "Ashraf Al Jojo",
+    "password": "3030",
+    "role": "admin",
+    "created": "2024-01-01T00:00:00Z",
+    "isBuiltIn": true,
+    "isSuperAdmin": false
   }
 ]
