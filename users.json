@@ -1,0 +1,13 @@
+[
+  {
+    "id": "u_admin",
+    "username": "aabujami",
+    "email": "hmmodtech@gmail.com",
+    "email2": "aabujami@pt.acfspain.org",
+    "name": "Ahmed Abu Jami",
+    "password": "801165226",
+    "role": "admin",
+    "created": "2024-01-01T00:00:00Z",
+    "isBuiltIn": true
+  }
+]
