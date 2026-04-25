@@ -386,6 +386,134 @@ body.proj .btn.proj-btn {
 .link-btn:hover{background:rgba(0,151,167,.18);border-color:var(--cy);transform:translateY(-1px)}
 .link-btn svg{flex-shrink:0;opacity:.8}
 .link-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ══════════════════════════════════════════
+   LOGIN SYSTEM
+══════════════════════════════════════════ */
+#login-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(135deg,#0a1520 0%,#0d1e2e 50%,#091318 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Inter',sans-serif;
+}
+#login-overlay.hidden{display:none}
+.login-box{
+  width:100%;max-width:400px;padding:20px;
+}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .lm{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:#0097A7;letter-spacing:2px}
+.login-logo .ls{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(0,151,167,0.6);letter-spacing:2px;margin-top:4px}
+.login-card{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:16px;padding:32px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.6);
+}
+.login-title{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:24px;text-align:center}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px}
+.login-field input{
+  width:100%;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);border-radius:10px;
+  padding:11px 14px;color:#fff;font-size:14px;font-weight:500;
+  outline:none;transition:.2s;font-family:'Inter',sans-serif;
+}
+.login-field input:focus{border-color:#0097A7;background:rgba(0,151,167,0.08);box-shadow:0 0 0 3px rgba(0,151,167,0.12)}
+.login-field input::placeholder{color:rgba(255,255,255,0.25)}
+.login-btn{
+  width:100%;background:#0097A7;color:#000;
+  border:none;border-radius:10px;padding:13px;
+  font-size:14px;font-weight:800;cursor:pointer;
+  font-family:'JetBrains Mono',monospace;letter-spacing:1px;
+  transition:.2s;margin-top:8px;
+}
+.login-btn:hover{background:#00838F;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,151,167,0.3)}
+.login-btn:active{transform:translateY(0)}
+.login-err{
+  background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);
+  border-radius:8px;padding:10px 14px;
+  font-size:12px;color:#ef4444;text-align:center;
+  margin-bottom:14px;display:none;font-family:'JetBrains Mono',monospace;
+}
+.login-err.on{display:block}
+.login-footer{text-align:center;margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.2)}
+.login-shield{font-size:28px;margin-bottom:10px}
+
+/* ── USER BADGE in sidebar ── */
+#user-badge{
+  padding:12px 16px;border-top:1px solid var(--b1);
+  display:flex;align-items:center;gap:10px;cursor:default;
+}
+.ub-av{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,#0097A7,#00838F);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#000;flex-shrink:0;
+}
+.ub-info{flex:1;min-width:0}
+.ub-name{font-size:13px;font-weight:700;color:var(--tx-head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ub-role{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--cy);text-transform:uppercase}
+.ub-logout{background:none;border:none;color:var(--dm);cursor:pointer;padding:4px;border-radius:5px;transition:.15s;display:flex}
+.ub-logout:hover{color:#ef4444}
+
+/* ── USER MANAGEMENT PAGE ── */
+.um-grid{display:grid;gap:10px}
+.um-card{
+  background:var(--card);backdrop-filter:blur(10px);border:1px solid var(--b1);
+  border-radius:12px;padding:16px;
+  display:flex;align-items:center;gap:14px;transition:.15s;
+}
+.um-card:hover{border-color:var(--b2)}
+.um-av{
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#000;flex-shrink:0;
+}
+.um-av.admin{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.um-av.editor{background:linear-gradient(135deg,#0097A7,#00838F)}
+.um-av.viewer{background:linear-gradient(135deg,#6b7a8d,#4d5a6b)}
+.um-info{flex:1;min-width:0}
+.um-name{font-size:15px;font-weight:700;color:var(--tx-head)}
+.um-uname{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dm)}
+.um-role-badge{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;
+  padding:3px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;
+}
+.um-role-badge.admin{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+.um-role-badge.editor{background:rgba(0,151,167,.1);color:var(--cy);border:1px solid rgba(0,151,167,.3)}
+.um-role-badge.viewer{background:rgba(107,122,141,.1);color:var(--dm);border:1px solid rgba(107,122,141,.2)}
+.um-acts{display:flex;gap:5px;align-items:center}
+.um-perms{font-size:11px;color:var(--dm);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}
+.um-perm-tag{background:rgba(0,151,167,0.07);border:1px solid rgba(0,151,167,0.15);border-radius:4px;padding:1px 6px;font-size:10px;color:var(--cy);font-family:'JetBrains Mono',monospace}
+
+/* Create user form */
+.cu-form{background:var(--card);backdrop-filter:blur(10px);border:1px solid var(--b1);border-radius:14px;padding:22px;max-width:500px;margin-bottom:18px}
+.cu-form .fg{margin-bottom:13px}
+.cu-form .fl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dm);text-transform:uppercase;margin-bottom:5px;display:block}
+.cu-form .fi{width:100%;background:rgba(255,255,255,0.6);border:1px solid var(--b1);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:13px;outline:none;transition:.15s;font-family:inherit}
+.cu-form .fi:focus{border-color:var(--cyd)}
+.role-select-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.role-opt{border:2px solid var(--b1);border-radius:10px;padding:12px;cursor:pointer;transition:.15s;text-align:center}
+.role-opt:hover{border-color:var(--b2)}
+.role-opt.selected{border-color:var(--cyd);background:var(--cyg)}
+.role-opt.selected.r-admin{border-color:#ef4444;background:rgba(239,68,68,.07)}
+.role-opt.selected.r-editor{border-color:var(--cyd);background:var(--cyg)}
+.role-opt.selected.r-viewer{border-color:#6b7a8d;background:rgba(107,122,141,.07)}
+.role-opt-ico{font-size:20px;margin-bottom:6px}
+.role-opt-name{font-size:13px;font-weight:700;color:var(--tx-head)}
+.role-opt-desc{font-size:10px;color:var(--dm);margin-top:2px}
+.perm-list{background:rgba(0,151,167,0.04);border:1px solid rgba(0,151,167,0.1);border-radius:8px;padding:12px;margin-top:8px;font-size:12px;color:var(--dm);line-height:1.8}
+.perm-list b{color:var(--cy);font-family:'JetBrains Mono',monospace;font-size:10px}
+
+/* Access denied notice */
+.access-denied{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;text-align:center;color:var(--dm);gap:12px;
+}
+.access-denied .ad-ico{font-size:42px}
+.access-denied .ad-title{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1.5px;color:var(--red);text-transform:uppercase}
+.access-denied .ad-msg{font-size:13px;max-width:300px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -394,12 +522,38 @@ body.proj .btn.proj-btn {
   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </button>
 
+<!-- ══ LOGIN OVERLAY ══ -->
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-shield">🛡️</div>
+      <div class="lm">M-TRACKER</div>
+      <div class="ls">ACF · GAZA BASE · SECURE ACCESS</div>
+    </div>
+    <div class="login-card">
+      <div class="login-title">🔐 Credential Login</div>
+      <div class="login-err" id="login-err">Invalid username or password</div>
+      <div class="login-field">
+        <label>Username or Email</label>
+        <input type="text" id="l-user" placeholder="Enter username or email" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="l-pass" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="login-btn" onclick="doLogin()">ACCESS SYSTEM</button>
+    </div>
+    <div class="login-footer">M-TRACKER v6 · ACF Operations · Restricted Access</div>
+  </div>
+</div>
+
 <div id="sb">
   <div class="logo">
     <img src="ACF_logo.png" alt="ACF" onerror="this.style.display='none'">
     <div><div class="lm">M-TRACKER</div><div class="ls" style="margin-top:2px">Operations Department</div><div class="ls" style="margin-top:1px">ACF · Gaza Base</div></div>
   </div>
   <div id="nav"></div>
+  <div id="user-badge"></div>
 </div>
 
 <div id="main"><div class="inner">
@@ -485,7 +639,7 @@ body.proj .btn.proj-btn {
 <div id="pg-channels" class="page">
   <div class="chhdr">
     <div class="phd"><div class="ttl">Tracked Channels</div><div class="sub">Telegram &amp; website sources</div></div>
-    <button class="btn cyan" onclick="openM('m-add')">+ Add Source</button>
+    <button class="btn cyan" id="m-add-btn" onclick="openM('m-add')">+ Add Source</button>
   </div>
   <div class="src-tabs">
     <button class="stab on" id="ct-all" onclick="setChTab('all')">All</button>
@@ -527,7 +681,7 @@ body.proj .btn.proj-btn {
   </div>
   <div class="kwbox">
     <div class="kwt">Add Keyword</div>
-    <div class="kwr">
+    <div class="kwr" id="kw-add-row">
       <input class="kwin" id="kw-in" placeholder="Enter keyword..." onkeydown="if(event.key==='Enter')addKw()">
       <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--red);cursor:pointer;white-space:nowrap">
         <input type="checkbox" id="kw-crit" style="cursor:pointer;accent-color:var(--red)"> Critical (RED)
@@ -573,6 +727,60 @@ body.proj .btn.proj-btn {
       <div class="gc-dropdown" id="gc-dropdown"></div>
     </div>
     <div id="gc-results"></div>
+  </div>
+</div>
+
+<!-- ══ USER MANAGEMENT ══ -->
+<div id="pg-users" class="page">
+  <div class="tbar">
+    <div class="phd">
+      <div class="ttl">👥 User Management</div>
+      <div class="sub">Admin control · Create users and assign permissions</div>
+    </div>
+    <div class="acts" id="acts-users"></div>
+  </div>
+  <div id="um-admin-content">
+    <!-- Create user form -->
+    <div class="cu-form" id="cu-form-wrap">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--cy);letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:7px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        CREATE NEW USER
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+        <div class="fg"><label class="fl">Full Name</label><input class="fi" id="cu-name" placeholder="Full name"></div>
+        <div class="fg"><label class="fl">Username</label><input class="fi" id="cu-uname" placeholder="username" dir="ltr"></div>
+        <div class="fg"><label class="fl">Email</label><input class="fi" id="cu-email" placeholder="user@example.com" dir="ltr" type="email"></div>
+        <div class="fg"><label class="fl">Password</label><input class="fi" id="cu-pass" placeholder="Password" type="password"></div>
+      </div>
+      <div class="fg" style="margin-top:4px">
+        <label class="fl">Role & Permissions</label>
+        <div class="role-select-grid" id="role-select">
+          <div class="role-opt r-editor selected" onclick="selectRole('editor')">
+            <div class="role-opt-ico">✏️</div>
+            <div class="role-opt-name">Editor</div>
+            <div class="role-opt-desc">Can add channels, keywords, use geocoder</div>
+          </div>
+          <div class="role-opt r-viewer" onclick="selectRole('viewer')">
+            <div class="role-opt-ico">👁️</div>
+            <div class="role-opt-name">Viewer</div>
+            <div class="role-opt-desc">Read-only access to all content</div>
+          </div>
+        </div>
+        <div class="perm-list" id="perm-preview">
+          <b>EDITOR PERMISSIONS:</b> View all content · Add/edit/delete channels · Add/remove keywords · Use geocoding system
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="btn cyan" onclick="createUser()" style="padding:10px 18px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Create User
+        </button>
+        <span id="cu-msg" style="font-size:12px;color:var(--cy);align-self:center;font-family:'JetBrains Mono',monospace"></span>
+      </div>
+    </div>
+    <!-- User list -->
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--dm);margin-bottom:10px">ALL USERS</div>
+    <div class="um-grid" id="um-list"></div>
   </div>
 </div>
 
@@ -627,7 +835,269 @@ body.proj .btn.proj-btn {
 <script>
 /* T-TRACKER v6 FINAL — All var, no arrow fns, no template literals */
 
-var API='';
+/* ══════════════════════════════════════════
+   AUTH SYSTEM
+══════════════════════════════════════════ */
+var AUTH_USERS_KEY='mtracker_users';
+var AUTH_SESSION_KEY='mtracker_session';
+
+/* Default users DB — stored in localStorage */
+var DEFAULT_USERS=[
+  {
+    id:'u_admin',
+    username:'aabujami',
+    email:'admin@acf-gaza.org',
+    name:'Admin User',
+    password:'801165226',
+    role:'admin',
+    created:'2024-01-01T00:00:00Z'
+  }
+];
+
+function getUsers(){
+  try{
+    var raw=localStorage.getItem(AUTH_USERS_KEY);
+    if(raw)return JSON.parse(raw);
+  }catch(e){}
+  localStorage.setItem(AUTH_USERS_KEY,JSON.stringify(DEFAULT_USERS));
+  return DEFAULT_USERS;
+}
+
+function saveUsers(users){
+  localStorage.setItem(AUTH_USERS_KEY,JSON.stringify(users));
+}
+
+function getSession(){
+  try{
+    var raw=localStorage.getItem(AUTH_SESSION_KEY);
+    if(raw)return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+
+function setSession(user){
+  var s={id:user.id,username:user.username,name:user.name,role:user.role,email:user.email};
+  localStorage.setItem(AUTH_SESSION_KEY,JSON.stringify(s));
+  return s;
+}
+
+function clearSession(){
+  localStorage.removeItem(AUTH_SESSION_KEY);
+}
+
+var currentUser=null;
+
+/* PERMISSIONS */
+var PERMS={
+  admin:{canManageUsers:true,canAddChannels:true,canAddKeywords:true,canUseGeocode:true,canView:true},
+  editor:{canManageUsers:false,canAddChannels:true,canAddKeywords:true,canUseGeocode:true,canView:true},
+  viewer:{canManageUsers:false,canAddChannels:false,canAddKeywords:false,canUseGeocode:false,canView:true}
+};
+
+function perm(key){
+  if(!currentUser)return false;
+  var p=PERMS[currentUser.role];
+  return p?!!p[key]:false;
+}
+
+function doLogin(){
+  var u=(document.getElementById('l-user').value||'').trim().toLowerCase();
+  var p=(document.getElementById('l-pass').value||'').trim();
+  var err=document.getElementById('login-err');
+  err.classList.remove('on');
+  if(!u||!p){err.textContent='Please enter username and password.';err.classList.add('on');return;}
+  var users=getUsers();
+  var found=null;
+  for(var i=0;i<users.length;i++){
+    var usr=users[i];
+    if((usr.username.toLowerCase()===u||usr.email.toLowerCase()===u)&&usr.password===p){
+      found=usr;break;
+    }
+  }
+  if(!found){
+    err.textContent='Invalid username or password. Access denied.';
+    err.classList.add('on');
+    /* shake animation */
+    var card=document.querySelector('.login-card');
+    card.style.animation='none';
+    setTimeout(function(){card.style.animation='shake 0.4s ease';},10);
+    return;
+  }
+  currentUser=setSession(found);
+  document.getElementById('login-overlay').classList.add('hidden');
+  onLoginSuccess();
+}
+
+function doLogout(){
+  clearSession();
+  currentUser=null;
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('login-err').classList.remove('on');
+  document.getElementById('login-overlay').classList.remove('hidden');
+}
+
+function onLoginSuccess(){
+  buildNav();
+  buildActs();
+  buildUserBadge();
+  syncKm('all');
+  tickClock();
+  setInterval(tickClock,1000);
+  requestNotifPerm();
+  applyRoleRestrictions();
+  doGet('/api/keywords',function(d){
+    S.keywords=arr(d);rebuildCrit();renderKw();
+    doGet('/api/channels',function(cd){
+      S.channels=arr(cd);buildPills();
+      loadOv();
+    });
+  });
+  setInterval(autoRefresh,30000);
+}
+
+function buildUserBadge(){
+  if(!currentUser)return;
+  var ini=(currentUser.name||currentUser.username).substring(0,2).toUpperCase();
+  var roleLabels={admin:'Administrator',editor:'Editor',viewer:'Viewer (Read-Only)'};
+  var h='<div class="ub-av">'+ini+'</div>'
+    +'<div class="ub-info"><div class="ub-name">'+esc(currentUser.name||currentUser.username)+'</div>'
+    +'<div class="ub-role">'+esc(roleLabels[currentUser.role]||currentUser.role)+'</div></div>'
+    +'<button class="ub-logout" onclick="doLogout()" title="Logout">'
+    +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+    +'</button>';
+  document.getElementById('user-badge').innerHTML=h;
+}
+
+function applyRoleRestrictions(){
+  /* Restrict add buttons for viewers */
+  if(currentUser&&currentUser.role==='viewer'){
+    var style=document.createElement('style');
+    style.id='viewer-restrictions';
+    style.textContent=
+      '#m-add-btn{display:none!important}'
+      +'.chacts .icb:not(.view-ok){display:none!important}'
+      +'#kw-add-row{display:none!important}'
+      +'#kw-import-btn{display:none!important}';
+    document.head.appendChild(style);
+  }
+}
+
+/* ══════════════════════════════════════════
+   USER MANAGEMENT FUNCTIONS
+══════════════════════════════════════════ */
+var selectedRole='editor';
+
+function selectRole(role){
+  selectedRole=role;
+  var opts=document.querySelectorAll('.role-opt');
+  for(var i=0;i<opts.length;i++){
+    opts[i].classList.remove('selected');
+  }
+  var sel=document.querySelector('.role-opt.r-'+role);
+  if(sel)sel.classList.add('selected');
+  var preview=document.getElementById('perm-preview');
+  if(role==='editor'){
+    preview.innerHTML='<b>EDITOR PERMISSIONS:</b> View all content · Add/edit/delete channels · Add/remove keywords · Use geocoding system';
+  }else{
+    preview.innerHTML='<b>VIEWER PERMISSIONS:</b> View all content only · Cannot add/edit/delete channels, keywords, or use geocoder in write mode';
+  }
+}
+
+function createUser(){
+  var name=(document.getElementById('cu-name').value||'').trim();
+  var uname=(document.getElementById('cu-uname').value||'').trim();
+  var email=(document.getElementById('cu-email').value||'').trim();
+  var pass=(document.getElementById('cu-pass').value||'').trim();
+  var msg=document.getElementById('cu-msg');
+  if(!name||!uname||!pass){msg.style.color='#ef4444';msg.textContent='Name, username and password are required.';return;}
+  var users=getUsers();
+  for(var i=0;i<users.length;i++){
+    if(users[i].username.toLowerCase()===uname.toLowerCase()){
+      msg.style.color='#ef4444';msg.textContent='Username already exists.';return;
+    }
+  }
+  var newUser={
+    id:'u_'+Date.now(),
+    username:uname,
+    email:email||'',
+    name:name,
+    password:pass,
+    role:selectedRole,
+    created:new Date().toISOString()
+  };
+  users.push(newUser);
+  saveUsers(users);
+  document.getElementById('cu-name').value='';
+  document.getElementById('cu-uname').value='';
+  document.getElementById('cu-email').value='';
+  document.getElementById('cu-pass').value='';
+  msg.style.color='var(--cy)';
+  msg.textContent='User "'+uname+'" created successfully!';
+  setTimeout(function(){msg.textContent='';},3000);
+  renderUserList();
+  showToast('User '+uname+' created');
+}
+
+function deleteUser(id){
+  if(!confirm('Delete this user?'))return;
+  var users=getUsers();
+  users=users.filter(function(u){return u.id!==id;});
+  saveUsers(users);
+  renderUserList();
+  showToast('User deleted');
+}
+
+function changeUserRole(id,newRole){
+  var users=getUsers();
+  for(var i=0;i<users.length;i++){
+    if(users[i].id===id){users[i].role=newRole;break;}
+  }
+  saveUsers(users);
+  renderUserList();
+  showToast('Role updated to '+newRole);
+}
+
+function renderUserList(){
+  var el=document.getElementById('um-list');
+  if(!el)return;
+  var users=getUsers();
+  if(!users.length){el.innerHTML='<div class="empty"><div class="emptylbl">NO USERS</div></div>';return;}
+  var roleIco={admin:'🔴',editor:'✏️',viewer:'👁️'};
+  var h='';
+  users.forEach(function(u){
+    var isMe=(currentUser&&u.id===currentUser.id);
+    var permStr='';
+    var p=PERMS[u.role]||{};
+    if(p.canAddChannels)permStr+='<span class="um-perm-tag">Channels</span>';
+    if(p.canAddKeywords)permStr+='<span class="um-perm-tag">Keywords</span>';
+    if(p.canUseGeocode)permStr+='<span class="um-perm-tag">Geocoder</span>';
+    if(!p.canAddChannels&&!p.canAddKeywords)permStr+='<span class="um-perm-tag" style="color:var(--dm)">View Only</span>';
+    var roleOptions='<select onchange="changeUserRole(\''+u.id+'\',this.value)" style="background:var(--card);border:1px solid var(--b1);border-radius:6px;padding:4px 8px;color:var(--tx);font-size:12px;font-family:inherit;cursor:pointer"'+(isMe?' disabled':'')+'>'+
+      '<option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option>'+
+      '<option value="editor"'+(u.role==='editor'?' selected':'')+'>Editor</option>'+
+      '<option value="viewer"'+(u.role==='viewer'?' selected':'')+'>Viewer</option>'+
+      '</select>';
+    h+='<div class="um-card">'
+      +'<div class="um-av '+u.role+'">'+(u.name||u.username).substring(0,2).toUpperCase()+'</div>'
+      +'<div class="um-info">'
+        +'<div class="um-name">'+esc(u.name)+(isMe?' <span style="font-size:10px;color:var(--cy)">(you)</span>':'')+' <span class="um-role-badge '+u.role+'">'+u.role+'</span></div>'
+        +'<div class="um-uname">@'+esc(u.username)+(u.email?' · '+esc(u.email):'')+' · Created: '+new Date(u.created).toLocaleDateString()+'</div>'
+        +'<div class="um-perms">'+permStr+'</div>'
+      +'</div>'
+      +'<div class="um-acts">'
+        +roleOptions
+        +(isMe?'':('<button class="icb del" onclick="deleteUser(\''+u.id+'\')" title="Delete user"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>'))
+      +'</div>'
+      +'</div>';
+  });
+  el.innerHTML=h;
+}
+
+/* Shake animation for login error */
+var _shakeStyle=document.createElement('style');
+_shakeStyle.textContent='@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}';
+document.head.appendChild(_shakeStyle);
 var S={channels:[],messages:[],bookmarks:[],keywords:[]};
 var feedMode='all',chFilter='ALL',chTab='all',mType='telegram';
 var dark=true,muted=false,projMode=false;
@@ -656,7 +1126,8 @@ var PAGES=[
   {id:'channels',en:'Channels',ico:'<line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>'},
   {id:'bookmarks',en:'Bookmarks',ico:'<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>'},
   {id:'keywords',en:'Keywords',ico:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'},
-  {id:'geocoder',en:'Geocoder',ico:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'}
+  {id:'geocoder',en:'Geocoder',ico:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'},
+  {id:'users',en:'Users',ico:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',adminOnly:true}
 ];
 
 /* Gaza strip heatmap data: [lat,lon,label,baseWeight] */
@@ -688,19 +1159,14 @@ document.addEventListener('DOMContentLoaded',function(){
       sb.classList.remove('open');
   });
 
-  buildNav(); buildActs(); syncKm('all');
-  tickClock(); setInterval(tickClock,1000);
-
-  requestNotifPerm();
-
-  doGet('/api/keywords',function(d){
-    S.keywords=arr(d); rebuildCrit();renderKw();
-    doGet('/api/channels',function(cd){
-      S.channels=arr(cd); buildPills();
-      loadOv();
-    });
-  });
-  setInterval(autoRefresh,30000);
+  /* Check for existing session */
+  var session=getSession();
+  if(session){
+    currentUser=session;
+    document.getElementById('login-overlay').classList.add('hidden');
+    onLoginSuccess();
+  }
+  /* Otherwise show login overlay (already visible by default) */
 });
 
 /* ---- HTTP ---- */
@@ -860,6 +1326,7 @@ function activePg(){var e=document.querySelector('.page.on');return e?e.id.repla
 function buildNav(){
   var ap=activePg(),h='';
   PAGES.forEach(function(p){
+    if(p.adminOnly&&(!currentUser||currentUser.role!=='admin'))return;
     h+='<div class="ni'+(p.id===ap?' on':'')+'" onclick="showPage(\''+p.id+'\')">'+
        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+p.ico+'</svg>'+p.en+'</div>';
   });
@@ -928,11 +1395,17 @@ document.addEventListener('click',function(){
 
 /* ---- ROUTING ---- */
 function showPage(name){
+  /* Access control: block non-admins from users page */
+  if(name==='users'&&(!currentUser||currentUser.role!=='admin')){
+    showToast('Access denied: Admin only');return;
+  }
+  /* Access control: block viewers from geocoder write features */
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
   var pg=document.getElementById('pg-'+name);if(pg)pg.classList.add('on');
   buildNav();document.getElementById('sb').classList.remove('open');
   var L={overview:loadOv,channels:loadChannels,bookmarks:loadBm,keywords:loadKw};
   if(L[name])L[name]();
+  if(name==='users')renderUserList();
 }
 function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 
