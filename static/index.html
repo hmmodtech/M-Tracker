@@ -969,27 +969,67 @@ var ADMIN_USER={
   password:'801165226',
   role:'admin',
   created:'2024-01-01T00:00:00Z',
-  isBuiltIn:true
+  isBuiltIn:true,
+  isSuperAdmin:true   /* cannot be touched by anyone */
 };
 
-/* ── Merge admin into any user list (ensures admin always exists) ── */
+var ADMIN_USER2={
+  id:'u_admin2',
+  username:'aaljojo',
+  email:'aaljojo@pt.acfspain.org',
+  email2:'',
+  name:'Ashraf Al Jojo',
+  password:'3030',
+  role:'admin',
+  created:'2024-01-01T00:00:00Z',
+  isBuiltIn:true,
+  isSuperAdmin:false  /* only aabujami can edit/delete */
+};
+
+/* helper — can currentUser modify target user? */
+function canModifyUser(targetId){
+  if(!currentUser)return false;
+  var target=null;
+  var users=getUsers();
+  for(var i=0;i<users.length;i++){if(users[i].id===targetId){target=users[i];break;}}
+  if(!target)return true; /* doesn't exist, allow delete */
+  if(target.isSuperAdmin)return false;           /* nobody touches superadmin */
+  if(currentUser.id==='u_admin')return true;     /* superadmin can touch anyone else */
+  if(target.isBuiltIn)return false;              /* other admins can't touch built-in */
+  return currentUser.role==='admin';             /* regular admins can modify non-built-in */
+}
+
+/* ── Merge both built-in admins into any user list ── */
 function mergeAdmin(users){
   var list=users||[];
+
+  /* Ensure superadmin */
   var hasAdmin=false;
   for(var i=0;i<list.length;i++){
-    if(list[i].id===ADMIN_USER.id){
-      /* Always update admin details to latest */
-      list[i].username=ADMIN_USER.username;
-      list[i].email=ADMIN_USER.email;
-      list[i].email2=ADMIN_USER.email2;
-      list[i].name=ADMIN_USER.name;
-      list[i].password=ADMIN_USER.password;
-      list[i].role=ADMIN_USER.role;
-      list[i].isBuiltIn=true;
+    if(list[i].id==='u_admin'){
+      /* Always lock superadmin fields */
+      list[i]=Object.assign({},list[i],ADMIN_USER);
       hasAdmin=true;break;
     }
   }
   if(!hasAdmin)list.unshift(JSON.parse(JSON.stringify(ADMIN_USER)));
+
+  /* Ensure second built-in admin */
+  var hasAdmin2=false;
+  for(var j=0;j<list.length;j++){
+    if(list[j].id==='u_admin2'){
+      /* Preserve any edits made by superadmin — only lock role & isBuiltIn */
+      list[j].isBuiltIn=true;
+      list[j].isSuperAdmin=false;
+      if(!list[j].role)list[j].role='admin';
+      hasAdmin2=true;break;
+    }
+  }
+  if(!hasAdmin2){
+    /* insert after superadmin */
+    list.splice(1,0,JSON.parse(JSON.stringify(ADMIN_USER2)));
+  }
+
   return list;
 }
 
@@ -1421,7 +1461,10 @@ function toggleUserEdit(){
     editBtn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit';
     editBtn.className='btn';
   } else {
-    /* Switch to EDIT mode — pre-fill fields */
+    /* Check permission before entering edit mode */
+    if(!canModifyUser(_viewingUserId)){
+      showToast('You do not have permission to edit this user');return;
+    }
     var users=getUsers();
     var u=null;
     for(var i=0;i<users.length;i++){if(users[i].id===_viewingUserId){u=users[i];break;}}
@@ -1448,6 +1491,9 @@ function toggleUserEdit(){
 }
 
 function saveUserEdit(){
+  if(!canModifyUser(_viewingUserId)){
+    showToast('You do not have permission to edit this user');return;
+  }
   var errEl=document.getElementById('ued-err');
   errEl.style.display='none';
 
@@ -1524,16 +1570,21 @@ function udRow(ico,label,val,valClass){
 }
 
 function deleteUser(id){
-  var users=getUsers();
-  for(var i=0;i<users.length;i++){if(users[i].id===id&&users[i].isBuiltIn){showToast('Cannot delete the built-in admin');return;}}
+  if(!canModifyUser(id)){
+    showToast('You do not have permission to delete this user');return;
+  }
   if(!confirm('Delete this user? They will lose access immediately.'))return;
-  users=users.filter(function(u){return u.id!==id;});
+  var users=getUsers().filter(function(u){return u.id!==id;});
   saveUsers(users);
   renderUserList();
   showToast('User deleted');
 }
 
 function changeUserRole(id,newRole){
+  if(!canModifyUser(id)){
+    showToast('You do not have permission to change this user\'s role');
+    renderUserList();return;
+  }
   var users=getUsers();
   for(var i=0;i<users.length;i++){
     if(users[i].id===id){users[i].role=newRole;break;}
@@ -1563,20 +1614,24 @@ function renderUserList(){
     if(!p.canAddChannels&&!p.canAddKeywords&&!p.canManageUsers)permStr+='<span class="um-perm-tag" style="color:var(--dm)">View Only</span>';
     var emailInfo=esc(u.email||'—');
     if(u.email2)emailInfo+=' <span style="color:var(--dm);font-size:9px">+1 more</span>';
-    var roleOptions='<select onchange="changeUserRole(\''+u.id+'\',this.value)" style="background:var(--card);border:1px solid var(--b1);border-radius:6px;padding:4px 8px;color:var(--tx);font-size:12px;font-family:inherit;cursor:pointer"'+(isBuiltIn?' disabled title="Built-in admin cannot be changed"':'')+'>'+
+    var canMod=canModifyUser(u.id);
+    var roleOptions='<select onchange="changeUserRole(\''+u.id+'\',this.value)" style="background:var(--card);border:1px solid var(--b1);border-radius:6px;padding:4px 8px;color:var(--tx);font-size:12px;font-family:inherit;cursor:pointer"'+(!canMod?' disabled title="You cannot change this user\'s role"':'')+'>'+
       '<option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option>'+
       '<option value="editor"'+(u.role==='editor'?' selected':'')+'>Editor</option>'+
       '<option value="viewer"'+(u.role==='viewer'?' selected':'')+'>Viewer</option>'+
       '</select>';
-    var deleteBtn=isBuiltIn
-      ?'<span title="Built-in admin" style="font-size:13px;padding:4px 6px">🔒</span>'
-      :'<button class="icb del" onclick="deleteUser(\''+u.id+'\')" title="Delete user"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>';
+    var deleteBtn=u.isSuperAdmin
+      ?'<span title="Original superadmin — protected" style="font-size:13px;padding:4px 6px">👑</span>'
+      :(!canMod
+        ?'<span title="You cannot delete this user" style="font-size:13px;padding:4px 6px">🔒</span>'
+        :'<button class="icb del" onclick="deleteUser(\''+u.id+'\')" title="Delete user"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>');
     h+='<div class="um-card">'
       +'<div class="um-av '+u.role+'">'+(u.name||u.username).substring(0,2).toUpperCase()+'</div>'
       +'<div class="um-info" style="flex:1;min-width:0">'
         +'<div class="um-name">'+esc(u.name||u.username)
           +(isMe?' <span style="font-size:10px;color:var(--cy)">(you)</span>':'')
-          +(isBuiltIn?' <span style="font-size:9px;color:var(--dm);font-family:JetBrains Mono,monospace;opacity:.7">BUILT-IN</span>':'')
+          +(u.isSuperAdmin?' <span style="font-size:9px;color:#fbbf24;font-family:JetBrains Mono,monospace">👑 SUPERADMIN</span>'
+            :(isBuiltIn?' <span style="font-size:9px;color:var(--dm);font-family:JetBrains Mono,monospace;opacity:.7">🔒 BUILT-IN</span>':''))
           +' <span class="um-role-badge '+u.role+'">'+u.role+'</span>'
         +'</div>'
         +'<div class="um-uname" style="margin-top:2px">@'+esc(u.username)+' &nbsp;·&nbsp; '+emailInfo+'</div>'
