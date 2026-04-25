@@ -835,22 +835,65 @@ body.proj .btn.proj-btn {
 
 <!-- ══ USER DETAIL MODAL ══ -->
 <div class="ovm" id="m-user-detail">
-  <div class="modal" style="max-width:480px">
+  <div class="modal" style="max-width:500px">
+    <!-- Header -->
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
       <div class="um-av" id="ud-av" style="width:52px;height:52px;font-size:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;color:#000;flex-shrink:0"></div>
-      <div>
+      <div style="flex:1;min-width:0">
         <div style="font-size:16px;font-weight:700;color:var(--tx-head)" id="ud-name"></div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dm);margin-top:2px" id="ud-role-line"></div>
       </div>
-      <button class="cclose" onclick="closeM('m-user-detail')" style="margin-left:auto">×</button>
+      <!-- Edit / View toggle button -->
+      <button id="ud-edit-btn" class="btn" onclick="toggleUserEdit()" style="padding:6px 12px;font-size:12px;display:none">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+      <button class="cclose" onclick="closeM('m-user-detail')" style="margin-left:4px">×</button>
     </div>
-    <div style="display:grid;gap:8px" id="ud-fields"></div>
-    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--b1)">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dm);margin-bottom:8px">PERMISSIONS</div>
-      <div id="ud-perms" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+
+    <!-- VIEW MODE -->
+    <div id="ud-view-mode">
+      <div style="display:grid;gap:8px" id="ud-fields"></div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--b1)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dm);margin-bottom:8px">PERMISSIONS</div>
+        <div id="ud-perms" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div class="mbtns" style="margin-top:16px">
+        <button class="bcan" onclick="closeM('m-user-detail')">Close</button>
+      </div>
     </div>
-    <div class="mbtns" style="margin-top:16px">
-      <button class="bcan" onclick="closeM('m-user-detail')">Close</button>
+
+    <!-- EDIT MODE (hidden by default) -->
+    <div id="ud-edit-mode" style="display:none">
+      <div class="fg"><label class="fl">Full Name</label><input class="fi" id="ued-name" type="text" placeholder="Full name"></div>
+      <div class="fg"><label class="fl">Username</label><input class="fi" id="ued-username" type="text" placeholder="username"></div>
+      <div class="fg"><label class="fl">Primary Email</label><input class="fi" id="ued-email" type="email" placeholder="primary@email.com"></div>
+      <div class="fg"><label class="fl">Secondary Email <span style="opacity:.5">(optional)</span></label><input class="fi" id="ued-email2" type="email" placeholder="secondary@email.com"></div>
+      <div class="fg">
+        <label class="fl">New Password <span style="opacity:.5">(leave blank to keep current)</span></label>
+        <div style="position:relative">
+          <input class="fi" id="ued-pass" type="password" placeholder="Enter new password" style="padding-right:40px">
+          <button onclick="toggleUedPass()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--dm);cursor:pointer;padding:2px;display:flex" title="Show/hide">
+            <svg id="ued-pass-eye" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Role</label>
+        <select class="fi" id="ued-role" style="cursor:pointer">
+          <option value="admin">Admin — Full Control</option>
+          <option value="editor">Editor — Add Channels, Keywords, Geocoder</option>
+          <option value="viewer">Viewer — View Only</option>
+        </select>
+      </div>
+      <div id="ued-err" style="font-size:12px;color:#ef4444;margin-bottom:8px;display:none"></div>
+      <div class="mbtns">
+        <button class="bcan" onclick="toggleUserEdit()">Cancel</button>
+        <button class="bok" onclick="saveUserEdit()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save Changes
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1298,21 +1341,31 @@ function createUser(){
   showToast('✓ User '+uname+' created — login enabled immediately');
 }
 
+var _viewingUserId = null; /* tracks which user is open in the detail modal */
+
 function viewUser(id){
   var users=getUsers();
   var u=null;
   for(var i=0;i<users.length;i++){if(users[i].id===id){u=users[i];break;}}
   if(!u)return;
+  _viewingUserId=id;
+
+  /* Always start in VIEW mode */
+  document.getElementById('ud-view-mode').style.display='';
+  document.getElementById('ud-edit-mode').style.display='none';
+  var editBtn=document.getElementById('ud-edit-btn');
+  if(editBtn){
+    editBtn.style.display='inline-flex';
+    editBtn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit';
+    editBtn.className='btn';
+  }
 
   /* Avatar */
   var av=document.getElementById('ud-av');
   if(av){
     av.textContent=(u.name||u.username).substring(0,2).toUpperCase();
     av.className='um-av '+u.role;
-    av.style.width='52px';av.style.height='52px';av.style.fontSize='16px';
-    av.style.borderRadius='50%';av.style.display='flex';av.style.alignItems='center';
-    av.style.justifyContent='center';av.style.fontFamily="'JetBrains Mono',monospace";
-    av.style.fontWeight='700';av.style.color='#000';av.style.flexShrink='0';
+    av.style.cssText='width:52px;height:52px;font-size:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:JetBrains Mono,monospace;font-weight:700;color:#000;flex-shrink:0';
   }
   setEl('ud-name',u.name||u.username);
 
@@ -1324,9 +1377,9 @@ function viewUser(id){
   if(fields){
     var maskPass='';for(var k=0;k<(u.password||'').length;k++)maskPass+='•';
     fields.innerHTML=
-      udRow('👤','Full Name',esc(u.name),'')
+      udRow('👤','Full Name',esc(u.name||'—'),'')
       +udRow('🔖','Username','@'+esc(u.username),'mono')
-      +udRow('📧','Primary Email',esc(u.email)||'—','mono')
+      +udRow('📧','Primary Email',esc(u.email||'—'),'mono')
       +(u.email2?udRow('📧','Secondary Email',esc(u.email2),'mono'):'')
       +udRow('🔑','Password','<span style="letter-spacing:2px">'+maskPass+'</span> &nbsp;<span style="font-size:10px;color:var(--dm)">('+((u.password||'').length)+' chars)</span>','mono')
       +udRow('🛡️','Role','<span class="um-role-badge '+u.role+'">'+u.role+'</span>','')
@@ -1334,7 +1387,6 @@ function viewUser(id){
       +(u.isBuiltIn?udRow('🔒','Account Type','Built-in Administrator · Cannot be deleted or demoted',''):'');
   }
 
-  /* Permissions */
   var pd=document.getElementById('ud-perms');
   if(pd){
     var allPerms=[
@@ -1354,6 +1406,112 @@ function viewUser(id){
   }
 
   openM('m-user-detail');
+}
+
+function toggleUserEdit(){
+  var viewEl=document.getElementById('ud-view-mode');
+  var editEl=document.getElementById('ud-edit-mode');
+  var editBtn=document.getElementById('ud-edit-btn');
+  var inEditMode=editEl.style.display!=='none';
+
+  if(inEditMode){
+    /* Switch back to VIEW mode */
+    viewEl.style.display='';
+    editEl.style.display='none';
+    editBtn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit';
+    editBtn.className='btn';
+  } else {
+    /* Switch to EDIT mode — pre-fill fields */
+    var users=getUsers();
+    var u=null;
+    for(var i=0;i<users.length;i++){if(users[i].id===_viewingUserId){u=users[i];break;}}
+    if(!u)return;
+
+    document.getElementById('ued-name').value=u.name||'';
+    document.getElementById('ued-username').value=u.username||'';
+    document.getElementById('ued-email').value=u.email||'';
+    document.getElementById('ued-email2').value=u.email2||'';
+    document.getElementById('ued-pass').value='';
+    document.getElementById('ued-role').value=u.role||'viewer';
+
+    /* Lock role dropdown for built-in admin */
+    document.getElementById('ued-role').disabled=!!u.isBuiltIn;
+
+    var errEl=document.getElementById('ued-err');
+    if(errEl)errEl.style.display='none';
+
+    viewEl.style.display='none';
+    editEl.style.display='';
+    editBtn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> View';
+    editBtn.className='btn';
+  }
+}
+
+function saveUserEdit(){
+  var errEl=document.getElementById('ued-err');
+  errEl.style.display='none';
+
+  var name=(document.getElementById('ued-name').value||'').trim();
+  var username=(document.getElementById('ued-username').value||'').trim().toLowerCase();
+  var email=(document.getElementById('ued-email').value||'').trim().toLowerCase();
+  var email2=(document.getElementById('ued-email2').value||'').trim().toLowerCase();
+  var newPass=(document.getElementById('ued-pass').value||'').trim();
+  var role=document.getElementById('ued-role').value;
+
+  /* Validation */
+  if(!name){errEl.textContent='Full name is required.';errEl.style.display='block';return;}
+  if(!username){errEl.textContent='Username is required.';errEl.style.display='block';return;}
+  if(!email){errEl.textContent='Primary email is required.';errEl.style.display='block';return;}
+
+  var users=getUsers();
+
+  /* Check username/email uniqueness */
+  for(var i=0;i<users.length;i++){
+    if(users[i].id===_viewingUserId)continue;
+    if((users[i].username||'').toLowerCase()===username){
+      errEl.textContent='Username already taken by another user.';errEl.style.display='block';return;
+    }
+    if((users[i].email||'').toLowerCase()===email){
+      errEl.textContent='Email already used by another user.';errEl.style.display='block';return;
+    }
+  }
+
+  /* Apply changes */
+  for(var j=0;j<users.length;j++){
+    if(users[j].id===_viewingUserId){
+      users[j].name=name;
+      users[j].username=username;
+      users[j].email=email;
+      users[j].email2=email2||'';
+      if(newPass)users[j].password=newPass;
+      if(!users[j].isBuiltIn)users[j].role=role;
+      break;
+    }
+  }
+
+  saveUsers(users);
+
+  /* If the edited user is the current logged-in user, refresh session */
+  if(currentUser&&currentUser.id===_viewingUserId){
+    for(var k=0;k<users.length;k++){
+      if(users[k].id===_viewingUserId){
+        currentUser=setSession(users[k]);
+        buildUserBadge();
+        break;
+      }
+    }
+  }
+
+  renderUserList();
+  showToast('User updated successfully');
+
+  /* Refresh the view panel with updated data */
+  viewUser(_viewingUserId);
+}
+
+function toggleUedPass(){
+  var inp=document.getElementById('ued-pass');
+  if(inp)inp.type=inp.type==='password'?'text':'password';
 }
 
 function udRow(ico,label,val,valClass){
