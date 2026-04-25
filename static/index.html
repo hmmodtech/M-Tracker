@@ -1051,35 +1051,21 @@ function saveUsersLocal(users){
   localStorage.setItem(AUTH_USERS_KEY,JSON.stringify(users));
 }
 
-/* ── Backend API helpers (saves to server users.json) ── */
-var _backendAvailable=null; /* null=unknown, true/false */
-
-function checkBackend(cb){
-  if(_backendAvailable!==null){cb(_backendAvailable);return;}
-  var x=new XMLHttpRequest();
-  x.open('GET',API+'/api/users',true);
-  x.timeout=2000;
-  x.onreadystatechange=function(){
-    if(x.readyState!==4)return;
-    _backendAvailable=(x.status===200||x.status===201);
-    cb(_backendAvailable);
-  };
-  x.ontimeout=function(){_backendAvailable=false;cb(false);};
-  x.onerror=function(){_backendAvailable=false;cb(false);};
-  x.send();
-}
+/* ── Backend API helpers ── */
 
 function getUsersFromBackend(cb){
   var x=new XMLHttpRequest();
   x.open('GET',API+'/api/users',true);
-  x.timeout=3000;
+  x.timeout=8000;
   x.onreadystatechange=function(){
     if(x.readyState!==4)return;
     try{
-      var data=JSON.parse(x.responseText);
-      var merged=mergeAdmin(data);
-      saveUsersLocal(merged); /* keep local in sync */
-      cb(merged);
+      if(x.status===200){
+        var data=JSON.parse(x.responseText);
+        var merged=mergeAdmin(Array.isArray(data)?data:[]);
+        saveUsersLocal(merged);
+        cb(merged);
+      }else{cb(getUsersLocal());}
     }catch(e){cb(getUsersLocal());}
   };
   x.ontimeout=function(){cb(getUsersLocal());};
@@ -1091,7 +1077,7 @@ function saveUsersToBackend(users,cb){
   var x=new XMLHttpRequest();
   x.open('POST',API+'/api/users',true);
   x.setRequestHeader('Content-Type','application/json');
-  x.timeout=3000;
+  x.timeout=8000;
   x.onreadystatechange=function(){if(x.readyState===4&&cb)cb(x.status===200||x.status===201);};
   x.ontimeout=function(){if(cb)cb(false);};
   x.onerror=function(){if(cb)cb(false);};
@@ -1100,30 +1086,37 @@ function saveUsersToBackend(users,cb){
 
 /* ── Public API used throughout the app ── */
 function getUsers(){
-  /* Always return sync result from localStorage (merged with admin) */
   return getUsersLocal();
 }
 
 function saveUsers(users){
   var merged=mergeAdmin(users);
   saveUsersLocal(merged);
-  /* Also try to push to backend if available */
-  checkBackend(function(ok){
-    if(ok)saveUsersToBackend(merged,null);
+  /* Always attempt to push to backend — no caching, no skipping */
+  saveUsersToBackend(merged,function(ok){
+    if(!ok){
+      /* Retry once after 2s in case of transient failure */
+      setTimeout(function(){saveUsersToBackend(merged,null);},2000);
+    }
   });
 }
 
-/* ── On startup: pull from backend if available, sync to local ── */
+/* ── On startup: pull from backend, merge with local, sync back ── */
 function initUsers(cb){
-  checkBackend(function(ok){
-    if(ok){
-      getUsersFromBackend(function(users){
-        saveUsersLocal(users);
-        if(cb)cb(users);
-      });
-    }else{
-      if(cb)cb(getUsersLocal());
-    }
+  getUsersFromBackend(function(serverUsers){
+    /* Merge: server is source of truth, but keep any local-only users too */
+    var local=getUsersLocal();
+    var merged=mergeAdmin(serverUsers);
+    /* Add any local users not yet on server */
+    local.forEach(function(lu){
+      if(!merged.some(function(mu){return mu.id===lu.id;})){
+        merged.push(lu);
+      }
+    });
+    saveUsersLocal(merged);
+    /* Push merged list back to server so it's complete */
+    saveUsersToBackend(merged,null);
+    if(cb)cb(merged);
   });
 }
 
