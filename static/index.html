@@ -57,7 +57,7 @@ body.sb-collapsed #sb{
 /* Hide text labels and sub-info when collapsed */
 body.sb-collapsed .lm,
 body.sb-collapsed .ls,
-body.sb-collapsed .ni span,
+body.sb-collapsed .ni-label,
 body.sb-collapsed #user-badge .ub-info,
 body.sb-collapsed #user-badge .ub-logout{
   opacity:0;width:0;overflow:hidden;pointer-events:none;
@@ -65,9 +65,31 @@ body.sb-collapsed #user-badge .ub-logout{
 }
 body.sb-collapsed .logo{padding:14px 11px;justify-content:center;}
 body.sb-collapsed .logo img{margin:0;}
-body.sb-collapsed .ni{padding:14px 16px;justify-content:center;}
-body.sb-collapsed .ni svg{opacity:.7}
-body.sb-collapsed .ni.on svg{opacity:1}
+body.sb-collapsed .ni{
+  padding:14px 0;
+  justify-content:center;
+  width:56px;
+  position:relative;
+  border-right:none;
+}
+body.sb-collapsed .ni.on{
+  background:rgba(0,151,167,0.12);
+  border-right:none;
+}
+body.sb-collapsed .ni svg{opacity:.7;width:18px;height:18px;}
+body.sb-collapsed .ni.on svg{opacity:1;}
+/* Tooltip on hover when collapsed */
+body.sb-collapsed .ni{overflow:visible;}
+body.sb-collapsed .ni::after{
+  content:attr(data-label);
+  position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  background:rgba(26,37,53,0.95);color:#fff;
+  font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;
+  padding:5px 10px;border-radius:7px;white-space:nowrap;
+  pointer-events:none;opacity:0;transition:opacity .15s ease;
+  z-index:100;letter-spacing:.5px;
+}
+body.sb-collapsed .ni:hover::after{opacity:1;}
 body.sb-collapsed #user-badge{padding:12px;justify-content:center;}
 /* Toggle button */
 #sb-toggle{
@@ -90,7 +112,8 @@ body.sb-collapsed #sb-toggle svg{transform:rotate(180deg);}
 .lm{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:800;color:var(--cy);letter-spacing:1px;line-height:1.3}
 .ls{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:rgba(0,151,167,0.7);letter-spacing:1.5px;line-height:1.5}
 #nav{padding:8px 0;flex:1;overflow-y:auto}
-.ni{display:flex;align-items:center;gap:9px;padding:14px 16px;cursor:pointer;font-size:15px;color:rgba(61,74,92,0.55);font-weight:700;border-right:2px solid transparent;transition:.15s;user-select:none}
+.ni{display:flex;align-items:center;gap:9px;padding:14px 16px;cursor:pointer;font-size:15px;color:rgba(61,74,92,0.55);font-weight:700;border-right:2px solid transparent;transition:.15s;user-select:none;white-space:nowrap;overflow:hidden}
+.ni-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:opacity .18s ease}
 .ni:hover{color:rgba(61,74,92,0.9);background:rgba(61,74,92,0.04)}
 .ni.on{color:var(--cy);background:rgba(0,151,167,0.08);border-right-color:var(--cy);text-shadow:none}
 .ni svg{width:14px;height:14px;opacity:.5;flex-shrink:0}
@@ -798,6 +821,54 @@ body.proj .btn.proj-btn {
           <div class="color-swatch"        data-accent="green"  style="background:#22c55e" title="Green"          onclick="setAccent('green')"></div>
           <div class="color-swatch"        data-accent="orange" style="background:#f97316" title="Orange"         onclick="setAccent('orange')"></div>
           <div class="color-swatch"        data-accent="rose"   style="background:#f43f5e" title="Rose"           onclick="setAccent('rose')"></div>
+        </div>
+      </div>
+
+      <!-- Background Color -->
+      <div class="sopt-section">
+        <div class="sopt-sec-ttl">🖼️ Background Color</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px" id="bg-swatch-grid">
+          <div class="color-swatch bg-swatch active" data-bg="default" title="Default"  onclick="setBgColor('default')"  style="background:linear-gradient(135deg,#EDF2F7,#E2E8F0);border:2px solid var(--tx-head)"></div>
+          <div class="color-swatch bg-swatch"        data-bg="slate"   title="Slate"    onclick="setBgColor('slate')"    style="background:#1e293b"></div>
+          <div class="color-swatch bg-swatch"        data-bg="navy"    title="Navy"     onclick="setBgColor('navy')"     style="background:#0f172a"></div>
+          <div class="color-swatch bg-swatch"        data-bg="forest"  title="Forest"   onclick="setBgColor('forest')"   style="background:#14532d"></div>
+          <div class="color-swatch bg-swatch"        data-bg="wine"    title="Wine"     onclick="setBgColor('wine')"     style="background:#4c0519"></div>
+          <div class="color-swatch bg-swatch"        data-bg="graphite"title="Graphite" onclick="setBgColor('graphite')" style="background:#27272a"></div>
+          <div class="color-swatch bg-swatch"        data-bg="cream"   title="Cream"    onclick="setBgColor('cream')"    style="background:#fef9f0"></div>
+          <div class="color-swatch bg-swatch"        data-bg="sand"    title="Sand"     onclick="setBgColor('sand')"     style="background:#d4c5a9"></div>
+          <div class="color-swatch bg-swatch"        data-bg="sky"     title="Sky"      onclick="setBgColor('sky')"      style="background:#bfdbfe"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+          <label style="font-size:11px;color:var(--dm);font-family:'JetBrains Mono',monospace;flex-shrink:0">CUSTOM:</label>
+          <input type="color" id="bg-custom-picker" value="#EDF2F7"
+            style="width:36px;height:28px;border:1px solid var(--b1);border-radius:6px;cursor:pointer;background:none;padding:1px"
+            onchange="setBgColorCustom(this.value)" title="Pick any background color">
+          <span id="bg-custom-val" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cy)">#EDF2F7</span>
+          <button onclick="setBgColor('default')" style="margin-left:auto;background:none;border:1px solid var(--b1);border-radius:5px;padding:3px 8px;font-size:11px;color:var(--dm);cursor:pointer">Reset</button>
+        </div>
+      </div>
+
+      <!-- Foreground / Text Color -->
+      <div class="sopt-section">
+        <div class="sopt-sec-ttl">✏️ Text Color</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px" id="fg-swatch-grid">
+          <div class="color-swatch fg-swatch active" data-fg="default" title="Default"    onclick="setFgColor('default')"  style="background:linear-gradient(135deg,#1A2535,#3D4A5C);border:2px solid var(--tx-head)"></div>
+          <div class="color-swatch fg-swatch"        data-fg="white"   title="White"      onclick="setFgColor('white')"    style="background:#ffffff;border:1px solid #ccc"></div>
+          <div class="color-swatch fg-swatch"        data-fg="cream"   title="Cream"      onclick="setFgColor('cream')"    style="background:#fef9f0"></div>
+          <div class="color-swatch fg-swatch"        data-fg="cyan"    title="Cyan"       onclick="setFgColor('cyan')"     style="background:#00FFFF"></div>
+          <div class="color-swatch fg-swatch"        data-fg="yellow"  title="Yellow"     onclick="setFgColor('yellow')"   style="background:#fbbf24"></div>
+          <div class="color-swatch fg-swatch"        data-fg="lime"    title="Lime"       onclick="setFgColor('lime')"     style="background:#84cc16"></div>
+          <div class="color-swatch fg-swatch"        data-fg="silver"  title="Silver"     onclick="setFgColor('silver')"   style="background:#cbd5e1"></div>
+          <div class="color-swatch fg-swatch"        data-fg="rose"    title="Rose"       onclick="setFgColor('rose')"     style="background:#fb7185"></div>
+          <div class="color-swatch fg-swatch"        data-fg="black"   title="Black"      onclick="setFgColor('black')"    style="background:#0f172a"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+          <label style="font-size:11px;color:var(--dm);font-family:'JetBrains Mono',monospace;flex-shrink:0">CUSTOM:</label>
+          <input type="color" id="fg-custom-picker" value="#3D4A5C"
+            style="width:36px;height:28px;border:1px solid var(--b1);border-radius:6px;cursor:pointer;background:none;padding:1px"
+            onchange="setFgColorCustom(this.value)" title="Pick any text color">
+          <span id="fg-custom-val" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cy)">#3D4A5C</span>
+          <button onclick="setFgColor('default')" style="margin-left:auto;background:none;border:1px solid var(--b1);border-radius:5px;padding:3px 8px;font-size:11px;color:var(--dm);cursor:pointer">Reset</button>
         </div>
       </div>
 
@@ -2202,8 +2273,9 @@ function buildNav(){
   var ap=activePg(),h='';
   PAGES.forEach(function(p){
     if(p.adminOnly&&(!currentUser||currentUser.role!=='admin'))return;
-    h+='<div class="ni'+(p.id===ap?' on':'')+'" onclick="showPage(\''+p.id+'\')">'+
-       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+p.ico+'</svg>'+p.en+'</div>';
+    h+='<div class="ni'+(p.id===ap?' on':'')+'" onclick="showPage(\''+p.id+'\')" data-label="'+p.en+'">'+
+       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+p.ico+'</svg>'+
+       '<span class="ni-label">'+p.en+'</span></div>';
   });
   document.getElementById('nav').innerHTML=h;
 }
@@ -2248,6 +2320,10 @@ function loadScreenOptions(){
     if(o.cstyle)setCardStyle(o.cstyle,true);
     if(o.density)setDensity(o.density,true);
     if(o.font){setFeedFont(o.font,true);var sl=document.getElementById('font-slider');if(sl)sl.value=o.font;}
+    if(o.bgPreset)setBgColor(o.bgPreset,true);
+    else if(o.bgCustom)setBgColorCustom(o.bgCustom);
+    if(o.fgPreset)setFgColor(o.fgPreset,true);
+    else if(o.fgCustom)setFgColorCustom(o.fgCustom);
     if(o.dark===false){setTheme(false);var tog=document.getElementById('tog-dark');if(tog)tog.checked=false;}
     if(o.anim===false){setAnimations(false);var ta=document.getElementById('tog-anim');if(ta)ta.checked=false;}
     if(o.focus){setFocusMode(true);var tf=document.getElementById('tog-focus');if(tf)tf.checked=true;}
@@ -2360,6 +2436,79 @@ function setShowClock(on){
   saveSopt();
 }
 
+/* ── Background Color ── */
+var BG_PRESETS={
+  'default':{bg:'#EDF2F7',grad:'linear-gradient(135deg,#EDF2F7 0%,#E8EEF5 50%,#E2E8F0 100%)'},
+  'slate'   :{bg:'#1e293b',grad:'linear-gradient(135deg,#1e293b,#0f172a)'},
+  'navy'    :{bg:'#0f172a',grad:'linear-gradient(135deg,#0f172a,#1e293b)'},
+  'forest'  :{bg:'#14532d',grad:'linear-gradient(135deg,#14532d,#052e16)'},
+  'wine'    :{bg:'#4c0519',grad:'linear-gradient(135deg,#4c0519,#3b0314)'},
+  'graphite':{bg:'#27272a',grad:'linear-gradient(135deg,#27272a,#18181b)'},
+  'cream'   :{bg:'#fef9f0',grad:'linear-gradient(135deg,#fef9f0,#fdf4e3)'},
+  'sand'    :{bg:'#d4c5a9',grad:'linear-gradient(135deg,#d4c5a9,#c8b896)'},
+  'sky'     :{bg:'#bfdbfe',grad:'linear-gradient(135deg,#bfdbfe,#dbeafe)'}
+};
+function setBgColor(name,silent){
+  var preset=BG_PRESETS[name]||BG_PRESETS['default'];
+  document.body.style.backgroundColor=preset.bg;
+  document.body.style.backgroundImage=preset.grad;
+  document.querySelectorAll('.bg-swatch').forEach(function(s){
+    s.classList.toggle('active',s.dataset.bg===name);
+  });
+  var pick=document.getElementById('bg-custom-picker');
+  var val=document.getElementById('bg-custom-val');
+  if(pick)pick.value=preset.bg;
+  if(val)val.textContent=preset.bg;
+  if(!silent){saveSopt();showToast('Background: '+name);}
+  /* save to sopt */
+  try{var o=JSON.parse(localStorage.getItem(SOPT_KEY)||'{}');o.bgPreset=name;o.bgCustom='';localStorage.setItem(SOPT_KEY,JSON.stringify(o));}catch(e){}
+}
+function setBgColorCustom(hex){
+  document.body.style.backgroundColor=hex;
+  document.body.style.backgroundImage='none';
+  document.querySelectorAll('.bg-swatch').forEach(function(s){s.classList.remove('active');});
+  var val=document.getElementById('bg-custom-val');if(val)val.textContent=hex;
+  try{var o=JSON.parse(localStorage.getItem(SOPT_KEY)||'{}');o.bgPreset='';o.bgCustom=hex;localStorage.setItem(SOPT_KEY,JSON.stringify(o));}catch(e){}
+  showToast('Background: '+hex);
+}
+
+/* ── Foreground / Text Color ── */
+var FG_PRESETS={
+  'default':{tx:'#3D4A5C',head:'#1A2535'},
+  'white'  :{tx:'#ffffff',head:'#ffffff'},
+  'cream'  :{tx:'#fef9f0',head:'#fef9f0'},
+  'cyan'   :{tx:'#00e5e5',head:'#00FFFF'},
+  'yellow' :{tx:'#fbbf24',head:'#f59e0b'},
+  'lime'   :{tx:'#84cc16',head:'#65a30d'},
+  'silver' :{tx:'#cbd5e1',head:'#e2e8f0'},
+  'rose'   :{tx:'#fb7185',head:'#f43f5e'},
+  'black'  :{tx:'#0f172a',head:'#000000'}
+};
+function setFgColor(name,silent){
+  var preset=FG_PRESETS[name]||FG_PRESETS['default'];
+  var root=document.documentElement;
+  root.style.setProperty('--tx',preset.tx);
+  root.style.setProperty('--tx-head',preset.head);
+  document.querySelectorAll('.fg-swatch').forEach(function(s){
+    s.classList.toggle('active',s.dataset.fg===name);
+  });
+  var pick=document.getElementById('fg-custom-picker');
+  var val=document.getElementById('fg-custom-val');
+  if(pick)pick.value=preset.tx;
+  if(val)val.textContent=preset.tx;
+  if(!silent){saveSopt();showToast('Text color: '+name);}
+  try{var o=JSON.parse(localStorage.getItem(SOPT_KEY)||'{}');o.fgPreset=name;o.fgCustom='';localStorage.setItem(SOPT_KEY,JSON.stringify(o));}catch(e){}
+}
+function setFgColorCustom(hex){
+  var root=document.documentElement;
+  root.style.setProperty('--tx',hex);
+  root.style.setProperty('--tx-head',hex);
+  document.querySelectorAll('.fg-swatch').forEach(function(s){s.classList.remove('active');});
+  var val=document.getElementById('fg-custom-val');if(val)val.textContent=hex;
+  try{var o=JSON.parse(localStorage.getItem(SOPT_KEY)||'{}');o.fgPreset='';o.fgCustom=hex;localStorage.setItem(SOPT_KEY,JSON.stringify(o));}catch(e){}
+  showToast('Text color: '+hex);
+}
+
 function resetScreenOptions(){
   if(!confirm('Reset all screen options to default?'))return;
   localStorage.removeItem(SOPT_KEY);
@@ -2388,6 +2537,17 @@ function resetScreenOptions(){
   document.querySelectorAll('.density-opt').forEach(function(o){o.classList.toggle('active',o.dataset.density==='default');});
   document.querySelectorAll('.sc').forEach(function(c){c.style.padding='';});
   document.querySelectorAll('.sv').forEach(function(v){v.style.fontSize='';});
+  /* Reset background and text colors */
+  document.body.style.backgroundColor='';
+  document.body.style.backgroundImage='';
+  document.documentElement.style.removeProperty('--tx');
+  document.documentElement.style.removeProperty('--tx-head');
+  document.querySelectorAll('.bg-swatch').forEach(function(s){s.classList.toggle('active',s.dataset.bg==='default');});
+  document.querySelectorAll('.fg-swatch').forEach(function(s){s.classList.toggle('active',s.dataset.fg==='default');});
+  var bgp=document.getElementById('bg-custom-picker');if(bgp)bgp.value='#EDF2F7';
+  var fgp=document.getElementById('fg-custom-picker');if(fgp)fgp.value='#3D4A5C';
+  var bgv=document.getElementById('bg-custom-val');if(bgv)bgv.textContent='#EDF2F7';
+  var fgv=document.getElementById('fg-custom-val');if(fgv)fgv.textContent='#3D4A5C';
   var cc=document.querySelector('.clock-card');if(cc)cc.style.display='';
   if(!dark)setTheme(true);
   showToast('Screen options reset');
