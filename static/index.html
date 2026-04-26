@@ -35,7 +35,56 @@ body{font-family:'Inter',sans-serif;background:var(--bg-solid);background-image:
 body::before{content:'';position:fixed;inset:0;background:linear-gradient(135deg,rgba(237,242,247,0.0) 0%,rgba(226,232,240,0.0) 100%);pointer-events:none;z-index:0}
 #sb,#main{position:relative;z-index:1}
 /* SIDEBAR */
-#sb{width:var(--sb-width);min-width:var(--sb-width);background:rgba(255,255,255,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid var(--b1);display:flex;flex-direction:column;flex-shrink:0;z-index:10}
+/* AUTO-HIDE SIDEBAR */
+#sb{
+  width:var(--sb-width);min-width:var(--sb-width);
+  background:rgba(255,255,255,0.6);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-right:1px solid var(--b1);
+  display:flex;flex-direction:column;flex-shrink:0;z-index:10;
+  /* collapsed state */
+  overflow:hidden;
+  transition:width .28s cubic-bezier(.4,0,.2,1),
+             min-width .28s cubic-bezier(.4,0,.2,1),
+             box-shadow .28s ease,
+             opacity .28s ease;
+}
+/* Collapsed: icon-only rail (56px) */
+body.sb-collapsed #sb{
+  width:56px;min-width:56px;
+  box-shadow:2px 0 18px rgba(0,0,0,.08);
+}
+/* Hide text labels and sub-info when collapsed */
+body.sb-collapsed .lm,
+body.sb-collapsed .ls,
+body.sb-collapsed .ni span,
+body.sb-collapsed #user-badge .ub-info,
+body.sb-collapsed #user-badge .ub-logout{
+  opacity:0;width:0;overflow:hidden;pointer-events:none;
+  transition:opacity .18s ease;
+}
+body.sb-collapsed .logo{padding:14px 11px;justify-content:center;}
+body.sb-collapsed .logo img{margin:0;}
+body.sb-collapsed .ni{padding:14px 16px;justify-content:center;}
+body.sb-collapsed .ni svg{opacity:.7}
+body.sb-collapsed .ni.on svg{opacity:1}
+body.sb-collapsed #user-badge{padding:12px;justify-content:center;}
+/* Toggle button */
+#sb-toggle{
+  position:fixed;top:50%;left:56px;transform:translateY(-50%);
+  z-index:20;width:18px;height:42px;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(10px);
+  border:1px solid var(--b1);border-left:none;
+  border-radius:0 8px 8px 0;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:left .28s cubic-bezier(.4,0,.2,1), background .15s;
+  color:var(--dm);
+}
+body:not(.sb-collapsed) #sb-toggle{left:var(--sb-width);}
+#sb-toggle:hover{background:rgba(0,151,167,0.1);color:var(--cy);}
+#sb-toggle svg{transition:transform .28s ease;flex-shrink:0;}
+body.sb-collapsed #sb-toggle svg{transform:rotate(180deg);}
 .logo{padding:14px 12px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--b1)}
 .logo img{width:34px;height:34px;border-radius:7px;object-fit:contain;flex-shrink:0}
 .lm{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:800;color:var(--cy);letter-spacing:1px;line-height:1.3}
@@ -68,13 +117,126 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(135deg
 .ldot{width:6px;height:6px;border-radius:50%;background:#00FFFF;animation:blink 1.4s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1;box-shadow:none}50%{opacity:.2;box-shadow:none}}
 /* STATS */
-.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.sc{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--b1);border-radius:12px;padding:20px}
-.sl{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--cy);text-transform:uppercase;margin-bottom:7px}
-.sv{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:800;color:var(--tx-head);line-height:1}
-.ss{font-size:12px;font-weight:600;color:var(--dm);margin-top:4px}
-.sc.red .sv{color:var(--red)}.sc.red{border-color:rgba(239,68,68,.25)}
-.sc.cya .sv{color:var(--cy)}.sc.cya{border-color:rgba(0,255,255,.15)}
+/* ── COMPACT STATS BAR ── */
+.sg{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:stretch}
+.sc{
+  background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--b1);border-radius:10px;
+  padding:8px 14px;
+  display:flex;align-items:center;gap:10px;
+  flex:1;min-width:120px;
+  transition:.15s;cursor:default;
+}
+.sc:hover{border-color:var(--b2);transform:translateY(-1px)}
+.sc-left{display:flex;flex-direction:column;gap:1px}
+.sl{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--cy);text-transform:uppercase}
+.sv{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:800;color:var(--tx-head);line-height:1}
+.ss{font-size:10px;font-weight:600;color:var(--dm)}
+.sc-ico{font-size:20px;opacity:.7;flex-shrink:0;margin-left:auto}
+.sc.red .sv{color:var(--red)}.sc.red{border-color:rgba(239,68,68,.2)}
+.sc.cya .sv{color:var(--cy)}.sc.cya{border-color:rgba(0,151,167,.2)}
+.sc.grn .sv{color:#22c55e}.sc.grn{border-color:rgba(34,197,94,.2)}
+.sc.ylw .sv{color:#f59e0b}.sc.ylw{border-color:rgba(245,158,11,.2)}
+
+/* ── SCREEN OPTIONS PANEL ── */
+.sopt-btn{
+  background:var(--card);border:1px solid var(--b1);border-radius:10px;
+  padding:8px 12px;cursor:pointer;color:var(--dm);font-size:12px;
+  font-family:'JetBrains Mono',monospace;letter-spacing:.5px;
+  display:flex;align-items:center;gap:6px;transition:.15s;
+  white-space:nowrap;flex-shrink:0;
+}
+.sopt-btn:hover{border-color:var(--cyd);color:var(--cy);}
+.sopt-btn.active{border-color:var(--cyd);color:var(--cy);background:var(--cyg);}
+.sopt-panel{
+  position:fixed;top:0;right:0;bottom:0;z-index:200;
+  width:320px;max-width:90vw;
+  background:rgba(240,245,252,0.97);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-left:1px solid var(--b1);
+  box-shadow:-8px 0 40px rgba(0,0,0,.15);
+  display:flex;flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.sopt-panel.open{transform:translateX(0);}
+.sopt-hd{
+  padding:16px 18px;border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.5);
+}
+.sopt-hd-ttl{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--cy);letter-spacing:1px}
+.sopt-body{flex:1;overflow-y:auto;padding:16px 18px}
+.sopt-section{margin-bottom:20px}
+.sopt-sec-ttl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dm);text-transform:uppercase;margin-bottom:10px}
+.sopt-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b1)}
+.sopt-row:last-child{border-bottom:none}
+.sopt-row-label{font-size:13px;font-weight:600;color:var(--tx)}
+.sopt-row-sub{font-size:11px;color:var(--dm);margin-top:1px}
+/* Toggle switch */
+.sopt-toggle{
+  position:relative;width:38px;height:21px;flex-shrink:0;
+}
+.sopt-toggle input{opacity:0;width:0;height:0;position:absolute}
+.sopt-toggle-track{
+  position:absolute;inset:0;border-radius:21px;
+  background:var(--b2);cursor:pointer;transition:.2s;
+}
+.sopt-toggle input:checked+.sopt-toggle-track{background:var(--cy)}
+.sopt-toggle-track::after{
+  content:'';position:absolute;width:15px;height:15px;border-radius:50%;
+  top:3px;left:3px;background:#fff;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+.sopt-toggle input:checked+.sopt-toggle-track::after{transform:translateX(17px)}
+/* Color swatches */
+.color-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}
+.color-swatch{
+  width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent;
+  transition:.15s;flex-shrink:0;
+}
+.color-swatch:hover{transform:scale(1.12)}
+.color-swatch.active{border-color:var(--tx-head);transform:scale(1.08)}
+/* Card style options */
+.card-style-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.card-style-opt{
+  border:2px solid var(--b1);border-radius:8px;padding:10px;cursor:pointer;
+  text-align:center;transition:.15s;font-size:12px;font-weight:600;color:var(--dm);
+}
+.card-style-opt:hover{border-color:var(--b2)}
+.card-style-opt.active{border-color:var(--cy);color:var(--cy);background:var(--cyg)}
+.card-style-preview{font-size:18px;margin-bottom:4px}
+/* Density options */
+.density-bar{display:flex;gap:5px;margin-top:8px}
+.density-opt{flex:1;border:2px solid var(--b1);border-radius:7px;padding:7px 4px;text-align:center;cursor:pointer;transition:.15s;font-size:11px;font-weight:700;color:var(--dm)}
+.density-opt:hover{border-color:var(--b2)}
+.density-opt.active{border-color:var(--cy);color:var(--cy);background:var(--cyg)}
+/* Font size slider */
+.sopt-slider{width:100%;accent-color:var(--cy);cursor:pointer;margin-top:8px}
+/* Accent color themes */
+body.accent-teal{--cy:#0097A7;--cyd:#00838F;--cyg:rgba(0,151,167,0.08)}
+body.accent-blue{--cy:#3b82f6;--cyd:#2563eb;--cyg:rgba(59,130,246,0.08)}
+body.accent-purple{--cy:#8b5cf6;--cyd:#7c3aed;--cyg:rgba(139,92,246,0.08)}
+body.accent-green{--cy:#22c55e;--cyd:#16a34a;--cyg:rgba(34,197,94,0.08)}
+body.accent-orange{--cy:#f97316;--cyd:#ea580c;--cyg:rgba(249,115,22,0.08)}
+body.accent-rose{--cy:#f43f5e;--cyd:#e11d48;--cyg:rgba(244,63,94,0.08)}
+/* Card styles */
+body.card-flat .mc,body.card-flat .mcs{border-radius:4px;box-shadow:none}
+body.card-rounded .mc,body.card-rounded .mcs{border-radius:20px}
+body.card-bordered .mcs{border-width:2px}
+/* Density modes */
+body.density-compact .mc{padding:12px 16px}
+body.density-compact .mcs{padding:12px}
+body.density-compact .ct,.density-compact .ct-ar{font-size:16px}
+body.density-spacious .mc{padding:32px 28px}
+body.density-spacious .mcs{padding:24px}
+body.density-spacious .ct,.density-spacious .ct-ar{font-size:26px}
+/* Animations toggle */
+body.no-anim *{transition:none!important;animation:none!important}
+/* Focus mode — hide sidebar + top extras */
+body.focus-mode #sb{display:none}
+body.focus-mode #sb-toggle{display:none}
+body.focus-mode .phd .sub{display:none}
 /* OVERVIEW GRID */
 .ov-grid{display:grid;grid-template-columns:1fr 270px;gap:14px;align-items:start}
 /* CLOCK */
@@ -571,6 +733,9 @@ body.proj .btn.proj-btn {
   <div id="user-badge"></div>
 </div>
 
+<button id="sb-toggle" onclick="toggleSBCollapse()" title="Toggle sidebar">
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+</button>
 <div id="main"><div class="inner">
 
 <!-- ══ OVERVIEW (merged with Live Feed) ══ -->
@@ -582,12 +747,129 @@ body.proj .btn.proj-btn {
     </div>
     <div class="acts" id="acts-ov"></div>
   </div>
-  <!-- Stats -->
+  <!-- Compact stats bar -->
   <div class="sg">
-    <div class="sc"><div class="sl">CHANNELS</div><div class="sv" id="s-ch">—</div><div class="ss" id="ss-ch">active</div></div>
-    <div class="sc"><div class="sl">MESSAGES</div><div class="sv" id="s-msg">—</div><div class="ss" id="ss-msg">total</div></div>
-    <div class="sc red"><div class="sl">CRITICAL</div><div class="sv" id="s-crit">—</div><div class="ss">alerts</div></div>
-    <div class="sc cya"><div class="sl">LOCATED</div><div class="sv" id="s-loc">—</div><div class="ss">on map</div></div>
+    <div class="sc" title="Active monitored channels">
+      <div class="sc-left"><div class="sl">CHANNELS</div><div class="sv" id="s-ch">—</div><div class="ss" id="ss-ch">active</div></div>
+      <div class="sc-ico">📡</div>
+    </div>
+    <div class="sc" title="Total messages collected">
+      <div class="sc-left"><div class="sl">MESSAGES</div><div class="sv" id="s-msg">—</div><div class="ss" id="ss-msg">total</div></div>
+      <div class="sc-ico">📨</div>
+    </div>
+    <div class="sc red" title="Critical keyword alerts">
+      <div class="sc-left"><div class="sl">CRITICAL</div><div class="sv" id="s-crit">—</div><div class="ss">alerts</div></div>
+      <div class="sc-ico">🚨</div>
+    </div>
+    <div class="sc cya" title="Messages with confirmed location">
+      <div class="sc-left"><div class="sl">LOCATED</div><div class="sv" id="s-loc">—</div><div class="ss">on map</div></div>
+      <div class="sc-ico">📍</div>
+    </div>
+    <div class="sc grn" title="New messages since last visit">
+      <div class="sc-left"><div class="sl">NEW</div><div class="sv" id="s-new">—</div><div class="ss">since refresh</div></div>
+      <div class="sc-ico">🆕</div>
+    </div>
+    <div class="sc ylw" title="Keywords being tracked">
+      <div class="sc-left"><div class="sl">KEYWORDS</div><div class="sv" id="s-kw">—</div><div class="ss">tracked</div></div>
+      <div class="sc-ico">🔑</div>
+    </div>
+    <!-- Screen Options button inline with stats -->
+    <button class="sopt-btn" id="sopt-toggle-btn" onclick="toggleSoptPanel()" title="Screen options">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Options
+    </button>
+  </div>
+
+  <!-- Screen Options Side Panel -->
+  <div class="sopt-panel" id="sopt-panel">
+    <div class="sopt-hd">
+      <div class="sopt-hd-ttl">⚙️ SCREEN OPTIONS</div>
+      <button onclick="toggleSoptPanel()" style="background:none;border:none;color:var(--dm);font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px" title="Close">&times;</button>
+    </div>
+    <div class="sopt-body">
+
+      <!-- Appearance -->
+      <div class="sopt-section">
+        <div class="sopt-sec-ttl">🎨 Accent Color</div>
+        <div class="color-grid">
+          <div class="color-swatch active" data-accent="teal"   style="background:#0097A7" title="Teal (default)" onclick="setAccent('teal')"></div>
+          <div class="color-swatch"        data-accent="blue"   style="background:#3b82f6" title="Blue"           onclick="setAccent('blue')"></div>
+          <div class="color-swatch"        data-accent="purple" style="background:#8b5cf6" title="Purple"         onclick="setAccent('purple')"></div>
+          <div class="color-swatch"        data-accent="green"  style="background:#22c55e" title="Green"          onclick="setAccent('green')"></div>
+          <div class="color-swatch"        data-accent="orange" style="background:#f97316" title="Orange"         onclick="setAccent('orange')"></div>
+          <div class="color-swatch"        data-accent="rose"   style="background:#f43f5e" title="Rose"           onclick="setAccent('rose')"></div>
+        </div>
+      </div>
+
+      <!-- Card Style -->
+      <div class="sopt-section">
+        <div class="sopt-sec-ttl">🃏 Card Style</div>
+        <div class="card-style-grid">
+          <div class="card-style-opt active" data-cstyle="default"  onclick="setCardStyle('default')"><div class="card-style-preview">▭</div>Default</div>
+          <div class="card-style-opt"         data-cstyle="flat"     onclick="setCardStyle('flat')"><div class="card-style-preview">▬</div>Flat</div>
+          <div class="card-style-opt"         data-cstyle="rounded"  onclick="setCardStyle('rounded')"><div class="card-style-preview">⬭</div>Rounded</div>
+          <div class="card-style-opt"         data-cstyle="bordered" onclick="setCardStyle('bordered')"><div class="card-style-preview">▢</div>Bordered</div>
+        </div>
+      </div>
+
+      <!-- Content Density -->
+      <div class="sopt-section">
+        <div class="sopt-sec-ttl">📐 Content Density</div>
+        <div class="density-bar">
+          <div class="density-opt" data-density="compact"  onclick="setDensity('compact')">Compact</div>
+          <div class="density-opt active" data-density="default" onclick="setDensity('default')">Default</div>
+          <div class="density-opt" data-density="spacious" onclick="setDensity('spacious')">Spacious</div>
+        </div>
+      </div>
+
+      <!-- Font Size -->
+      <div class="sopt-section">
+        <div class="sopt-sec-ttl">🔡 Feed Font Size</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+          <span style="font-size:12px;color:var(--dm)">A</span>
+          <input type="range" class="sopt-slider" id="font-slider" min="14" max="28" value="22" oninput="setFeedFont(this.value)">
+          <span style="font-size:18px;color:var(--dm)">A</span>
+          <span id="font-slider-val" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cy);min-width:32px">22px</span>
+        </div>
+      </div>
+
+      <!-- Toggles -->
+      <div class="sopt-section">
+        <div class="sopt-sec-ttl">🔧 Display Options</div>
+        <div class="sopt-row">
+          <div><div class="sopt-row-label">Dark Mode</div><div class="sopt-row-sub">Toggle light/dark theme</div></div>
+          <label class="sopt-toggle"><input type="checkbox" id="tog-dark" checked onchange="setTheme(this.checked)"><div class="sopt-toggle-track"></div></label>
+        </div>
+        <div class="sopt-row">
+          <div><div class="sopt-row-label">Animations</div><div class="sopt-row-sub">Card hover effects & transitions</div></div>
+          <label class="sopt-toggle"><input type="checkbox" id="tog-anim" checked onchange="setAnimations(this.checked)"><div class="sopt-toggle-track"></div></label>
+        </div>
+        <div class="sopt-row">
+          <div><div class="sopt-row-label">Auto-collapse Sidebar</div><div class="sopt-row-sub">Start with sidebar hidden</div></div>
+          <label class="sopt-toggle"><input type="checkbox" id="tog-sbcol" onchange="setSbAutoCollapse(this.checked)"><div class="sopt-toggle-track"></div></label>
+        </div>
+        <div class="sopt-row">
+          <div><div class="sopt-row-label">Focus Mode</div><div class="sopt-row-sub">Hide sidebar for full-width reading</div></div>
+          <label class="sopt-toggle"><input type="checkbox" id="tog-focus" onchange="setFocusMode(this.checked)"><div class="sopt-toggle-track"></div></label>
+        </div>
+        <div class="sopt-row">
+          <div><div class="sopt-row-label">Compact Stats Bar</div><div class="sopt-row-sub">Even smaller counters</div></div>
+          <label class="sopt-toggle"><input type="checkbox" id="tog-compstats" onchange="setCompactStats(this.checked)"><div class="sopt-toggle-track"></div></label>
+        </div>
+        <div class="sopt-row">
+          <div><div class="sopt-row-label">Show Clock</div><div class="sopt-row-sub">Display digital clock widget</div></div>
+          <label class="sopt-toggle"><input type="checkbox" id="tog-clock" checked onchange="setShowClock(this.checked)"><div class="sopt-toggle-track"></div></label>
+        </div>
+      </div>
+
+      <!-- Reset -->
+      <div class="sopt-section">
+        <button class="btn" onclick="resetScreenOptions()" style="width:100%;justify-content:center;color:var(--red);border-color:rgba(239,68,68,.3)">
+          ↺ Reset All to Default
+        </button>
+      </div>
+
+    </div>
   </div>
   <!-- Main 2-column -->
   <div class="ov-grid">
@@ -1051,21 +1333,35 @@ function saveUsersLocal(users){
   localStorage.setItem(AUTH_USERS_KEY,JSON.stringify(users));
 }
 
-/* ── Backend API helpers ── */
+/* ── Backend API helpers (saves to server users.json) ── */
+var _backendAvailable=null; /* null=unknown, true/false */
+
+function checkBackend(cb){
+  if(_backendAvailable!==null){cb(_backendAvailable);return;}
+  var x=new XMLHttpRequest();
+  x.open('GET',API+'/api/users',true);
+  x.timeout=2000;
+  x.onreadystatechange=function(){
+    if(x.readyState!==4)return;
+    _backendAvailable=(x.status===200||x.status===201);
+    cb(_backendAvailable);
+  };
+  x.ontimeout=function(){_backendAvailable=false;cb(false);};
+  x.onerror=function(){_backendAvailable=false;cb(false);};
+  x.send();
+}
 
 function getUsersFromBackend(cb){
   var x=new XMLHttpRequest();
   x.open('GET',API+'/api/users',true);
-  x.timeout=8000;
+  x.timeout=3000;
   x.onreadystatechange=function(){
     if(x.readyState!==4)return;
     try{
-      if(x.status===200){
-        var data=JSON.parse(x.responseText);
-        var merged=mergeAdmin(Array.isArray(data)?data:[]);
-        saveUsersLocal(merged);
-        cb(merged);
-      }else{cb(getUsersLocal());}
+      var data=JSON.parse(x.responseText);
+      var merged=mergeAdmin(data);
+      saveUsersLocal(merged); /* keep local in sync */
+      cb(merged);
     }catch(e){cb(getUsersLocal());}
   };
   x.ontimeout=function(){cb(getUsersLocal());};
@@ -1077,46 +1373,62 @@ function saveUsersToBackend(users,cb){
   var x=new XMLHttpRequest();
   x.open('POST',API+'/api/users',true);
   x.setRequestHeader('Content-Type','application/json');
-  x.timeout=8000;
+  x.timeout=3000;
   x.onreadystatechange=function(){if(x.readyState===4&&cb)cb(x.status===200||x.status===201);};
   x.ontimeout=function(){if(cb)cb(false);};
   x.onerror=function(){if(cb)cb(false);};
   x.send(JSON.stringify(users));
 }
 
-/* ── Public API used throughout the app ── */
+/* ── Public API ── */
 function getUsers(){
+  /* Read from localStorage cache (kept in sync with server) */
   return getUsersLocal();
 }
 
-function saveUsers(users){
+function saveUsers(users,onDone){
   var merged=mergeAdmin(users);
+  /* 1. Write to localStorage immediately (instant UI update) */
   saveUsersLocal(merged);
-  /* Always attempt to push to backend — no caching, no skipping */
+  /* 2. Persist to backend server — this is the SOURCE OF TRUTH */
   saveUsersToBackend(merged,function(ok){
     if(!ok){
-      /* Retry once after 2s in case of transient failure */
-      setTimeout(function(){saveUsersToBackend(merged,null);},2000);
+      /* Backend unavailable — mark dirty so next load re-syncs */
+      localStorage.setItem('mtracker_users_dirty','1');
+    }else{
+      localStorage.removeItem('mtracker_users_dirty');
     }
+    if(onDone)onDone(ok);
   });
 }
 
-/* ── On startup: pull from backend, merge with local, sync back ── */
+/* ── On startup: ALWAYS pull from backend first, then fall back ── */
 function initUsers(cb){
-  getUsersFromBackend(function(serverUsers){
-    /* Merge: server is source of truth, but keep any local-only users too */
-    var local=getUsersLocal();
-    var merged=mergeAdmin(serverUsers);
-    /* Add any local users not yet on server */
-    local.forEach(function(lu){
-      if(!merged.some(function(mu){return mu.id===lu.id;})){
-        merged.push(lu);
+  /* Check if we have a pending dirty write from offline session */
+  var dirty=localStorage.getItem('mtracker_users_dirty');
+  checkBackend(function(ok){
+    if(ok){
+      if(dirty){
+        /* Flush local changes to server first, then re-fetch */
+        var localUsers=getUsersLocal();
+        saveUsersToBackend(localUsers,function(){
+          localStorage.removeItem('mtracker_users_dirty');
+          getUsersFromBackend(function(users){
+            saveUsersLocal(users);
+            if(cb)cb(users);
+          });
+        });
+      }else{
+        /* Normal: pull latest from server */
+        getUsersFromBackend(function(users){
+          saveUsersLocal(users);
+          if(cb)cb(users);
+        });
       }
-    });
-    saveUsersLocal(merged);
-    /* Push merged list back to server so it's complete */
-    saveUsersToBackend(merged,null);
-    if(cb)cb(merged);
+    }else{
+      /* Server unreachable — use local cache */
+      if(cb)cb(getUsersLocal());
+    }
   });
 }
 
@@ -1204,6 +1516,7 @@ function onLoginSuccess(){
   setInterval(tickClock,1000);
   requestNotifPerm();
   applyRoleRestrictions();
+  loadScreenOptions();
   doGet('/api/keywords',function(d){
     S.keywords=arr(d);rebuildCrit();renderKw();
     doGet('/api/channels',function(cd){
@@ -1750,8 +2063,9 @@ function doDel(p,cb){
 /* ---- CLOCK ---- */
 function tickClock(){
   var n=new Date();
-  var h=pad(n.getHours()),m=pad(n.getMinutes()),s=pad(n.getSeconds());
-  setEl('clk-time',h+':'+m+':'+s);
+  var h=pad(n.getHours()),m=pad(n.getMinutes());
+  /* HH:MM only — no seconds */
+  setEl('clk-time',h+':'+m);
   var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var mos=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   setEl('clk-date',days[n.getDay()]+', '+mos[n.getMonth()]+' '+n.getDate()+', '+n.getFullYear());
@@ -1873,7 +2187,14 @@ function drawMap(){
 }
 
 /* ---- THEME ---- */
-function setTheme(d){dark=d;document.body.classList.toggle('light',!d);buildActs();showToast(d?'Dark mode':'Light mode');}
+function setTheme(d){
+  dark=d;
+  document.body.classList.toggle('light',!d);
+  var tog=document.getElementById('tog-dark');
+  if(tog)tog.checked=d;
+  buildActs();
+  showToast(d?'Dark mode':'Light mode');
+}
 
 /* ---- NAV ---- */
 function activePg(){var e=document.querySelector('.page.on');return e?e.id.replace('pg-',''):'overview';}
@@ -1912,6 +2233,182 @@ function buildActs(){
     p.addEventListener('click',function(e){e.stopPropagation();});
   });
 }
+
+/* ══════════════════════════════════════════
+   SCREEN OPTIONS FUNCTIONS
+══════════════════════════════════════════ */
+var SOPT_KEY='mtracker_sopt';
+
+function loadScreenOptions(){
+  try{
+    var raw=localStorage.getItem(SOPT_KEY);
+    if(!raw)return;
+    var o=JSON.parse(raw);
+    if(o.accent)setAccent(o.accent,true);
+    if(o.cstyle)setCardStyle(o.cstyle,true);
+    if(o.density)setDensity(o.density,true);
+    if(o.font){setFeedFont(o.font,true);var sl=document.getElementById('font-slider');if(sl)sl.value=o.font;}
+    if(o.dark===false){setTheme(false);var tog=document.getElementById('tog-dark');if(tog)tog.checked=false;}
+    if(o.anim===false){setAnimations(false);var ta=document.getElementById('tog-anim');if(ta)ta.checked=false;}
+    if(o.focus){setFocusMode(true);var tf=document.getElementById('tog-focus');if(tf)tf.checked=true;}
+    if(o.compstats){setCompactStats(true);var tc=document.getElementById('tog-compstats');if(tc)tc.checked=true;}
+    if(o.clock===false){setShowClock(false);var tck=document.getElementById('tog-clock');if(tck)tck.checked=false;}
+    if(o.sbcol){var tsc=document.getElementById('tog-sbcol');if(tsc)tsc.checked=true;}
+  }catch(e){}
+}
+
+function saveSopt(){
+  try{
+    var o={
+      accent:document.body.className.match(/accent-(\w+)/)?document.body.className.match(/accent-(\w+)/)[1]:'teal',
+      cstyle:document.body.className.match(/card-(\w+)/)?document.body.className.match(/card-(\w+)/)[1]:'default',
+      density:document.body.className.match(/density-(\w+)/)?document.body.className.match(/density-(\w+)/)[1]:'default',
+      font:document.querySelector('.ct')?parseInt(document.querySelector('.ct').style.fontSize||22):22,
+      dark:dark,
+      anim:!document.body.classList.contains('no-anim'),
+      focus:document.body.classList.contains('focus-mode'),
+      compstats:document.body.classList.contains('compact-stats'),
+      clock:!document.body.classList.contains('hide-clock'),
+      sbcol:localStorage.getItem('sb_collapsed')==='1'
+    };
+    localStorage.setItem(SOPT_KEY,JSON.stringify(o));
+  }catch(e){}
+}
+
+function toggleSoptPanel(){
+  var p=document.getElementById('sopt-panel');
+  if(!p)return;
+  var btn=document.getElementById('sopt-toggle-btn');
+  p.classList.toggle('open');
+  if(btn)btn.classList.toggle('active',p.classList.contains('open'));
+}
+
+function setAccent(name,silent){
+  var accents=['teal','blue','purple','green','orange','rose'];
+  accents.forEach(function(a){document.body.classList.remove('accent-'+a);});
+  if(name!=='teal')document.body.classList.add('accent-'+name);
+  document.querySelectorAll('.color-swatch').forEach(function(s){
+    s.classList.toggle('active',s.dataset.accent===name);
+  });
+  if(!silent){saveSopt();showToast('Accent: '+name);}
+}
+
+function setCardStyle(name,silent){
+  var styles=['flat','rounded','bordered'];
+  styles.forEach(function(s){document.body.classList.remove('card-'+s);});
+  if(name!=='default')document.body.classList.add('card-'+name);
+  document.querySelectorAll('.card-style-opt').forEach(function(o){
+    o.classList.toggle('active',o.dataset.cstyle===name);
+  });
+  if(!silent){saveSopt();showToast('Card style: '+name);}
+}
+
+function setDensity(name,silent){
+  var densities=['compact','spacious'];
+  densities.forEach(function(d){document.body.classList.remove('density-'+d);});
+  if(name!=='default')document.body.classList.add('density-'+name);
+  document.querySelectorAll('.density-opt').forEach(function(o){
+    o.classList.toggle('active',o.dataset.density===name);
+  });
+  if(!silent){saveSopt();showToast('Density: '+name);}
+}
+
+function setFeedFont(size,silent){
+  var s=parseInt(size)||22;
+  var style=document.getElementById('dynamic-font-style');
+  if(!style){style=document.createElement('style');style.id='dynamic-font-style';document.head.appendChild(style);}
+  style.textContent='.ct,.ct-ar{font-size:'+s+'px!important}';
+  var valEl=document.getElementById('font-slider-val');
+  if(valEl)valEl.textContent=s+'px';
+  if(!silent)saveSopt();
+}
+
+function setAnimations(on){
+  document.body.classList.toggle('no-anim',!on);
+  saveSopt();
+  showToast(on?'Animations on':'Animations off');
+}
+
+function setSbAutoCollapse(on){
+  if(on){document.body.classList.add('sb-collapsed');localStorage.setItem('sb_collapsed','1');}
+  else{document.body.classList.remove('sb-collapsed');localStorage.removeItem('sb_collapsed');}
+  saveSopt();
+}
+
+function setFocusMode(on){
+  document.body.classList.toggle('focus-mode',on);
+  saveSopt();
+  showToast(on?'Focus mode on':'Focus mode off');
+}
+
+function setCompactStats(on){
+  document.body.classList.toggle('compact-stats',on);
+  if(on){
+    document.querySelectorAll('.sc').forEach(function(c){c.style.padding='5px 10px';});
+    document.querySelectorAll('.sv').forEach(function(v){v.style.fontSize='18px';});
+  }else{
+    document.querySelectorAll('.sc').forEach(function(c){c.style.padding='';});
+    document.querySelectorAll('.sv').forEach(function(v){v.style.fontSize='';});
+  }
+  saveSopt();
+}
+
+function setShowClock(on){
+  document.body.classList.toggle('hide-clock',!on);
+  var cc=document.querySelector('.clock-card');
+  if(cc)cc.style.display=on?'':'none';
+  saveSopt();
+}
+
+function resetScreenOptions(){
+  if(!confirm('Reset all screen options to default?'))return;
+  localStorage.removeItem(SOPT_KEY);
+  /* Remove all option classes */
+  ['accent-blue','accent-purple','accent-green','accent-orange','accent-rose',
+   'card-flat','card-rounded','card-bordered',
+   'density-compact','density-spacious',
+   'no-anim','focus-mode','compact-stats','hide-clock'].forEach(function(c){
+    document.body.classList.remove(c);
+  });
+  /* Reset font */
+  var style=document.getElementById('dynamic-font-style');
+  if(style)style.textContent='';
+  var sl=document.getElementById('font-slider');if(sl)sl.value=22;
+  var sv=document.getElementById('font-slider-val');if(sv)sv.textContent='22px';
+  /* Reset toggles */
+  ['tog-dark','tog-anim','tog-clock'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.checked=true;
+  });
+  ['tog-focus','tog-compstats','tog-sbcol'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.checked=false;
+  });
+  /* Reset active states */
+  document.querySelectorAll('.color-swatch').forEach(function(s){s.classList.toggle('active',s.dataset.accent==='teal');});
+  document.querySelectorAll('.card-style-opt').forEach(function(o){o.classList.toggle('active',o.dataset.cstyle==='default');});
+  document.querySelectorAll('.density-opt').forEach(function(o){o.classList.toggle('active',o.dataset.density==='default');});
+  document.querySelectorAll('.sc').forEach(function(c){c.style.padding='';});
+  document.querySelectorAll('.sv').forEach(function(v){v.style.fontSize='';});
+  var cc=document.querySelector('.clock-card');if(cc)cc.style.display='';
+  if(!dark)setTheme(true);
+  showToast('Screen options reset');
+}
+
+/* Update s-new and s-kw stats */
+function updateExtraStats(){
+  setEl('s-new',newCount||0);
+  setEl('s-kw',S.keywords?S.keywords.length:0);
+}
+
+/* Close screen options panel when clicking outside */
+document.addEventListener('click',function(e){
+  var panel=document.getElementById('sopt-panel');
+  var btn=document.getElementById('sopt-toggle-btn');
+  if(!panel||!btn)return;
+  if(panel.classList.contains('open')&&!panel.contains(e.target)&&!btn.contains(e.target)){
+    panel.classList.remove('open');
+    btn.classList.remove('active');
+  }
+});
 
 /* ── GEO FILTER FUNCTIONS ── */
 function buildGeoPanelHTML(){
@@ -1962,12 +2459,23 @@ function showPage(name){
   if(name==='users')renderUserList();
 }
 function toggleSB(){document.getElementById('sb').classList.toggle('open');}
+function toggleSBCollapse(){
+  document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb_collapsed', document.body.classList.contains('sb-collapsed')?'1':'');
+}
+/* Restore sidebar state from last visit */
+(function(){
+  if(localStorage.getItem('sb_collapsed')==='1'){
+    document.body.classList.add('sb-collapsed');
+  }
+})();
 
 /* ---- OVERVIEW ---- */
 function loadOv(){
   doGet('/api/stats',function(st){
     if(!st)return;
     setEl('s-ch',st.total_channels||0);setEl('ss-ch',(st.total_channels||0)+' active');
+  updateExtraStats();
     setEl('s-msg',st.total_messages||0);setEl('ss-msg',(st.last_24h||0)+' last 24h');
     setEl('s-crit',st.critical_count||0);setEl('s-loc',st.located_count||0);
     var top=st.top_source;setEl('s-top',(top&&top.display)?top.display:'\u2014');
@@ -2621,29 +3129,6 @@ function hlText(text){
 }
 function fmtDate(d){if(!d)return'';try{return new Date(d).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}catch(e){return String(d);}}
 function emptyEl(lbl){return'<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg><div class="emptylbl">'+lbl+'</div></div>';}
-
- // Disable right-click
-document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-
-// Disable F12, Ctrl+Shift+I, Ctrl+U
-document.addEventListener('keydown', function(e){
-  if(e.key==='F12' || 
-     (e.ctrlKey && e.shiftKey && e.key==='I') ||
-     (e.ctrlKey && e.shiftKey && e.key==='J') ||
-     (e.ctrlKey && e.key==='u')){
-    e.preventDefault();
-    return false;
-  }
-});
-
-// Detect DevTools open and blank the page
-setInterval(function(){
-  var threshold = 160;
-  if(window.outerWidth - window.innerWidth > threshold || 
-     window.outerHeight - window.innerHeight > threshold){
-    document.body.innerHTML = '<h2 style="text-align:center;margin-top:40vh;color:red">Access Restricted</h2>';
-  }
-}, 1000);
 </script>
 </body>
 </html>
