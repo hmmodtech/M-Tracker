@@ -1588,9 +1588,9 @@ function onLoginSuccess(){
   requestNotifPerm();
   applyRoleRestrictions();
   loadScreenOptions();
-  doGet('/api/keywords',function(d){
+  _cachedGet('/api/keywords',function(d){
     S.keywords=arr(d);rebuildCrit();renderKw();
-    doGet('/api/channels',function(cd){
+    _cachedGet('/api/channels',function(cd){
       S.channels=arr(cd);buildPills();
       loadOv();
     });
@@ -2129,6 +2129,44 @@ function doDel(p,cb){
   var x=new XMLHttpRequest();x.open('DELETE',API+p,true);
   x.onreadystatechange=function(){if(x.readyState===4&&cb)cb();};
   x.send();
+}
+
+/* ---- DASHBOARD PERSISTENCE (localStorage) ---- */
+var LS_DASH='mtracker_dashboard_v1';
+
+function saveDashboardState(){
+  try{
+    var state={channels:S.channels||[],keywords:S.keywords||[]};
+    localStorage.setItem(LS_DASH,JSON.stringify(state));
+  }catch(e){}
+}
+
+function loadDashboardState(){
+  try{
+    var raw=localStorage.getItem(LS_DASH);
+    if(!raw)return null;
+    return JSON.parse(raw);
+  }catch(e){return null;}
+}
+
+/* Wraps doGet: saves data to localStorage after every successful fetch,
+   and serves from cache when the server returns empty (e.g. after a reset). */
+function _cachedGet(path,cb){
+  doGet(path,function(d){
+    var result=arr(d);
+    if(result.length){
+      if(path.indexOf('/api/channels')>=0){S.channels=result;saveDashboardState();}
+      else if(path.indexOf('/api/keywords')>=0){S.keywords=result;saveDashboardState();}
+      cb(result);
+    } else {
+      var saved=loadDashboardState();
+      if(saved){
+        if(path.indexOf('/api/channels')>=0&&saved.channels&&saved.channels.length){cb(saved.channels);return;}
+        if(path.indexOf('/api/keywords')>=0&&saved.keywords&&saved.keywords.length){cb(saved.keywords);return;}
+      }
+      cb(result);
+    }
+  });
 }
 
 /* ---- CLOCK ---- */
@@ -2854,7 +2892,7 @@ function openMap(name,coords,gmaps){
 function closeMap(){document.getElementById('map-ov').classList.remove('open');document.getElementById('map-frame').src='';}
 
 /* ---- CHANNELS ---- */
-function loadChannels(){doGet('/api/channels',function(d){S.channels=arr(d);renderChannels();buildPills();});}
+function loadChannels(){_cachedGet('/api/channels',function(d){S.channels=arr(d);renderChannels();buildPills();});}
 function setChTab(t){
   chTab=t;
   ['ct-all','ct-tg','ct-web'].forEach(function(id){var b=document.getElementById(id);if(b)b.classList.remove('on');});
@@ -2911,7 +2949,7 @@ function addCh(){
     if(!res){showToast('Error adding channel');return;}
     closeM('m-add');
     ['m-user','m-disp','m-desc','m-url'].forEach(function(id){document.getElementById(id).value='';});
-    doGet('/api/channels',function(cd){S.channels=arr(cd);renderChannels();buildPills();showToast('Channel added: '+d);});
+    doGet('/api/channels',function(cd){S.channels=arr(cd);renderChannels();buildPills();saveDashboardState();showToast('Channel added: '+d);});
   });
 }
 function openEdit(id,d,desc,surl){
@@ -2922,12 +2960,12 @@ function openEdit(id,d,desc,surl){
 function saveEdit(){
   var id=document.getElementById('e-id').value;
   doPut('/api/channels/'+id,{display:document.getElementById('e-disp').value,desc:document.getElementById('e-desc').value,source_url:document.getElementById('e-url').value},function(){
-    closeM('m-edit');doGet('/api/channels',function(cd){S.channels=arr(cd);renderChannels();showToast('Updated');});
+    closeM('m-edit');doGet('/api/channels',function(cd){S.channels=arr(cd);renderChannels();saveDashboardState();showToast('Updated');});
   });
 }
 function delCh(id){
   if(!confirm('Delete this channel and all messages?'))return;
-  doDel('/api/channels/'+id,function(){doGet('/api/channels',function(cd){S.channels=arr(cd);renderChannels();buildPills();showToast('Deleted');});});
+  doDel('/api/channels/'+id,function(){doGet('/api/channels',function(cd){S.channels=arr(cd);renderChannels();buildPills();saveDashboardState();showToast('Deleted');});});
 }
 
 /* ---- BOOKMARKS ---- */
@@ -2947,7 +2985,7 @@ function toggleBm(id,btn){
 }
 
 /* ---- KEYWORDS ---- */
-function loadKw(){doGet('/api/keywords',function(d){S.keywords=arr(d);rebuildCrit();renderKw();});}
+function loadKw(){_cachedGet('/api/keywords',function(d){S.keywords=arr(d);rebuildCrit();renderKw();});}
 function rebuildCrit(){CRIT_SET={};S.keywords.forEach(function(k){if(k.is_critical)CRIT_SET[k.word]=true;});}
 function renderKw(){
   var el=document.getElementById('kw-tags');if(!el)return;
@@ -2962,11 +3000,11 @@ function addKw(){
   if(!v)return;
   doPost('/api/keywords',{word:v,is_critical:crit},function(){
     if(inp)inp.value='';if(chk)chk.checked=false;
-    doGet('/api/keywords',function(d){S.keywords=arr(d);rebuildCrit();renderKw();renderFeed();showToast('Keyword added: '+v);});
+    doGet('/api/keywords',function(d){S.keywords=arr(d);rebuildCrit();renderKw();renderFeed();saveDashboardState();showToast('Keyword added: '+v);});
   });
 }
 function delKw(id){
-  doDel('/api/keywords/'+id,function(){doGet('/api/keywords',function(d){S.keywords=arr(d);rebuildCrit();renderKw();renderFeed();});});
+  doDel('/api/keywords/'+id,function(){doGet('/api/keywords',function(d){S.keywords=arr(d);rebuildCrit();renderKw();renderFeed();saveDashboardState();});});
 }
 function scrapeNow(){showToast('Scraping...');doPost('/api/scrape',{},function(){fetchMsgs();showToast('Scrape complete');});}
 
