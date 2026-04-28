@@ -715,7 +715,8 @@ body.proj .btn.proj-btn {
 .ud-perm-yes{background:rgba(0,151,167,0.1);border:1px solid rgba(0,151,167,0.25);color:var(--cy)}
 .ud-perm-no{background:rgba(107,122,141,0.07);border:1px solid rgba(107,122,141,0.15);color:var(--dm);text-decoration:line-through;opacity:0.6}
 </style>
-<style>body,*{-webkit-user-select:none!important;-moz-user-select:none!important;user-select:none!important;}</style>
+<style>body,*{-webkit-user-select:none!important;-moz-user-select:none!important;user-select:none!important;}
+input,textarea,select{-webkit-user-select:text!important;-moz-user-select:text!important;user-select:text!important;}</style>
 </head>
 <body>
 
@@ -1306,8 +1307,9 @@ function _0xget(i){return _0xabc[i];}
 (function(){
 document.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
 document.addEventListener('keydown',function(e){
-if(e.keyCode===123||(e.ctrlKey&&e.shiftKey&&(e.keyCode===73||e.keyCode===74||e.keyCode===67))||(e.ctrlKey&&(e.keyCode===85||e.keyCode===83))){
-e.preventDefault();e.stopPropagation();return false;}});
+if(e.keyCode===123){e.preventDefault();e.stopPropagation();return false;}
+if(e.ctrlKey&&e.shiftKey&&(e.keyCode===73||e.keyCode===74||e.keyCode===67)){e.preventDefault();e.stopPropagation();return false;}
+if(e.ctrlKey&&(e.keyCode===85||e.keyCode===83)){e.preventDefault();e.stopPropagation();return false;}});
 var _di=false;
 setInterval(function(){
 var _t=new Date();
