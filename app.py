@@ -174,6 +174,8 @@ def api_add_channel():
     source_type = data.get('source_type', 'telegram')
     source_url  = data.get('source_url', '')
     cid = db.add_channel(username, display, desc, source_type, source_url)
+    # Save updated channel list to seed file so it survives restarts
+    db._save_channels_seed(db.get_channels())
     try:
         scraper.scrape_channel(username)
     except Exception as e:
@@ -184,11 +186,13 @@ def api_add_channel():
 def api_update_channel(cid):
     data = request.get_json(force=True, silent=True) or {}
     db.update_channel(cid, data.get('display',''), data.get('desc',''), data.get('source_url',''))
+    db._save_channels_seed(db.get_channels())
     return jsonify({'ok': 1})
 
 @app.route('/api/channels/<int:cid>', methods=['DELETE'])
 def api_delete_channel(cid):
     db.delete_channel(cid)
+    db._save_channels_seed(db.get_channels())
     return jsonify({'ok': 1})
 
 # ── MESSAGES ─────────────────────────────────────────────────────
@@ -233,11 +237,13 @@ def api_add_keyword():
         return jsonify({'error': 'word required'}), 400
     is_critical = 1 if data.get('is_critical') else 0
     kid = db.add_keyword(word, is_critical)
+    db._save_keywords_seed(db.get_keywords())
     return jsonify({'id': kid, 'word': word}), 201
 
 @app.route('/api/keywords/<int:kid>', methods=['DELETE'])
 def api_remove_keyword(kid):
     db.remove_keyword(kid)
+    db._save_keywords_seed(db.get_keywords())
     return jsonify({'ok': 1})
 
 # ── STATS / SCRAPE / GEOCODE / EXPORT ────────────────────────────
