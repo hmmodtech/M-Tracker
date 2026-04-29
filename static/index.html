@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+<script>
+(function(){
+  /* Block right-click */
+  document.addEventListener('contextmenu',function(e){e.preventDefault();e.stopPropagation();return false;},true);
+  /* Block F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S */
+  document.addEventListener('keydown',function(e){
+    if(e.keyCode===123){e.preventDefault();e.stopPropagation();return false;}
+    if(e.ctrlKey&&e.shiftKey&&e.keyCode===73){e.preventDefault();e.stopPropagation();return false;}
+    if(e.ctrlKey&&e.shiftKey&&e.keyCode===74){e.preventDefault();e.stopPropagation();return false;}
+    if(e.ctrlKey&&e.shiftKey&&e.keyCode===67){e.preventDefault();e.stopPropagation();return false;}
+    if(e.ctrlKey&&e.keyCode===85){e.preventDefault();e.stopPropagation();return false;}
+    if(e.ctrlKey&&e.keyCode===83){e.preventDefault();e.stopPropagation();return false;}
+  },true);
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
 <title>M-TRACKER · ACF Gaza</title>
@@ -482,23 +497,7 @@ body.focus-mode .phd .sub{display:none}
 /* ══════════════════════════════════════════
    PROJECTION MODE
    Triggered by .proj on <body>
-<script>
-(function(){
-  /* Disable right-click context menu */
-  document.addEventListener('contextmenu',function(e){
-    e.preventDefault();e.stopPropagation();return false;
-  },true);
-  /* Disable inspect keyboard shortcuts */
-  document.addEventListener('keydown',function(e){
-    if(e.keyCode===123){e.preventDefault();e.stopPropagation();return false;}
-    if(e.ctrlKey&&e.shiftKey&&e.keyCode===73){e.preventDefault();e.stopPropagation();return false;}
-    if(e.ctrlKey&&e.shiftKey&&e.keyCode===74){e.preventDefault();e.stopPropagation();return false;}
-    if(e.ctrlKey&&e.shiftKey&&e.keyCode===67){e.preventDefault();e.stopPropagation();return false;}
-    if(e.ctrlKey&&e.keyCode===85){e.preventDefault();e.stopPropagation();return false;}
-    if(e.ctrlKey&&e.keyCode===83){e.preventDefault();e.stopPropagation();return false;}
-  },true);
-})();
-</script>
+
    Hides sidebar + right panel, expands feed
    to full width with larger fonts/cards.
 ══════════════════════════════════════════ */
