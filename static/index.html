@@ -484,26 +484,19 @@ body.focus-mode .phd .sub{display:none}
    Triggered by .proj on <body>
 <script>
 (function(){
-  /* Disable right-click */
-  document.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
-  /* Disable F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S */
+  /* Disable right-click context menu */
+  document.addEventListener('contextmenu',function(e){
+    e.preventDefault();e.stopPropagation();return false;
+  },true);
+  /* Disable inspect keyboard shortcuts */
   document.addEventListener('keydown',function(e){
-    if(e.keyCode===123){e.preventDefault();return false;}
-    if(e.ctrlKey&&e.shiftKey&&(e.keyCode===73||e.keyCode===74||e.keyCode===67)){e.preventDefault();return false;}
-    if(e.ctrlKey&&(e.keyCode===85||e.keyCode===83)){e.preventDefault();return false;}
-  });
-  /* DevTools detector */
-  var _blocked=false;
-  setInterval(function(){
-    var _t=new Date();
-    (function(){}).constructor("debugger")();
-    if((new Date()-_t)>150&&!_blocked){
-      _blocked=true;
-      document.open();
-      document.write('<html><body style="margin:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;height:100vh"><div style="color:#ef4444;font-family:monospace;text-align:center;font-size:22px">⛔ Access Denied<br><span style="font-size:13px;color:#555;display:block;margin-top:8px">Developer tools are not permitted on this system</span></div></body></html>');
-      document.close();
-    }
-  },800);
+    if(e.keyCode===123){e.preventDefault();e.stopPropagation();return false;}
+    if(e.ctrlKey&&e.shiftKey&&e.keyCode===73){e.preventDefault();e.stopPropagation();return false;}
+    if(e.ctrlKey&&e.shiftKey&&e.keyCode===74){e.preventDefault();e.stopPropagation();return false;}
+    if(e.ctrlKey&&e.shiftKey&&e.keyCode===67){e.preventDefault();e.stopPropagation();return false;}
+    if(e.ctrlKey&&e.keyCode===85){e.preventDefault();e.stopPropagation();return false;}
+    if(e.ctrlKey&&e.keyCode===83){e.preventDefault();e.stopPropagation();return false;}
+  },true);
 })();
 </script>
    Hides sidebar + right panel, expands feed
@@ -1344,10 +1337,11 @@ var ADMIN_USER={
   email:'hmmodtech@gmail.com',
   email2:'aabujami@pt.acfspain.org',
   name:'Ahmed Abu Jami',
+  password:'801165226',
   role:'admin',
   created:'2024-01-01T00:00:00Z',
   isBuiltIn:true,
-  isSuperAdmin:true
+  isSuperAdmin:true   
 };
 
 var ADMIN_USER2={
@@ -1356,10 +1350,11 @@ var ADMIN_USER2={
   email:'aaljojo@pt.acfspain.org',
   email2:'',
   name:'Ashraf Al Jojo',
+  password:'3030',
   role:'admin',
   created:'2024-01-01T00:00:00Z',
   isBuiltIn:true,
-  isSuperAdmin:false
+  isSuperAdmin:false  
 };
 
 
@@ -1433,12 +1428,11 @@ var _backendAvailable=null;
 function checkBackend(cb){
   if(_backendAvailable!==null){cb(_backendAvailable);return;}
   var x=new XMLHttpRequest();
-  x.open('GET',API+'/api/me',true);
-  x.withCredentials=true;
+  x.open('GET',API+'/api/users',true);
   x.timeout=2000;
   x.onreadystatechange=function(){
     if(x.readyState!==4)return;
-    _backendAvailable=(x.status===200||x.status===401);
+    _backendAvailable=(x.status===200||x.status===201);
     cb(_backendAvailable);
   };
   x.ontimeout=function(){_backendAvailable=false;cb(false);};
@@ -1449,7 +1443,6 @@ function checkBackend(cb){
 function getUsersFromBackend(cb){
   var x=new XMLHttpRequest();
   x.open('GET',API+'/api/users',true);
-  x.withCredentials=true;
   x.timeout=3000;
   x.onreadystatechange=function(){
     if(x.readyState!==4)return;
@@ -1469,7 +1462,6 @@ function saveUsersToBackend(users,cb){
   var x=new XMLHttpRequest();
   x.open('POST',API+'/api/users',true);
   x.setRequestHeader('Content-Type','application/json');
-  x.withCredentials=true;
   x.timeout=3000;
   x.onreadystatechange=function(){if(x.readyState===4&&cb)cb(x.status===200||x.status===201);};
   x.ontimeout=function(){if(cb)cb(false);};
@@ -1573,46 +1565,29 @@ function doLogin(){
   var err=document.getElementById('login-err');
   err.classList.remove('on');
   if(!u||!p){err.textContent='Please enter username and password.';err.classList.add('on');return;}
-  var btn=document.querySelector('.login-btn');
-  if(btn){btn.disabled=true;btn.textContent='Signing in...';}
-  var x=new XMLHttpRequest();
-  x.open('POST',API+'/api/login',true);
-  x.setRequestHeader('Content-Type','application/json');
-  x.withCredentials=true;
-  x.onreadystatechange=function(){
-    if(x.readyState!==4)return;
-    if(btn){btn.disabled=false;btn.textContent='ACCESS SYSTEM';}
-    try{
-      var res=JSON.parse(x.responseText);
-      if(x.status===200&&res.ok){
-        currentUser=setSession(res.user);
-        document.getElementById('login-overlay').classList.add('hidden');
-        onLoginSuccess();
-      }else{
-        err.textContent=res.error||'Invalid username or password. Access denied.';
-        err.classList.add('on');
-        var card=document.querySelector('.login-card');
-        card.style.animation='none';
-        setTimeout(function(){card.style.animation='shake 0.4s ease';},10);
-      }
-    }catch(e){
-      err.textContent='Server error. Please try again.';
-      err.classList.add('on');
-    }
-  };
-  x.onerror=function(){
-    if(btn){btn.disabled=false;btn.textContent='ACCESS SYSTEM';}
-    err.textContent='Cannot reach server. Check your connection.';
+  var users=getUsers();
+  var found=null;
+  for(var i=0;i<users.length;i++){
+    var usr=users[i];
+    var matchId=(usr.username||'').toLowerCase()===u
+             ||(usr.email||'').toLowerCase()===u
+             ||(usr.email2||'').toLowerCase()===u;
+    if(matchId&&usr.password===p){found=usr;break;}
+  }
+  if(!found){
+    err.textContent='Invalid username or password. Access denied.';
     err.classList.add('on');
-  };
-  x.send(JSON.stringify({username:u,password:p}));
+    var card=document.querySelector('.login-card');
+    card.style.animation='none';
+    setTimeout(function(){card.style.animation='shake 0.4s ease';},10);
+    return;
+  }
+  currentUser=setSession(found);
+  document.getElementById('login-overlay').classList.add('hidden');
+  onLoginSuccess();
 }
 
 function doLogout(){
-  var x=new XMLHttpRequest();
-  x.open('POST',API+'/api/logout',true);
-  x.withCredentials=true;
-  x.send();
   clearSession();
   currentUser=null;
   document.getElementById('l-user').value='';
@@ -2151,14 +2126,12 @@ document.addEventListener('DOMContentLoaded',function(){
 
 function doGet(p,cb){
   var x=new XMLHttpRequest();x.open('GET',API+p,true);
-  x.withCredentials=true;
   x.onreadystatechange=function(){if(x.readyState!==4)return;try{cb(JSON.parse(x.responseText));}catch(e){cb(null);}};
   x.send();
 }
 function doPost(p,b,cb){
   var x=new XMLHttpRequest();x.open('POST',API+p,true);
   x.setRequestHeader('Content-Type','application/json');
-  x.withCredentials=true;
   x.onreadystatechange=function(){if(x.readyState!==4)return;try{if(cb)cb(JSON.parse(x.responseText));}catch(e){if(cb)cb(null);}};
   x.send(JSON.stringify(b));
 }
