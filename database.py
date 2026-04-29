@@ -1,8 +1,48 @@
-import sqlite3, os, logging
+import sqlite3, os, logging, json
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 DB_PATH = os.environ.get('DB_PATH', 'ttracker.db')
+
+# ── Persistent seed files (survive Render restarts via GitHub) ────────────────
+CHANNELS_SEED_FILE = os.path.join(os.path.dirname(__file__), 'channels.json')
+KEYWORDS_SEED_FILE = os.path.join(os.path.dirname(__file__), 'keywords.json')
+
+def _load_channels_seed():
+    """Load channels from channels.json seed file."""
+    if os.path.exists(CHANNELS_SEED_FILE):
+        try:
+            with open(CHANNELS_SEED_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
+
+def _save_channels_seed(channels):
+    """Save current channel list to channels.json."""
+    try:
+        with open(CHANNELS_SEED_FILE, 'w', encoding='utf-8') as f:
+            json.dump(channels, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.warning(f'Could not save channels seed: {e}')
+
+def _load_keywords_seed():
+    """Load keywords from keywords.json seed file."""
+    if os.path.exists(KEYWORDS_SEED_FILE):
+        try:
+            with open(KEYWORDS_SEED_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
+
+def _save_keywords_seed(keywords):
+    """Save current keyword list to keywords.json."""
+    try:
+        with open(KEYWORDS_SEED_FILE, 'w', encoding='utf-8') as f:
+            json.dump(keywords, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.warning(f'Could not save keywords seed: {e}')
 
 # ── Default channels seeded from Database - Media and Open Source Information ──
 # Telegram channels (38) + Website sources (23) from the ACF source database.
@@ -153,8 +193,7 @@ def init_db():
     ''')
     conn.commit()
 
-    # Always ensure all default channels exist (INSERT OR IGNORE is safe)
-    # Each entry is (username, display, source_type, source_url)
+    # Seed from hardcoded defaults (INSERT OR IGNORE keeps existing data safe)
     for entry in DEFAULT_CHANNELS:
         username, display, source_type, source_url = entry
         conn.execute(
@@ -163,12 +202,29 @@ def init_db():
         )
     conn.commit()
 
-    # Always ensure all keywords exist
+    # Seed from channels.json (user-added channels that must survive restarts)
+    for ch in _load_channels_seed():
+        conn.execute(
+            'INSERT OR IGNORE INTO channels (username, display, description, source_type, source_url) VALUES (?, ?, ?, ?, ?)',
+            (ch.get('username',''), ch.get('display',''), ch.get('description',''),
+             ch.get('source_type','telegram'), ch.get('source_url',''))
+        )
+    conn.commit()
+
+    # Seed hardcoded keywords
     for word in ALL_KEYWORDS:
         is_crit = 1 if word in CRITICAL_KW else 0
         conn.execute(
             'INSERT OR IGNORE INTO keywords (word, is_critical) VALUES (?, ?)',
             (word, is_crit)
+        )
+    conn.commit()
+
+    # Seed from keywords.json (user-added keywords that must survive restarts)
+    for kw in _load_keywords_seed():
+        conn.execute(
+            'INSERT OR IGNORE INTO keywords (word, is_critical) VALUES (?, ?)',
+            (kw.get('word',''), kw.get('is_critical', 0))
         )
     conn.commit()
     conn.close()
