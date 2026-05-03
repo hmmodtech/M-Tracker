@@ -1327,6 +1327,44 @@ var AUTH_USERS_KEY='mtracker_users_v2';
 var AUTH_SESSION_KEY='mtracker_session_v2';
 var AUTH_DB_VERSION='2';
 
+/* ══════════════════════════════════════════
+   PERSISTENCE — channels, keywords, users
+   Strategy: localStorage cache → instant render on load
+             Backend API → authoritative source, updates cache
+══════════════════════════════════════════ */
+var LS_CH_KEY  = 'mtracker_channels_v1';
+var LS_KW_KEY  = 'mtracker_keywords_v1';
+
+/* ── Channel cache helpers ── */
+function getCachedChannels(){
+  try{ var r=localStorage.getItem(LS_CH_KEY); return r?JSON.parse(r):[]; }catch(e){ return []; }
+}
+function cacheChannels(data){
+  try{ localStorage.setItem(LS_CH_KEY, JSON.stringify(arr(data))); }catch(e){}
+}
+
+/* ── Keyword cache helpers ── */
+function getCachedKeywords(){
+  try{ var r=localStorage.getItem(LS_KW_KEY); return r?JSON.parse(r):[]; }catch(e){ return []; }
+}
+function cacheKeywords(data){
+  try{ localStorage.setItem(LS_KW_KEY, JSON.stringify(arr(data))); }catch(e){}
+}
+
+/* ── Full state save (call after any mutation) ── */
+function saveStateLocal(){
+  cacheChannels(S.channels);
+  cacheKeywords(S.keywords);
+}
+
+/* ── Full state load — instant render from cache before API responds ── */
+function loadStateLocal(){
+  var ch = getCachedChannels();
+  var kw = getCachedKeywords();
+  if(kw.length){ S.keywords=kw; rebuildCrit(); renderKw(); }
+  if(ch.length){ S.channels=ch; buildPills(); loadOv(); }
+}
+
 var API='';
 
 
@@ -1605,11 +1643,15 @@ function onLoginSuccess(){
   requestNotifPerm();
   applyRoleRestrictions();
   loadScreenOptions();
+  /* ── Cache-first: render immediately from localStorage ── */
+  loadStateLocal();
+  /* ── Then fetch from API, update cache & re-render ── */
   doGet('/api/keywords',function(d){
-    S.keywords=arr(d);rebuildCrit();renderKw();
+    if(d){S.keywords=arr(d);cacheKeywords(d);rebuildCrit();renderKw();}
     doGet('/api/channels',function(cd){
-      S.channels=arr(cd);buildPills();
-      loadOv();
+      if(cd){S.channels=arr(cd);cacheChannels(cd);buildPills();}
+      /* Only call loadOv from here when cache was empty (avoids double load) */
+      if(!getCachedChannels().length)loadOv();
     });
   });
   setInterval(autoRefresh,30000);
@@ -2867,7 +2909,7 @@ function openMap(name,coords,gmaps){
 function closeMap(){document.getElementById('map-ov').classList.remove('open');document.getElementById('map-frame').src='';}
 
 
-function loadChannels(){doGet('/api/channels',function(d){S.channels=arr(d);renderChannels();buildPills();});}
+function loadChannels(){doGet('/api/channels',function(d){S.channels=arr(d);cacheChannels(d);renderChannels();buildPills();});}
 function setChTab(t){
   chTab=t;
   ['ct-all','ct-tg','ct-web'].forEach(function(id){var b=document.getElementById(id);if(b)b.classList.remove('on');});
@@ -2924,7 +2966,7 @@ function addCh(){
     if(!res){showToast('Error adding channel');return;}
     closeM('m-add');
     ['m-user','m-disp','m-desc','m-url'].forEach(function(id){document.getElementById(id).value='';});
-    doGet('/api/channels',function(cd){S.channels=arr(cd);renderChannels();buildPills();showToast('Channel added: '+d);});
+    doGet('/api/channels',function(cd){S.channels=arr(cd);cacheChannels(cd);renderChannels();buildPills();showToast('Channel added: '+d);});
   });
 }
 function openEdit(id,d,desc,surl){
@@ -2935,12 +2977,12 @@ function openEdit(id,d,desc,surl){
 function saveEdit(){
   var id=document.getElementById('e-id').value;
   doPut('/api/channels/'+id,{display:document.getElementById('e-disp').value,desc:document.getElementById('e-desc').value,source_url:document.getElementById('e-url').value},function(){
-    closeM('m-edit');doGet('/api/channels',function(cd){S.channels=arr(cd);renderChannels();showToast('Updated');});
+    closeM('m-edit');doGet('/api/channels',function(cd){S.channels=arr(cd);cacheChannels(cd);renderChannels();showToast('Updated');});
   });
 }
 function delCh(id){
   if(!confirm('Delete this channel and all messages?'))return;
-  doDel('/api/channels/'+id,function(){doGet('/api/channels',function(cd){S.channels=arr(cd);renderChannels();buildPills();showToast('Deleted');});});
+  doDel('/api/channels/'+id,function(){doGet('/api/channels',function(cd){S.channels=arr(cd);cacheChannels(cd);renderChannels();buildPills();showToast('Deleted');});});
 }
 
 
@@ -2960,7 +3002,7 @@ function toggleBm(id,btn){
 }
 
 
-function loadKw(){doGet('/api/keywords',function(d){S.keywords=arr(d);rebuildCrit();renderKw();});}
+function loadKw(){doGet('/api/keywords',function(d){S.keywords=arr(d);cacheKeywords(d);rebuildCrit();renderKw();});}
 function rebuildCrit(){CRIT_SET={};S.keywords.forEach(function(k){if(k.is_critical)CRIT_SET[k.word]=true;});}
 function renderKw(){
   var el=document.getElementById('kw-tags');if(!el)return;
@@ -2975,11 +3017,11 @@ function addKw(){
   if(!v)return;
   doPost('/api/keywords',{word:v,is_critical:crit},function(){
     if(inp)inp.value='';if(chk)chk.checked=false;
-    doGet('/api/keywords',function(d){S.keywords=arr(d);rebuildCrit();renderKw();renderFeed();showToast('Keyword added: '+v);});
+    doGet('/api/keywords',function(d){S.keywords=arr(d);cacheKeywords(d);rebuildCrit();renderKw();renderFeed();showToast('Keyword added: '+v);});
   });
 }
 function delKw(id){
-  doDel('/api/keywords/'+id,function(){doGet('/api/keywords',function(d){S.keywords=arr(d);rebuildCrit();renderKw();renderFeed();});});
+  doDel('/api/keywords/'+id,function(){doGet('/api/keywords',function(d){S.keywords=arr(d);cacheKeywords(d);rebuildCrit();renderKw();renderFeed();});});
 }
 function scrapeNow(){showToast('Scraping...');doPost('/api/scrape',{},function(){fetchMsgs();showToast('Scrape complete');});}
 
