@@ -2571,12 +2571,14 @@ var S={channels:[],messages:[],bookmarks:[],keywords:[]};
 var feedMode='all',chFilter='ALL',chTab='all',mType='telegram';
 var dark=true,muted=false,projMode=false;
 
-var geoFilter='ALL';
+var geoFilter='gazapal';
 var GEO_CATS=[
-  {id:'gaza',     en:'Gaza',          ar:'غزة',           flag:'🇵🇸',
+  {id:'gazapal',  en:'Gaza & Palestine (Default)',ar:'غزة وفلسطين',flag:'🇵🇸',isDefault:true,
+   kw:['gaza','غزة','غزه','رفح','rafah','jabalia','جباليا','khan yunis','خان يونس','deir al balah','دير البلح','beit hanoun','بيت حانون','beit lahiya','بيت لاهيا','nuseirat','النصيرات','shifa','الشفاء','al shati','الشاطئ','شجاعية','shejaiya','palestine','فلسطين','فلسطيني','palestinian','west bank','الضفة','ramallah','رام الله','hebron','الخليل','nablus','نابلس','jenin','جنين','tulkarm','طولكرم','قلقيلية','qalqilya','أريحا','jericho','الأقصى','al-aqsa','القدس','jerusalem','aqsa','اقتحام','مستوطن','settler','idf','جيش الاحتلال','occupation','احتلال','الاحتلال','ceasefire','هدنة','وقف إطلاق','نازح','displacement','إخلاء','evacuation','humanitarian','إنساني','غارة','airstrike','قصف','bombing','شهيد','martyr','إصابة','wounded','مجزرة','massacre','مخيم','refugee camp','unrwa','أونروا','مساعدات','aid','convoy','قافلة','معبر','crossing','كرم أبو سالم','beit hanun crossing','erez']},
+  {id:'gaza',     en:'Gaza Strip Only', ar:'قطاع غزة فقط',  flag:'🗺️',
    kw:['gaza','غزة','غزه','رفح','rafah','jabalia','جباليا','khan yunis','خان يونس','deir al balah','دير البلح','beit hanoun','بيت حانون','beit lahiya','بيت لاهيا','nuseirat','النصيرات','shifa','الشفاء','al shati','الشاطئ','شجاعية','shejaiya']},
-  {id:'palestine',en:'Palestine',      ar:'فلسطين',        flag:'🇵🇸',
-   kw:['palestine','فلسطين','فلسطيني','palestinian','west bank','الضفة','ramallah','رام الله','hebron','الخليل','nablus','نابلس','jenin','جنين','tulkarm','طولكرم','قلقيلية','qalqilya']},
+  {id:'palestine',en:'West Bank / Palestine', ar:'الضفة الغربية', flag:'🏳️',
+   kw:['palestine','فلسطين','فلسطيني','palestinian','west bank','الضفة','ramallah','رام الله','hebron','الخليل','nablus','نابلس','jenin','جنين','tulkarm','طولكرم','قلقيلية','qalqilya','jerusalem','القدس','jericho','أريحا']},
   {id:'lebanon',  en:'Lebanon',        ar:'لبنان',         flag:'🇱🇧',
    kw:['lebanon','لبنان','لبناني','lebanese','beirut','بيروت','hezbollah','حزب الله','south lebanon','جنوب لبنان']},
   {id:'iran',     en:'Iran',           ar:'إيران',         flag:'🇮🇷',
@@ -2826,14 +2828,17 @@ function buildActs(){
   var badge=newCount>0?('<span class="bbn on">'+newCount+'</span>'):'<span class="bbn"></span>';
   var fsvg='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>';
   var activeCat=geoFilter!=='ALL'?GEO_CATS.find(function(c){return c.id===geoFilter;}):null;
-  var filterLabel=activeCat?fsvg+' '+activeCat.flag+' '+activeCat.en:fsvg+' Filter';
+  var isDefaultFilter=geoFilter==='gazapal';
+  var filterLabel=activeCat
+    ?(fsvg+' '+activeCat.flag+' '+(isDefaultFilter?'Gaza & Pal.':activeCat.en))
+    :(fsvg+' All Regions');
   var h='<div class="live"><span class="ldot"></span>LIVE</div>'+
     '<button class="btn" onclick="exportData(false)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'+
     '<button class="btn" onclick="setTheme('+(dark?'false':'true')+')">'+(dark?sun:moon)+'</button>'+
     '<button class="btn bell" onclick="toggleMute()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+bsvg+'</svg>'+badge+'</button>'+
     '<div class="geo-filter-wrap">'+
       '<button class="btn'+(geoFilter!=='ALL'?' geo-active':'')+'" onclick="toggleGeoPanel(event)">'+filterLabel+'</button>'+
-      '<span class="geo-dot'+(geoFilter!=='ALL'?' on':'')+'"></span>'+
+      '<span class="geo-dot'+(geoFilter!=='ALL'?' on':'')+'" title="'+(geoFilter==='gazapal'?'Gaza & Palestine filter active — non-related feeds hidden':'Filter active')+'"></span>'+
       '<div class="geo-panel" id="geo-panel">'+buildGeoPanelHTML()+'</div>'+
     '</div>'+
     '<button class="btn proj-btn" onclick="toggleProj()" title="Toggle projection mode"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'+( projMode ? 'Exit Projection' : 'Project' )+'</button>';
@@ -3108,15 +3113,29 @@ document.addEventListener('click',function(e){
 
 function buildGeoPanelHTML(){
   var h='<div class="geo-panel-title">Filter by Region</div>';
-  h+='<div class="geo-opt'+(geoFilter==='ALL'?' active':'')+'" onclick="setGeoFilter(\'ALL\')">'
-    +'<div class="geo-opt-left"><span class="geo-opt-flag">🌐</span><div class="geo-opt-labels"><div class="geo-opt-en">All Regions</div><div class="geo-opt-ar">كل المناطق</div></div></div>'
+  var defCat=GEO_CATS[0];
+  h+='<div class="geo-opt'+(geoFilter===defCat.id?' active':'')+'" onclick="setGeoFilter(\''+defCat.id+'\')" style="'+(geoFilter===defCat.id?'':'border:1px dashed rgba(0,151,167,0.3);')+'">'
+    +'<div class="geo-opt-left"><span class="geo-opt-flag">'+defCat.flag+'</span>'
+    +'<div class="geo-opt-labels">'
+    +'<div class="geo-opt-en" style="display:flex;align-items:center;gap:5px">Gaza &amp; Palestine '
+    +'<span style=\'font-size:9px;background:rgba(0,151,167,0.15);border:1px solid rgba(0,151,167,0.4);border-radius:3px;padding:1px 5px;color:var(--cy);letter-spacing:.5px;font-family:JetBrains Mono,monospace\'>DEFAULT</span>'
+    +'</div>'
+    +'<div class="geo-opt-ar">غزة وفلسطين (افتراضي)</div>'
+    +'</div></div>'
     +'<div class="geo-opt-check"></div></div>';
   h+='<div class="geo-divider"></div>';
-  GEO_CATS.forEach(function(c){
-    h+='<div class="geo-opt'+(geoFilter===c.id?' active':'')+'" onclick="setGeoFilter(\''+c.id+'\')">'
+  h+='<div class="geo-opt'+(geoFilter==='ALL'?' active':'')+'" onclick="setGeoFilter(\'ALL\')">'
+    +'<div class="geo-opt-left"><span class="geo-opt-flag">🌐</span><div class="geo-opt-labels"><div class="geo-opt-en">All Regions (no filter)</div><div class="geo-opt-ar">كل المناطق</div></div></div>'
+    +'<div class="geo-opt-check"></div></div>';
+  h+='<div class="geo-divider"></div>';
+  GEO_CATS.slice(1).forEach(function(c){
+    var isNonPal=(c.id==='lebanon'||c.id==='iran'||c.id==='mideast'||c.id==='world');
+    h+='<div class="geo-opt'+(geoFilter===c.id?' active':'')+'" onclick="setGeoFilter(\''+c.id+'\')" '
+      +(isNonPal?'style="opacity:0.75"':'')+' title="'+(isNonPal?'Non-Palestine region':'')+'">'
       +'<div class="geo-opt-left"><span class="geo-opt-flag">'+c.flag+'</span><div class="geo-opt-labels"><div class="geo-opt-en">'+c.en+'</div><div class="geo-opt-ar">'+c.ar+'</div></div></div>'
       +'<div class="geo-opt-check"></div></div>';
   });
+  h+='<div style="font-size:10px;color:var(--dm);padding:8px 4px 3px;font-family:JetBrains Mono,monospace;line-height:1.6;border-top:1px solid var(--b1);margin-top:5px">🛡️ Default shows Gaza &amp; Palestine only<br>Lebanon/Iran etc. hidden unless selected</div>';
   return h;
 }
 function toggleGeoPanel(e){
@@ -3132,7 +3151,8 @@ function setGeoFilter(id){
   document.querySelectorAll('.geo-panel').forEach(function(p){p.classList.remove('open');});
   buildActs();
   renderFeed();
-  var label=id==='ALL'?'All Regions':(GEO_CATS.find(function(c){return c.id===id;})||{en:id}).en;
+  var labelMap={'ALL':'All Regions (no filter)','gazapal':'🇵🇸 Gaza & Palestine (default)'};
+  var label=labelMap[id]||(GEO_CATS.find(function(c){return c.id===id;})||{en:id}).en;
   showToast('Filter: '+label);
 }
 document.addEventListener('click',function(){
@@ -3255,11 +3275,27 @@ function renderFeed(){
     var cat=GEO_CATS.find(function(c){return c.id===geoFilter;});
     if(cat){
       if(cat.id==='world'){
+        /* Worldwide: exclude anything matching known regional keywords */
         var allKw=[];
-        GEO_CATS.forEach(function(c){if(c.id!=='world')allKw=allKw.concat(c.kw);});
+        GEO_CATS.forEach(function(c){if(c.id!=='world'&&c.id!=='ALL')allKw=allKw.concat(c.kw);});
         msgs=msgs.filter(function(m){
           var t=(m.text||'').toLowerCase();
           return !allKw.some(function(kw){return t.indexOf(kw)>=0;});
+        });
+      } else if(cat.id==='gazapal'){
+        /* Gaza & Palestine: INCLUDE matching, AND EXCLUDE non-Palestine regional keywords */
+        var nonPalKw=[];
+        GEO_CATS.forEach(function(c){
+          if(c.id==='lebanon'||c.id==='iran'||c.id==='mideast'||c.id==='world')
+            nonPalKw=nonPalKw.concat(c.kw);
+        });
+        msgs=msgs.filter(function(m){
+          var t=(m.text||'').toLowerCase();
+          /* Keep if it matches Gaza/Palestine keywords OR doesn't match non-Palestine keywords */
+          var matchesPal=cat.kw.some(function(kw){return t.indexOf(kw)>=0;});
+          var matchesNonPal=nonPalKw.some(function(kw){return t.indexOf(kw)>=0;});
+          /* Show if: matches Palestine KW, OR is neutral (matches neither) */
+          return matchesPal || !matchesNonPal;
         });
       } else {
         msgs=msgs.filter(function(m){
