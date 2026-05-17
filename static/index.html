@@ -2572,19 +2572,146 @@ var feedMode='all',chFilter='ALL',chTab='all',mType='telegram';
 var dark=true,muted=false,projMode=false;
 
 var geoFilter='gazapal';
+
+/* ══════════════════════════════════════════════════════════════════
+   MASTER EXCLUSION LIST — all terms that identify NON-Palestine news
+   When Gaza & Palestine filter is active, any message matching these
+   is EXCLUDED unless it also contains a Palestine/Gaza keyword.
+   Both English and Arabic forms included for every term.
+══════════════════════════════════════════════════════════════════ */
+var EXCLUDE_KW=[
+  /* Lebanon — English */
+  'lebanon','lebanese','beirut','beyrouth','south lebanon','southern lebanon',
+  'tripoli lebanon','sidon','tyre','nabatieh','baalbek','bint jbeil',
+  'litani river','cedars of lebanon',
+  /* Lebanon — Arabic */
+  'لبنان','لبناني','لبنانية','اللبناني','اللبنانية','بيروت','جنوب لبنان',
+  'الجنوب اللبناني','طرابلس لبنان','صيدا','صور','النبطية','بعلبك','بنت جبيل',
+  'نهر الليطاني',
+  /* Hezbollah — English & Arabic */
+  'hezbollah','hizballah','hizbullah','hizb allah','hizbullah','hassan nasrallah',
+  'nasrallah','naim qassem','ismail qaani',
+  'حزب الله','نصرالله','حسن نصرالله','نعيم قاسم','الضاحية الجنوبية','الضاحية',
+  /* Iran — English */
+  'iran','iranian','tehran','teheran','isfahan','mashhad','qom','shiraz','tabriz',
+  'khamenei','khomeini','rouhani','raisi','pezeshkian','zarif',
+  'irgc','revolutionary guard','quds force','basij','sepah',
+  'nuclear deal','jcpoa','uranium enrichment',
+  /* Iran — Arabic */
+  'إيران','ايران','إيراني','ايراني','طهران','أصفهان','مشهد','قم','شيراز',
+  'خامنئي','خميني','روحاني','رئيسي','بيزشكيان','ظريف',
+  'الحرس الثوري','قوة القدس','الباسيج','فيلق القدس','سبا الثوري',
+  /* Syria — English & Arabic */
+  'syria','syrian','damascus','aleppo','homs','hama','deir ez-zor','raqqa',
+  'idlib','latakia','tartus','hts','hayat tahrir al-sham',
+  'سوريا','سوري','سورية','دمشق','حلب','حمص','حماة','دير الزور','الرقة',
+  'إدلب','اللاذقية','طرطوس','هيئة تحرير الشام','هيئة','جولاني',
+  /* Iraq — English & Arabic */
+  'iraq','iraqi','baghdad','mosul','basra','erbil','sulaymaniyah','kirkuk',
+  'العراق','عراقي','بغداد','الموصل','البصرة','أربيل','السليمانية','كركوك',
+  'الحشد الشعبي','pmu','popular mobilization',
+  /* Yemen — English & Arabic */
+  'yemen','yemeni','sanaa','aden','houthi','houthis','ansarullah',
+  'اليمن','يمني','صنعاء','عدن','الحوثي','الحوثيون','أنصار الله',
+  /* Jordan — English & Arabic (careful — Jordan border with Palestine is complex) */
+  /* Skipping Jordan to avoid false positives near West Bank */
+  /* Saudi Arabia — English & Arabic */
+  'saudi arabia','riyadh','jeddah','mecca','medina','neom','aramco',
+  'السعودية','الرياض','جدة','مكة','المدينة','أرامكو','نيوم','الحج','العمرة',
+  /* Egypt — English & Arabic (careful — Rafah crossing is Egypt border) */
+  /* We add Egypt city names but NOT "egypt" alone since Rafah context can mention Egypt */
+  'cairo','egyptian president','sisi','el-sisi',
+  'القاهرة','السيسي',
+  /* UAE / Gulf — English & Arabic */
+  'uae','dubai','abu dhabi','qatar','doha','bahrain','kuwait','oman',
+  'الإمارات','دبي','أبوظبي','قطر','الدوحة','البحرين','الكويت','عمان',
+  /* Turkey — English & Arabic */
+  'turkey','turkish','ankara','istanbul','erdogan',
+  'تركيا','تركي','أنقرة','إسطنبول','أردوغان',
+  /* Russia / Ukraine — English & Arabic */
+  'russia','russian','ukraine','ukrainian','moscow','kyiv','zelensky','putin',
+  'روسيا','روسي','أوكرانيا','موسكو','كييف','زيلينسكي','بوتين',
+  /* China / Asia */
+  'china','chinese','beijing','taiwan','north korea',
+  'الصين','بكين','تايوان','كوريا الشمالية',
+  /* Axis of resistance / regional militia umbrella terms */
+  'axis of resistance','محور المقاومة','محور الشر',
+  'islamic resistance in iraq','المقاومة الإسلامية في العراق',
+  'kataib hezbollah','كتائب حزب الله',
+  'hamas lebanon','islamic jihad lebanon'
+];
+
+/* Palestine/Gaza OVERRIDE list — if a message contains ANY of these,
+   it is ALWAYS shown even if it also contains an exclusion keyword.
+   This prevents false exclusion of news that mentions e.g. Iran weapons to Gaza */
+var PALESTINE_OVERRIDE_KW=[
+  /* Gaza geography */
+  'gaza','غزة','غزه','قطاع غزة','قطاع','القطاع',
+  'rafah','رفح','jabalia','جباليا','khan yunis','خان يونس',
+  'deir al balah','دير البلح','beit hanoun','بيت حانون',
+  'beit lahiya','بيت لاهيا','nuseirat','النصيرات','bureij','البريج',
+  'maghazi','المغازي','shujayya','شجاعية','shejaiya','zeitoun','الزيتون',
+  'tel al-hawa','تل الهوى','al-rimal','الرمال','al-daraj','الدرج',
+  'al-shati','الشاطئ','al-tuffah','التفاح','beit lahia','بيت لاهيا',
+  'jabalia camp','مخيم جباليا','al-shifa','الشفاء','shifa','شفاء',
+  'nasser hospital','مستشفى ناصر','al-aqsa hospital','مستشفى الأقصى',
+  'european hospital','المستشفى الأوروبي','kamal adwan','كمال عدوان',
+  'philadelphi','فيلادلفي','netzarim','نتساريم','corridor','ممر','محور',
+  'karam abu salem','كرم أبو سالم','kerem shalom',
+  'erez crossing','معبر إيريز','beit hanun crossing',
+  /* West Bank */
+  'west bank','الضفة','الضفة الغربية','ramallah','رام الله',
+  'hebron','الخليل','nablus','نابلس','jenin','جنين',
+  'tulkarm','طولكرم','qalqilya','قلقيلية','jericho','أريحا',
+  'salfit','سلفيت','bethlehem','بيت لحم','al-khalil',
+  /* Jerusalem */
+  'jerusalem','القدس','al-quds','الأقصى','al-aqsa','aqsa','باب العامود',
+  'damascus gate','lion gate','باب الأسباط','haram al-sharif','الحرم الشريف',
+  /* Palestinian identity */
+  'palestine','فلسطين','فلسطيني','فلسطينية','palestinian','palestinians',
+  'غزاوي','أهل غزة','people of gaza','gazan',
+  /* Key Palestinian factions / groups */
+  'hamas','حماس','islamic jihad','الجهاد الإسلامي','pij',
+  'al-qassam','القسام','saraya al-quds','سرايا القدس',
+  'al-aqsa martyrs','شهداء الأقصى','popular front','الجبهة الشعبية','pflp',
+  'fatah','فتح','plo','منظمة التحرير','pa ','السلطة الفلسطينية',
+  /* Key operations / military terms in Gaza context */
+  'operation al-aqsa flood','طوفان الأقصى','al-aqsa flood','سيف القدس',
+  'iron swords','السيوف الحديدية','idf in gaza','israeli army in gaza',
+  /* Key places mentioned in Gaza news */
+  'unrwa','أونروا','unwra','who in gaza','وكالة غوث',
+  'displacement in gaza','نزوح غزة','نازحو غزة','evacuation order',
+  'safe zone','المنطقة الإنسانية','humanitarian zone',
+  /* Crossings and aid specific to Gaza */
+  'kerem shalom','كرم شالوم','rafah crossing','معبر رفح',
+  'jordan valley crossing','allenby','كرامة','الكرامة',
+  /* Key terms unique to Gaza/Palestine conflict */
+  'settler','مستوطن','مستوطنون','settlement','مستوطنة','مستوطنات',
+  'occupation','الاحتلال','احتلال','جيش الاحتلال',
+  'netanyahu','نتنياهو','بن غفير','smotrich','gallant','غالانت',
+  'idf','الجيش الإسرائيلي','forces invaded','اقتحام','اقتحمت',
+  'ceasefire deal','صفقة وقف إطلاق','prisoner exchange','صفقة تبادل',
+  'hostage','رهينة','أسير','أسرى','detainee','معتقل',
+  'martyr','شهيد','شهداء','wounded','مصاب','مصابون',
+  'airstrike on gaza','قصف غزة','غارة على غزة','bombardment of gaza',
+  'siege of gaza','حصار غزة','famine in gaza','مجاعة غزة',
+  'aid to gaza','مساعدات لغزة','food convoy','قافلة مساعدات',
+  'flour war','حرب الطحين','msf gaza','doctors without borders gaza'
+];
+
 var GEO_CATS=[
   {id:'gazapal',  en:'Gaza & Palestine (Default)',ar:'غزة وفلسطين',flag:'🇵🇸',isDefault:true,
-   kw:['gaza','غزة','غزه','رفح','rafah','jabalia','جباليا','khan yunis','خان يونس','deir al balah','دير البلح','beit hanoun','بيت حانون','beit lahiya','بيت لاهيا','nuseirat','النصيرات','shifa','الشفاء','al shati','الشاطئ','شجاعية','shejaiya','palestine','فلسطين','فلسطيني','palestinian','west bank','الضفة','ramallah','رام الله','hebron','الخليل','nablus','نابلس','jenin','جنين','tulkarm','طولكرم','قلقيلية','qalqilya','أريحا','jericho','الأقصى','al-aqsa','القدس','jerusalem','aqsa','اقتحام','مستوطن','settler','idf','جيش الاحتلال','occupation','احتلال','الاحتلال','ceasefire','هدنة','وقف إطلاق','نازح','displacement','إخلاء','evacuation','humanitarian','إنساني','غارة','airstrike','قصف','bombing','شهيد','martyr','إصابة','wounded','مجزرة','massacre','مخيم','refugee camp','unrwa','أونروا','مساعدات','aid','convoy','قافلة','معبر','crossing','كرم أبو سالم','beit hanun crossing','erez']},
+   kw:PALESTINE_OVERRIDE_KW},
   {id:'gaza',     en:'Gaza Strip Only', ar:'قطاع غزة فقط',  flag:'🗺️',
-   kw:['gaza','غزة','غزه','رفح','rafah','jabalia','جباليا','khan yunis','خان يونس','deir al balah','دير البلح','beit hanoun','بيت حانون','beit lahiya','بيت لاهيا','nuseirat','النصيرات','shifa','الشفاء','al shati','الشاطئ','شجاعية','shejaiya']},
+   kw:['gaza','غزة','غزه','رفح','rafah','jabalia','جباليا','khan yunis','خان يونس','deir al balah','دير البلح','beit hanoun','بيت حانون','beit lahiya','بيت لاهيا','nuseirat','النصيرات','shifa','الشفاء','al shati','الشاطئ','شجاعية','shejaiya','قطاع غزة']},
   {id:'palestine',en:'West Bank / Palestine', ar:'الضفة الغربية', flag:'🏳️',
-   kw:['palestine','فلسطين','فلسطيني','palestinian','west bank','الضفة','ramallah','رام الله','hebron','الخليل','nablus','نابلس','jenin','جنين','tulkarm','طولكرم','قلقيلية','qalqilya','jerusalem','القدس','jericho','أريحا']},
+   kw:['palestine','فلسطين','فلسطيني','palestinian','west bank','الضفة','ramallah','رام الله','hebron','الخليل','nablus','نابلس','jenin','جنين','tulkarm','طولكرم','قلقيلية','qalqilya','jerusalem','القدس','jericho','أريحا','bethlehem','بيت لحم']},
   {id:'lebanon',  en:'Lebanon',        ar:'لبنان',         flag:'🇱🇧',
-   kw:['lebanon','لبنان','لبناني','lebanese','beirut','بيروت','hezbollah','حزب الله','south lebanon','جنوب لبنان']},
+   kw:['lebanon','لبنان','لبناني','lebanese','beirut','بيروت','hezbollah','حزب الله','south lebanon','جنوب لبنان','nasrallah','نصرالله']},
   {id:'iran',     en:'Iran',           ar:'إيران',         flag:'🇮🇷',
-   kw:['iran','إيران','ايران','iranian','tehran','طهران','irgc','الحرس الثوري']},
+   kw:['iran','إيران','ايران','iranian','tehran','طهران','irgc','الحرس الثوري','khamenei','خامنئي']},
   {id:'mideast',  en:'Middle East',    ar:'الشرق الأوسط',  flag:'🌍',
-   kw:['middle east','الشرق الأوسط','syria','سوريا','iraq','العراق','yemen','اليمن','jordan','الأردن','egypt','مصر','saudi','السعودية']},
+   kw:['middle east','الشرق الأوسط','syria','سوريا','iraq','العراق','yemen','اليمن','saudi','السعودية','turkey','تركيا','houthi','الحوثي']},
   {id:'world',    en:'Worldwide',      ar:'العالم',        flag:'🌐',
    kw:[]}
 ];
@@ -3283,19 +3410,28 @@ function renderFeed(){
           return !allKw.some(function(kw){return t.indexOf(kw)>=0;});
         });
       } else if(cat.id==='gazapal'){
-        /* Gaza & Palestine: INCLUDE matching, AND EXCLUDE non-Palestine regional keywords */
-        var nonPalKw=[];
-        GEO_CATS.forEach(function(c){
-          if(c.id==='lebanon'||c.id==='iran'||c.id==='mideast'||c.id==='world')
-            nonPalKw=nonPalKw.concat(c.kw);
-        });
+        /* ── Gaza & Palestine STRICT filter ──────────────────────────────
+           STEP 1: Check if message matches any Palestine/Gaza override keyword.
+                   If YES → always show (even if it also mentions Iran/Lebanon in context).
+           STEP 2: If NO Palestine match → check against the master EXCLUDE_KW list.
+                   If message matches any exclusion keyword → HIDE it.
+           STEP 3: If message matches neither → show (neutral humanitarian/general news).
+           This ensures: Lebanon-only, Iran-only, Syria-only, Yemen-only,
+           Hezbollah-only, Houthi-only news is ALWAYS hidden.
+        ──────────────────────────────────────────────────────────────────── */
         msgs=msgs.filter(function(m){
           var t=(m.text||'').toLowerCase();
-          /* Keep if it matches Gaza/Palestine keywords OR doesn't match non-Palestine keywords */
-          var matchesPal=cat.kw.some(function(kw){return t.indexOf(kw)>=0;});
-          var matchesNonPal=nonPalKw.some(function(kw){return t.indexOf(kw)>=0;});
-          /* Show if: matches Palestine KW, OR is neutral (matches neither) */
-          return matchesPal || !matchesNonPal;
+          /* Palestine override — always keep */
+          var matchesPal=PALESTINE_OVERRIDE_KW.some(function(kw){
+            return t.indexOf(kw.toLowerCase())>=0;
+          });
+          if(matchesPal)return true;
+          /* Exclusion check — strict blacklist */
+          var matchesExclude=EXCLUDE_KW.some(function(kw){
+            return t.indexOf(kw.toLowerCase())>=0;
+          });
+          /* Hide if blacklisted, show if neutral */
+          return !matchesExclude;
         });
       } else {
         msgs=msgs.filter(function(m){
