@@ -44,8 +44,8 @@
   --inner-pad:26px 34px;
   --feed-pad:26px 28px;
 }
-body.light{--bg:linear-gradient(135deg,#f0faf3 0%,#e8f4fd 100%);--bg-solid:#f0faf3;--sb:rgba(13,36,22,0.9);--card:rgba(255,255,255,0.7);--card2:rgba(240,250,243,0.8);--b1:rgba(0,0,0,0.12);--b2:rgba(0,0,0,0.2);--cy:#006666;--cyd:#166534;--cyg:rgba(0,102,102,0.07);--tx:#0d2416;--tx-head:#0d2416;--dm:#4d7a5a;--sha:0 2px 14px rgba(0,0,0,.08)}
-body{font-family:'Inter',sans-serif;background:var(--bg-solid);background-image:linear-gradient(135deg,#EDF2F7 0%,#E8EEF5 50%,#E2E8F0 100%);background-position:center;background-attachment:fixed;color:var(--tx);display:flex;height:100vh;overflow:hidden;transition:background .3s,color .3s;font-size:17px;font-weight:600}
+body.light{--bg:linear-gradient(135deg,#f0f4ff 0%,#e8eeff 40%,#f5f0ff 100%);--bg-solid:#f0f4ff;--sb:rgba(255,255,255,0.75);--card:rgba(255,255,255,0.65);--card2:rgba(255,255,255,0.88);--b1:rgba(80,90,120,0.13);--b2:rgba(80,90,120,0.28);--tx:#1e2340;--tx-head:#0d1120;--dm:#5a6080;--sha:0 4px 22px rgba(80,90,140,0.13)}
+body{font-family:'Inter',sans-serif;background:var(--bg-solid);background-image:var(--bg);background-position:center;background-attachment:fixed;color:var(--tx);display:flex;height:100vh;overflow:hidden;transition:background .3s,background-image .3s,color .3s;font-size:17px;font-weight:600}
 /* Subtle background texture overlay */
 body::before{content:'';position:fixed;inset:0;background:linear-gradient(135deg,rgba(237,242,247,0.0) 0%,rgba(226,232,240,0.0) 100%);pointer-events:none;z-index:0}
 #sb,#main{position:relative;z-index:1}
@@ -228,10 +228,17 @@ body.sb-collapsed #sb-toggle svg{transform:rotate(180deg);}
 }
 .sopt-toggle input:checked+.sopt-toggle-track::after{transform:translateX(17px)}
 /* Color swatches */
-.color-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}
+.color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(32px,1fr));gap:6px;margin-top:8px}
 .color-swatch{
   width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent;
   transition:.15s;flex-shrink:0;
+  box-shadow:0 2px 6px rgba(0,0,0,0.22),inset 0 1px 0 rgba(255,255,255,0.35),inset 0 -1px 0 rgba(0,0,0,0.18);
+  position:relative;overflow:hidden;
+}
+.color-swatch::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(145deg,rgba(255,255,255,0.38) 0%,rgba(255,255,255,0.06) 50%,rgba(0,0,0,0.08) 100%);
+  border-radius:6px;pointer-events:none;
 }
 .color-swatch:hover{transform:scale(1.12)}
 .color-swatch.active{border-color:var(--tx-head);transform:scale(1.08)}
@@ -258,6 +265,12 @@ body.accent-purple{--cy:#8b5cf6;--cyd:#7c3aed;--cyg:rgba(139,92,246,0.08)}
 body.accent-green{--cy:#22c55e;--cyd:#16a34a;--cyg:rgba(34,197,94,0.08)}
 body.accent-orange{--cy:#f97316;--cyd:#ea580c;--cyg:rgba(249,115,22,0.08)}
 body.accent-rose{--cy:#f43f5e;--cyd:#e11d48;--cyg:rgba(244,63,94,0.08)}
+body.accent-amber{--cy:#f59e0b;--cyd:#d97706;--cyg:rgba(245,158,11,0.08)}
+body.accent-indigo{--cy:#6366f1;--cyd:#4f46e5;--cyg:rgba(99,102,241,0.08)}
+body.accent-pink{--cy:#ec4899;--cyd:#db2777;--cyg:rgba(236,72,153,0.08)}
+body.accent-sky{--cy:#0ea5e9;--cyd:#0284c7;--cyg:rgba(14,165,233,0.08)}
+body.accent-red{--cy:#dc2626;--cyd:#b91c1c;--cyg:rgba(220,38,38,0.08)}
+body.accent-emerald{--cy:#10b981;--cyd:#059669;--cyg:rgba(16,185,129,0.08)}
 /* Card styles */
 body.card-flat .mc,body.card-flat .mcs{border-radius:4px;box-shadow:none}
 body.card-rounded .mc,body.card-rounded .mcs{border-radius:20px}
@@ -1157,12 +1170,18 @@ img{pointer-events:none!important;-webkit-user-drag:none!important;}
       <div class="sopt-section">
         <div class="sopt-sec-ttl">🎨 Accent Color</div>
         <div class="color-grid">
-          <div class="color-swatch active" data-accent="teal"   style="background:#0097A7" title="Teal (default)" onclick="setAccent('teal')"></div>
-          <div class="color-swatch"        data-accent="blue"   style="background:#3b82f6" title="Blue"           onclick="setAccent('blue')"></div>
-          <div class="color-swatch"        data-accent="purple" style="background:#8b5cf6" title="Purple"         onclick="setAccent('purple')"></div>
-          <div class="color-swatch"        data-accent="green"  style="background:#22c55e" title="Green"          onclick="setAccent('green')"></div>
-          <div class="color-swatch"        data-accent="orange" style="background:#f97316" title="Orange"         onclick="setAccent('orange')"></div>
-          <div class="color-swatch"        data-accent="rose"   style="background:#f43f5e" title="Rose"           onclick="setAccent('rose')"></div>
+          <div class="color-swatch active" data-accent="teal"    style="background:#0097A7" title="Teal (default)" onclick="setAccent('teal')"></div>
+          <div class="color-swatch"        data-accent="blue"    style="background:#3b82f6" title="Blue"           onclick="setAccent('blue')"></div>
+          <div class="color-swatch"        data-accent="purple"  style="background:#8b5cf6" title="Purple"         onclick="setAccent('purple')"></div>
+          <div class="color-swatch"        data-accent="green"   style="background:#22c55e" title="Green"          onclick="setAccent('green')"></div>
+          <div class="color-swatch"        data-accent="orange"  style="background:#f97316" title="Orange"         onclick="setAccent('orange')"></div>
+          <div class="color-swatch"        data-accent="rose"    style="background:#f43f5e" title="Rose"           onclick="setAccent('rose')"></div>
+          <div class="color-swatch"        data-accent="amber"   style="background:#f59e0b" title="Amber"          onclick="setAccent('amber')"></div>
+          <div class="color-swatch"        data-accent="indigo"  style="background:#6366f1" title="Indigo"         onclick="setAccent('indigo')"></div>
+          <div class="color-swatch"        data-accent="pink"    style="background:#ec4899" title="Pink"           onclick="setAccent('pink')"></div>
+          <div class="color-swatch"        data-accent="sky"     style="background:#0ea5e9" title="Sky"            onclick="setAccent('sky')"></div>
+          <div class="color-swatch"        data-accent="red"     style="background:#dc2626" title="Red"            onclick="setAccent('red')"></div>
+          <div class="color-swatch"        data-accent="emerald" style="background:#10b981" title="Emerald"        onclick="setAccent('emerald')"></div>
         </div>
       </div>
 
@@ -2925,12 +2944,18 @@ function drawMap(){
 
 
 function setTheme(d){
-  dark=d;
-  document.body.classList.toggle('light',!d);
+  dark=!!d;
+  document.body.classList.toggle('light',!dark);
+  /* Clear inline bg overrides so CSS theme vars take control */
+  document.body.style.backgroundColor='';
+  document.body.style.backgroundImage='';
+  /* Sync the toggle checkbox */
   var tog=document.getElementById('tog-dark');
-  if(tog)tog.checked=d;
+  if(tog)tog.checked=dark;
+  /* Persist immediately */
+  saveSopt();
   buildActs();
-  showToast(d?'Dark mode':'Light mode');
+  showToast(dark?'Dark mode':'Light mode');
 }
 
 
@@ -2961,7 +2986,7 @@ function buildActs(){
     :(fsvg+' All Regions');
   var h='<div class="live"><span class="ldot"></span>LIVE</div>'+
     '<button class="btn" onclick="exportData(false)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'+
-    '<button class="btn" onclick="setTheme('+(dark?'false':'true')+')">'+(dark?sun:moon)+'</button>'+
+    '<button class="btn" onclick="setTheme(!dark)" title="'+(dark?'Switch to Light':'Switch to Dark')+'">'+(dark?sun:moon)+'</button>'+
     '<button class="btn bell" onclick="toggleMute()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+bsvg+'</svg>'+badge+'</button>'+
     '<div class="geo-filter-wrap">'+
       '<button class="btn'+(geoFilter!=='ALL'?' geo-active':'')+'" onclick="toggleGeoPanel(event)">'+filterLabel+'</button>'+
@@ -2991,7 +3016,12 @@ function loadScreenOptions(){
     else if(o.bgCustom)setBgColorCustom(o.bgCustom);
     if(o.fgPreset)setFgColor(o.fgPreset,true);
     else if(o.fgCustom)setFgColorCustom(o.fgCustom);
-    if(o.dark===false){setTheme(false);var tog=document.getElementById('tog-dark');if(tog)tog.checked=false;}
+    /* Restore dark/light theme first so background CSS vars are correct */
+    if(typeof o.dark==='boolean' && o.dark===false){
+      dark=false;
+      document.body.classList.add('light');
+      var tog=document.getElementById('tog-dark');if(tog)tog.checked=false;
+    }
     if(o.anim===false){setAnimations(false);var ta=document.getElementById('tog-anim');if(ta)ta.checked=false;}
     if(o.focus){setFocusMode(true);var tf=document.getElementById('tog-focus');if(tf)tf.checked=true;}
     if(o.compstats){setCompactStats(true);var tc=document.getElementById('tog-compstats');if(tc)tc.checked=true;}
@@ -3027,7 +3057,7 @@ function toggleSoptPanel(){
 }
 
 function setAccent(name,silent){
-  var accents=['teal','blue','purple','green','orange','rose'];
+  var accents=['teal','blue','purple','green','orange','rose','amber','indigo','pink','sky','red','emerald'];
   accents.forEach(function(a){document.body.classList.remove('accent-'+a);});
   if(name!=='teal')document.body.classList.add('accent-'+name);
   document.querySelectorAll('.color-swatch').forEach(function(s){
@@ -3181,6 +3211,7 @@ function resetScreenOptions(){
   localStorage.removeItem(SOPT_KEY);
   
   ['accent-blue','accent-purple','accent-green','accent-orange','accent-rose',
+   'accent-amber','accent-indigo','accent-pink','accent-sky','accent-red','accent-emerald',
    'card-flat','card-rounded','card-bordered',
    'density-compact','density-spacious',
    'no-anim','focus-mode','compact-stats','hide-clock'].forEach(function(c){
