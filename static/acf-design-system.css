@@ -1,126 +1,596 @@
-/* ==========================================================================
-   M-TRACKER LOGIN PAGE STYLES
-   ========================================================================== */
+/*
+ * ============================================================
+ *  ACF TRACKERS — UNIFIED DESIGN SYSTEM
+ *  Projects: C-Tracker · M-Tracker · S-Tracker
+ *  Version:  1.0
+ * ============================================================
+ *
+ *  HOW TO USE (for AI agents / developers)
+ *  ----------------------------------------
+ *  1. Import this file once in your project root:
+ *       <link rel="stylesheet" href="acf-design-system.css">
+ *     or in JS:
+ *       import './acf-design-system.css';
+ *
+ *  2. All tokens live on :root — use them anywhere:
+ *       background: var(--acf-glass-green);
+ *       color: var(--acf-green);
+ *
+ *  3. Utility classes are ready to use directly in HTML.
+ *
+ *  4. Each project has its own accent variable:
+ *       C-Tracker  → use --acf-green  (dashboard / central)
+ *       M-Tracker  → use --acf-blue   (secure / field access)
+ *       S-Tracker  → use --acf-green  (staff safety)
+ *
+ * ============================================================
+ *  AI AGENT INSTRUCTIONS
+ * ============================================================
+ *
+ *  IDENTITY
+ *  - Organisation: ACF (Action Contre la Faim) — Gaza Operations
+ *  - Brand logo colors: Green #4a9e35 (leaf) + Blue #3878c8 (water drop)
+ *  - All three projects share ONE design system. Never invent new
+ *    colors; always pull from the tokens below.
+ *
+ *  DESIGN LANGUAGE
+ *  - Light, airy UI with frosted-glass transparency effects
+ *  - White/near-white backgrounds with colored glass overlays
+ *  - Subtle borders using rgba (never solid dark borders)
+ *  - Border-radius: 8px components, 12-14px cards, 20px pills/badges
+ *  - No drop-shadows except focus rings
+ *  - Font: system sans-serif (Inter, Segoe UI, or similar)
+ *  - Font weights: 400 regular, 500 medium only — never 600/700
+ *  - All text: sentence case. No ALL CAPS except mono status tags.
+ *
+ *  COLOR RULES FOR AI
+ *  - Green = active, healthy, nature, staff, operations
+ *  - Blue  = data, sync, secure, water, reports, field access
+ *  - Warning status → #ea9f14 (amber) — never yellow
+ *  - Critical/danger → #dc3232 (red)
+ *  - Glass effects: always rgba at 6-10% opacity for fills,
+ *    20-25% for borders
+ *  - Never use pure black (#000) for text — use --acf-text
+ *  - Never use white (#fff) as a border — use rgba whites
+ *
+ *  COMPONENT RULES FOR AI
+ *  - Buttons: solid fill for primary, glass fill for secondary
+ *  - Cards: white 70% opacity background + colored top border (2px)
+ *  - Badges: glass fill + matching border, 20px border-radius
+ *  - Navbars: glass background, no hard borders
+ *  - Login screens: white 82% opacity card, soft shadow
+ *  - Progress bars: 3px height, rounded, colored fill
+ *  - Status dots: 5x5px circles inside badges
+ *
+ *  PROJECT DIFFERENTIATION
+ *  - C-Tracker: green accent, dashboard layout, central hub
+ *  - M-Tracker: blue accent, secure login, field records
+ *  - S-Tracker: green accent, staff profiles, incident tracking
+ *
+ * ============================================================
+ */
 
-/* --- Color and Font Variables --- */
+
+/* ============================================================
+   1. COLOR TOKENS
+   ============================================================ */
+
 :root {
-    /* Color Tokens from your requirements */
-    --acf-blue: #3878c8;
-    --acf-green: #4a9e35;
 
-    /* Supporting Tokens */
-    --acf-dark-text: #333;
-    --acf-light-text: #fff;
-    --acf-border-color: rgba(0, 0, 0, 0.1);
+  /* --- Primary Brand Colors (from logo) --- */
+  --acf-green:            #4a9e35;
+  --acf-green-dark:       #357228;
+  --acf-green-light:      #e8f5e2;
+  --acf-green-mid:        #c2e0b4;
+
+  --acf-blue:             #3878c8;
+  --acf-blue-dark:        #2a5fa0;
+  --acf-blue-light:       #e3edf9;
+  --acf-blue-mid:         #aecbf0;
+
+  /* --- Glass / Transparency Fills --- */
+  --acf-glass-green:         rgba(74, 158, 53,  0.08);
+  --acf-glass-green-hover:   rgba(74, 158, 53,  0.14);
+  --acf-glass-green-border:  rgba(74, 158, 53,  0.22);
+
+  --acf-glass-blue:          rgba(56, 120, 200, 0.08);
+  --acf-glass-blue-hover:    rgba(56, 120, 200, 0.14);
+  --acf-glass-blue-border:   rgba(56, 120, 200, 0.22);
+
+  /* --- Surface / Background --- */
+  --acf-bg:               #f7f9fc;
+  --acf-surface:          rgba(255, 255, 255, 0.72);
+  --acf-surface-border:   rgba(255, 255, 255, 0.90);
+  --acf-card-bg:          rgba(255, 255, 255, 0.82);
+
+  /* --- Text --- */
+  --acf-text:             #1a2332;
+  --acf-text-muted:       #5a6a7e;
+  --acf-text-faint:       #8fa0b4;
+
+  /* --- Status Colors --- */
+  --acf-status-active:    #4a9e35;   /* green — same as brand */
+  --acf-status-synced:    #3878c8;   /* blue  — same as brand */
+  --acf-status-warning:   #ea9f14;   /* amber */
+  --acf-status-critical:  #dc3232;   /* red */
+  --acf-status-nodata:    #8fa0b4;   /* faint gray */
+
+  /* Status glass backgrounds */
+  --acf-status-active-bg:   rgba(74,  158,  53, 0.09);
+  --acf-status-warning-bg:  rgba(234, 159,  20, 0.10);
+  --acf-status-critical-bg: rgba(220,  50,  50, 0.09);
+  --acf-status-synced-bg:   rgba(56,  120, 200, 0.09);
+
+  /* --- Border / Divider --- */
+  --acf-border:           rgba(0, 0, 0, 0.08);
+  --acf-border-strong:    rgba(0, 0, 0, 0.15);
+
+  /* --- Border Radius --- */
+  --acf-radius-sm:   6px;
+  --acf-radius-md:   8px;
+  --acf-radius-lg:   12px;
+  --acf-radius-xl:   14px;
+  --acf-radius-pill: 20px;
+
+  /* --- Spacing Scale --- */
+  --acf-space-xs:  4px;
+  --acf-space-sm:  8px;
+  --acf-space-md:  12px;
+  --acf-space-lg:  16px;
+  --acf-space-xl:  24px;
+  --acf-space-2xl: 40px;
+
+  /* --- Typography --- */
+  --acf-font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+  --acf-font-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+
+  --acf-text-xs:   11px;
+  --acf-text-sm:   12px;
+  --acf-text-base: 14px;
+  --acf-text-md:   16px;
+  --acf-text-lg:   18px;
+  --acf-text-xl:   22px;
+  --acf-text-stat: 26px;
 }
 
-/* --- Base Layout & Background --- */
-.acf-body-background {
-    background-color: #f0f2f5; /* A neutral light grey background */
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
+
+/* ============================================================
+   2. RESET & BASE
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.acf-login-container {
-    padding: 20px;
+body {
+  font-family: var(--acf-font);
+  font-size: var(--acf-text-base);
+  color: var(--acf-text);
+  background: var(--acf-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* --- Login Card --- */
-/* RULE: "Login card: white 82% opacity, blue glass border" */
+
+/* ============================================================
+   3. TYPOGRAPHY UTILITIES
+   ============================================================ */
+
+.acf-page-title   { font-size: var(--acf-text-xl);  font-weight: 500; color: var(--acf-text); }
+.acf-section-title{ font-size: var(--acf-text-md);  font-weight: 500; color: var(--acf-text); }
+.acf-body         { font-size: var(--acf-text-base); font-weight: 400; color: var(--acf-text); }
+.acf-caption      { font-size: var(--acf-text-sm);  font-weight: 400; color: var(--acf-text-muted); }
+.acf-label        { font-size: var(--acf-text-xs);  font-weight: 500; color: var(--acf-text-faint);
+                    text-transform: uppercase; letter-spacing: 0.08em; }
+.acf-mono         { font-family: var(--acf-font-mono); font-size: var(--acf-text-sm); }
+.acf-stat         { font-size: var(--acf-text-stat); font-weight: 500; color: var(--acf-text); }
+
+
+/* ============================================================
+   4. BADGE / STATUS CHIPS
+   ============================================================ */
+
+.acf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: var(--acf-radius-pill);
+  font-size: var(--acf-text-xs);
+  font-weight: 500;
+  border: 0.5px solid transparent;
+}
+
+.acf-badge-green {
+  background: var(--acf-status-active-bg);
+  color: var(--acf-green-dark);
+  border-color: var(--acf-glass-green-border);
+}
+
+.acf-badge-blue {
+  background: var(--acf-status-synced-bg);
+  color: var(--acf-blue-dark);
+  border-color: var(--acf-glass-blue-border);
+}
+
+.acf-badge-warning {
+  background: var(--acf-status-warning-bg);
+  color: #8a5c00;
+  border-color: rgba(234, 159, 20, 0.25);
+}
+
+.acf-badge-critical {
+  background: var(--acf-status-critical-bg);
+  color: #8a1a1a;
+  border-color: rgba(220, 50, 50, 0.22);
+}
+
+.acf-badge-neutral {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--acf-text-muted);
+  border-color: rgba(0, 0, 0, 0.10);
+}
+
+/* Status dot inside badge */
+.acf-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+
+/* ============================================================
+   5. BUTTONS
+   ============================================================ */
+
+.acf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 15px;
+  border-radius: var(--acf-radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--acf-font);
+  cursor: pointer;
+  border: 0.5px solid transparent;
+  transition: opacity 0.15s;
+  text-decoration: none;
+}
+.acf-btn:hover  { opacity: 0.88; }
+.acf-btn:active { transform: scale(0.98); }
+
+/* Solid — Green */
+.acf-btn-green {
+  background: var(--acf-green);
+  color: #fff;
+  border-color: var(--acf-green-dark);
+}
+
+/* Solid — Blue */
+.acf-btn-blue {
+  background: var(--acf-blue);
+  color: #fff;
+  border-color: var(--acf-blue-dark);
+}
+
+/* Ghost — Green */
+.acf-btn-ghost-green {
+  background: var(--acf-glass-green);
+  color: var(--acf-green-dark);
+  border-color: var(--acf-glass-green-border);
+}
+.acf-btn-ghost-green:hover {
+  background: var(--acf-glass-green-hover);
+  opacity: 1;
+}
+
+/* Ghost — Blue */
+.acf-btn-ghost-blue {
+  background: var(--acf-glass-blue);
+  color: var(--acf-blue-dark);
+  border-color: var(--acf-glass-blue-border);
+}
+.acf-btn-ghost-blue:hover {
+  background: var(--acf-glass-blue-hover);
+  opacity: 1;
+}
+
+/* Outline (neutral / danger) */
+.acf-btn-outline {
+  background: transparent;
+  color: var(--acf-text-muted);
+  border-color: var(--acf-border-strong);
+}
+
+/* Danger */
+.acf-btn-danger {
+  background: var(--acf-status-critical-bg);
+  color: #8a1a1a;
+  border-color: rgba(220, 50, 50, 0.22);
+}
+
+/* Button sizes */
+.acf-btn-sm { padding: 5px 10px; font-size: 12px; }
+.acf-btn-lg { padding: 10px 20px; font-size: 14px; }
+.acf-btn-full { width: 100%; justify-content: center; }
+
+
+/* ============================================================
+   6. CARDS
+   ============================================================ */
+
+/* Base glass card */
+.acf-card {
+  background: var(--acf-card-bg);
+  border: 0.5px solid var(--acf-surface-border);
+  border-radius: var(--acf-radius-xl);
+  padding: 16px 20px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Tracker card — green accent top */
+.acf-card-green {
+  background: rgba(255, 255, 255, 0.78);
+  border: 0.5px solid var(--acf-glass-green-border);
+  border-top: 2px solid var(--acf-green);
+  border-radius: var(--acf-radius-lg);
+  padding: 16px 18px;
+}
+
+/* Tracker card — blue accent top */
+.acf-card-blue {
+  background: rgba(255, 255, 255, 0.78);
+  border: 0.5px solid var(--acf-glass-blue-border);
+  border-top: 2px solid var(--acf-blue);
+  border-radius: var(--acf-radius-lg);
+  padding: 16px 18px;
+}
+
+/* Tracker card — warning accent */
+.acf-card-warning {
+  background: rgba(255, 255, 255, 0.78);
+  border: 0.5px solid rgba(234, 159, 20, 0.25);
+  border-top: 2px solid var(--acf-status-warning);
+  border-radius: var(--acf-radius-lg);
+  padding: 16px 18px;
+}
+
+/* Icon container inside card */
+.acf-card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--acf-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.acf-card-icon-green {
+  background: var(--acf-glass-green);
+  border: 0.5px solid var(--acf-glass-green-border);
+}
+.acf-card-icon-blue {
+  background: var(--acf-glass-blue);
+  border: 0.5px solid var(--acf-glass-blue-border);
+}
+
+/* Stat summary mini card */
+.acf-stat-mini {
+  background: rgba(0, 0, 0, 0.03);
+  border: 0.5px solid var(--acf-border);
+  border-radius: var(--acf-radius-md);
+  padding: 10px 12px;
+}
+
+
+/* ============================================================
+   7. PROGRESS BAR
+   ============================================================ */
+
+.acf-progress {
+  height: 3px;
+  background: rgba(0, 0, 0, 0.07);
+  border-radius: 2px;
+  margin: 10px 0 6px;
+  overflow: hidden;
+}
+
+.acf-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.acf-progress-green   { background: var(--acf-green); }
+.acf-progress-blue    { background: var(--acf-blue); }
+.acf-progress-warning { background: var(--acf-status-warning); }
+.acf-progress-critical{ background: var(--acf-status-critical); }
+
+
+/* ============================================================
+   8. NAVBAR
+   ============================================================ */
+
+.acf-navbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--acf-radius-lg);
+  border: 0.5px solid var(--acf-border);
+}
+
+/* Per-project navbar tints */
+.acf-navbar-c {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: var(--acf-border);
+}
+.acf-navbar-m {
+  background: var(--acf-glass-blue);
+  border-color: var(--acf-glass-blue-border);
+}
+.acf-navbar-s {
+  background: var(--acf-glass-green);
+  border-color: var(--acf-glass-green-border);
+}
+
+.acf-navbar-brand {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+.acf-navbar-brand-green { color: var(--acf-green-dark); }
+.acf-navbar-brand-blue  { color: var(--acf-blue-dark); }
+
+.acf-nav-link {
+  font-size: 12px;
+  color: var(--acf-text-muted);
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.acf-nav-link:hover          { background: rgba(0,0,0,0.05); }
+.acf-nav-link-active-green   { background: var(--acf-glass-green); color: var(--acf-green-dark); }
+.acf-nav-link-active-blue    { background: var(--acf-glass-blue);  color: var(--acf-blue-dark);  }
+
+/* Logo mark */
+.acf-logo-mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+}
+.acf-logo-green { background: var(--acf-green); }
+.acf-logo-blue  { background: var(--acf-blue);  }
+
+
+/* ============================================================
+   9. LOGIN / AUTH SCREEN
+   ============================================================ */
+
 .acf-login-card {
-    background-color: rgba(255, 255, 255, 0.82);
-    border: 1px solid rgba(56, 120, 200, 0.3); /* Subtle blue border */
-    backdrop-filter: blur(12px); /* This creates the "glass" effect */
-    -webkit-backdrop-filter: blur(12px); /* For Safari compatibility */
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
+  background: var(--acf-card-bg);
+  border: 0.5px solid var(--acf-border);
+  border-radius: var(--acf-radius-xl);
+  padding: 24px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  max-width: 320px;
+  width: 100%;
 }
 
-/* --- Logo & Header --- */
-/* RULE: "Logo icon: shield with blue background" */
-.acf-logo-icon {
-    background-color: var(--acf-blue);
-    width: 70px;
-    height: 70px;
-    margin: 0 auto 20px auto;
-    border-radius: 15%; /* Gives a soft shield-like shape */
-    /* A simple CSS "shield" icon using a pseudo-element */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 36px;
-    font-weight: bold;
+.acf-login-card-green { border-color: var(--acf-glass-green-border); }
+.acf-login-card-blue  { border-color: var(--acf-glass-blue-border);  }
+
+.acf-login-field {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.04);
+  border: 0.5px solid var(--acf-border-strong);
+  border-radius: var(--acf-radius-md);
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: var(--acf-font);
+  color: var(--acf-text);
+  outline: none;
+  transition: border-color 0.15s;
 }
-/* You can add content like a letter inside the shield, or just leave it blank */
-.acf-logo-icon::before {
-    content: 'M'; 
+.acf-login-field:focus {
+  border-color: var(--acf-blue);
+  box-shadow: 0 0 0 3px var(--acf-glass-blue);
 }
 
 
-.acf-header {
-    color: var(--acf-dark-text);
-    margin-bottom: 30px;
-    font-size: 24px;
+/* ============================================================
+   10. DIVIDER
+   ============================================================ */
+
+.acf-divider {
+  height: 0.5px;
+  background: var(--acf-border);
+  border: none;
+  margin: 20px 0;
 }
 
-/* --- Form Elements --- */
-.acf-form-group {
-    margin-bottom: 20px;
-    text-align: left;
-}
 
-.acf-label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--acf-dark-text);
-    font-weight: 500;
-}
+/* ============================================================
+   11. LAYOUT HELPERS
+   ============================================================ */
+
+.acf-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.acf-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.acf-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+
+.acf-flex   { display: flex; align-items: center; }
+.acf-flex-between { display: flex; align-items: center; justify-content: space-between; }
+.acf-gap-sm { gap: 8px;  }
+.acf-gap-md { gap: 12px; }
+.acf-gap-lg { gap: 16px; }
+.acf-spacer { flex: 1; }
+
+
+/* ============================================================
+   12. FORM INPUTS (general)
+   ============================================================ */
 
 .acf-input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--acf-border-color);
-    border-radius: 6px;
-    box-sizing: border-box; /* Ensures padding doesn't affect width */
-    transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.03);
+  border: 0.5px solid var(--acf-border-strong);
+  border-radius: var(--acf-radius-md);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: var(--acf-font);
+  color: var(--acf-text);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-
-/* RULE: "Input focus: blue glow rgba(56,120,200,0.08)" */
 .acf-input:focus {
-    outline: none;
-    border-color: var(--acf-blue);
-    /* I've used a slightly higher opacity for the glow to make it visible */
-    box-shadow: 0 0 0 4px rgba(56, 120, 200, 0.25); 
+  border-color: var(--acf-blue);
+  box-shadow: 0 0 0 3px var(--acf-glass-blue);
 }
 
-/* --- Button --- */
-/* RULE: "Button: solid blue background" */
-.acf-button {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
+.acf-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238fa0b4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
 }
 
-.acf-button-primary {
-    background-color: var(--acf-blue);
-    color: var(--acf-light-text);
+
+/* ============================================================
+   13. SCROLL & MISC
+   ============================================================ */
+
+:focus-visible {
+  outline: 2px solid var(--acf-blue);
+  outline-offset: 2px;
 }
 
-.acf-button-primary:hover {
-    /* A slightly darker shade for hover effect */
-    background-color: #2a5c9e; 
+::selection {
+  background: var(--acf-blue-light);
+  color: var(--acf-blue-dark);
 }
+
+/* Scrollbar (webkit) */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+
+/* ============================================================
+   END OF FILE
+   acf-design-system.css — v1.0
+   C-Tracker · M-Tracker · S-Tracker
+   ============================================================ */
