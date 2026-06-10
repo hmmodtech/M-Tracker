@@ -4,26 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M-Tracker Login</title>
-    <!-- This path is now correct and will work with the fixed app.py -->
-    <link rel="stylesheet" href="/static/acf-design-system.css">
+    
+    <!-- 
+      STEP 1: REMOVE the old stylesheet link.
+      Delete this line: <link rel="stylesheet" href="css/M-Tracker.css"> 
+    -->
+
+    <!-- 
+      STEP 2: ADD the link to your ACF Design System.
+      This is now the only stylesheet for this page.
+    -->
+    <link rel="stylesheet" href="css/acf-design-system.css">
+
 </head>
 <body class="acf-body-background">
+
     <main class="acf-login-container">
+        <!-- 
+          STEP 3: Create the main login card.
+          This div will have the white, semi-transparent "glass" effect.
+        -->
         <div class="acf-login-card">
+            
+            <!-- 
+              STEP 4: Add the logo placeholder.
+              This div will be styled as a blue shield shape. You can replace this
+              with an <img src="..."> or <svg> tag for your actual logo.
+            -->
             <div class="acf-logo-icon"></div>
+            
             <h1 class="acf-header">M-Tracker</h1>
+            
             <form action="#" method="POST">
+                <!-- Username Input -->
                 <div class="acf-form-group">
                     <label for="username" class="acf-label">Username</label>
                     <input type="text" id="username" name="username" class="acf-input" required>
                 </div>
+                
+                <!-- Password Input -->
                 <div class="acf-form-group">
                     <label for="password" class="acf-label">Password</label>
                     <input type="password" id="password" name="password" class="acf-input" required>
                 </div>
+                
+                <!-- 
+                  STEP 5: Apply the primary button style.
+                  We use two classes: a base 'acf-button' for common styles (like padding)
+                  and a modifier 'acf-button-primary' for the blue color.
+                -->
                 <button type="submit" class="acf-button acf-button-primary">Login</button>
             </form>
         </div>
     </main>
+
 </body>
 </html>
