@@ -4,45 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M-Tracker Login</title>
-    
-    <!-- 
-      THE FIX: The href path is now corrected.
-      Since the CSS file is in the SAME folder as this HTML file,
-      the path is just the filename itself.
-      
-      OLD (Incorrect) Path: href="css/acf-design-system.css"
-      NEW (Correct) Path:   href="acf-design-system.css"
-    -->
+    <!-- This path is now correct and will work with the fixed app.py -->
     <link rel="stylesheet" href="/static/acf-design-system.css">
-
 </head>
 <body class="acf-body-background">
-
     <main class="acf-login-container">
         <div class="acf-login-card">
-            
             <div class="acf-logo-icon"></div>
-            
             <h1 class="acf-header">M-Tracker</h1>
-            
             <form action="#" method="POST">
-                <!-- Username Input -->
                 <div class="acf-form-group">
                     <label for="username" class="acf-label">Username</label>
                     <input type="text" id="username" name="username" class="acf-input" required>
                 </div>
-                
-                <!-- Password Input -->
                 <div class="acf-form-group">
                     <label for="password" class="acf-label">Password</label>
                     <input type="password" id="password" name="password" class="acf-input" required>
                 </div>
-                
-                <!-- Login Button -->
                 <button type="submit" class="acf-button acf-button-primary">Login</button>
             </form>
         </div>
     </main>
-
 </body>
 </html>
