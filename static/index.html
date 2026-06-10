@@ -6,31 +6,21 @@
     <title>M-Tracker Login</title>
     
     <!-- 
-      STEP 1: REMOVE the old stylesheet link.
-      Delete this line: <link rel="stylesheet" href="css/M-Tracker.css"> 
+      THE FIX: The href path is now corrected.
+      Since the CSS file is in the SAME folder as this HTML file,
+      the path is just the filename itself.
+      
+      OLD (Incorrect) Path: href="css/acf-design-system.css"
+      NEW (Correct) Path:   href="acf-design-system.css"
     -->
-
-    <!-- 
-      STEP 2: ADD the link to your ACF Design System.
-      This is now the only stylesheet for this page.
-    -->
-    <link rel="stylesheet" href="css/acf-design-system.css">
+    <link rel="stylesheet" href="acf-design-system.css">
 
 </head>
 <body class="acf-body-background">
 
     <main class="acf-login-container">
-        <!-- 
-          STEP 3: Create the main login card.
-          This div will have the white, semi-transparent "glass" effect.
-        -->
         <div class="acf-login-card">
             
-            <!-- 
-              STEP 4: Add the logo placeholder.
-              This div will be styled as a blue shield shape. You can replace this
-              with an <img src="..."> or <svg> tag for your actual logo.
-            -->
             <div class="acf-logo-icon"></div>
             
             <h1 class="acf-header">M-Tracker</h1>
@@ -48,11 +38,7 @@
                     <input type="password" id="password" name="password" class="acf-input" required>
                 </div>
                 
-                <!-- 
-                  STEP 5: Apply the primary button style.
-                  We use two classes: a base 'acf-button' for common styles (like padding)
-                  and a modifier 'acf-button-primary' for the blue color.
-                -->
+                <!-- Login Button -->
                 <button type="submit" class="acf-button acf-button-primary">Login</button>
             </form>
         </div>
