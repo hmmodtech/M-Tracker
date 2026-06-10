@@ -1,0 +1,126 @@
+/* ==========================================================================
+   M-TRACKER LOGIN PAGE STYLES
+   ========================================================================== */
+
+/* --- Color and Font Variables --- */
+:root {
+    /* Color Tokens from your requirements */
+    --acf-blue: #3878c8;
+    --acf-green: #4a9e35;
+
+    /* Supporting Tokens */
+    --acf-dark-text: #333;
+    --acf-light-text: #fff;
+    --acf-border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* --- Base Layout & Background --- */
+.acf-body-background {
+    background-color: #f0f2f5; /* A neutral light grey background */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.acf-login-container {
+    padding: 20px;
+}
+
+/* --- Login Card --- */
+/* RULE: "Login card: white 82% opacity, blue glass border" */
+.acf-login-card {
+    background-color: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(56, 120, 200, 0.3); /* Subtle blue border */
+    backdrop-filter: blur(12px); /* This creates the "glass" effect */
+    -webkit-backdrop-filter: blur(12px); /* For Safari compatibility */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* --- Logo & Header --- */
+/* RULE: "Logo icon: shield with blue background" */
+.acf-logo-icon {
+    background-color: var(--acf-blue);
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px auto;
+    border-radius: 15%; /* Gives a soft shield-like shape */
+    /* A simple CSS "shield" icon using a pseudo-element */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+}
+/* You can add content like a letter inside the shield, or just leave it blank */
+.acf-logo-icon::before {
+    content: 'M'; 
+}
+
+
+.acf-header {
+    color: var(--acf-dark-text);
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+/* --- Form Elements --- */
+.acf-form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.acf-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--acf-dark-text);
+    font-weight: 500;
+}
+
+.acf-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--acf-border-color);
+    border-radius: 6px;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+    transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+/* RULE: "Input focus: blue glow rgba(56,120,200,0.08)" */
+.acf-input:focus {
+    outline: none;
+    border-color: var(--acf-blue);
+    /* I've used a slightly higher opacity for the glow to make it visible */
+    box-shadow: 0 0 0 4px rgba(56, 120, 200, 0.25); 
+}
+
+/* --- Button --- */
+/* RULE: "Button: solid blue background" */
+.acf-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.acf-button-primary {
+    background-color: var(--acf-blue);
+    color: var(--acf-light-text);
+}
+
+.acf-button-primary:hover {
+    /* A slightly darker shade for hover effect */
+    background-color: #2a5c9e; 
+}
