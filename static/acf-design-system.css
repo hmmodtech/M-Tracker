@@ -1,800 +1,126 @@
-/* ═══════════════════════════════════════════════════════════════
-   M-TRACKER · ACF Gaza Operations — Design System
-   Action contre la Faim · Light theme only · Blue accent
-   ═══════════════════════════════════════════════════════════════ */
+/* ==========================================================================
+   M-TRACKER LOGIN PAGE STYLES
+   ========================================================================== */
 
+/* --- Color and Font Variables --- */
 :root {
-  --acf-bg: #f7f9fc;
-  --acf-blue: #3878c8;
-  --acf-blue-title: #2a5fa0;
-  --acf-blue-soft: rgba(56, 120, 200, 0.09);
-  --acf-blue-glass: rgba(56, 120, 200, 0.06);
-  --acf-blue-border: rgba(56, 120, 200, 0.22);
-  --acf-blue-glow: rgba(56, 120, 200, 0.10);
-  --acf-green: #4a9e35;
-  --acf-green-soft: rgba(74, 158, 53, 0.09);
-  --acf-green-border: rgba(74, 158, 53, 0.22);
-  --acf-amber: #ea9f14;
-  --acf-amber-soft: rgba(234, 159, 20, 0.10);
-  --acf-critical: #dc3232;
-  --acf-critical-soft: rgba(220, 50, 50, 0.09);
-  --acf-card: rgba(255, 255, 255, 0.78);
-  --acf-divider: rgba(0, 0, 0, 0.07);
-  --acf-text: #2c3150;
-  --acf-text-dim: #505878;
-  --acf-muted: rgba(0, 0, 0, 0.45);
-
-  /* Map legacy tokens used in index.html */
-  --bg: #f7f9fc;
-  --bg-solid: #f7f9fc;
-  --cy: #3878c8;
-  --cyd: #2a5fa0;
-  --cyg: rgba(56, 120, 200, 0.08);
-  --card: rgba(255, 255, 255, 0.78);
-  --card2: rgba(255, 255, 255, 0.88);
-  --b1: rgba(56, 120, 200, 0.18);
-  --b2: rgba(56, 120, 200, 0.28);
-  --tx: #2c3150;
-  --tx-head: #2c3150;
-  --dm: rgba(0, 0, 0, 0.45);
-  --sha: 0 2px 12px rgba(44, 49, 80, 0.06);
-}
-
-/* ── Typography: 400 / 500 only ─────────────────────────────── */
-body,
-body * {
-  font-weight: 400 !important;
-}
-
-.lm,
-.login-logo .lm,
-.phd .ttl,
-.ttl,
-.feed-ttl,
-.chn,
-.kwt,
-.mttl,
-.gc-card-name,
-.um-name,
-.ub-name,
-.sopt-hd-ttl,
-.clk-t,
-.login-btn,
-.btn.cyan,
-.bok {
-  font-weight: 500 !important;
-}
-
-/* ── Page base ────────────────────────────────────────────────── */
-html,
-body {
-  background: var(--acf-bg) !important;
-  background-image: none !important;
-  background-attachment: fixed !important;
-  color: var(--acf-text) !important;
-}
-
-body::before {
-  display: none !important;
-}
-
-/* ── Scrollbar ────────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 5px !important;
-  height: 5px !important;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent !important;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15) !important;
-  border-radius: 3px !important;
-}
-
-/* ── Sidebar / navbar ─────────────────────────────────────────── */
-#sb {
-  background: rgba(56, 120, 200, 0.06) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border-right: 0.5px solid rgba(56, 120, 200, 0.22) !important;
-  box-shadow: 2px 0 12px rgba(56, 120, 200, 0.04) !important;
-}
-
-.logo {
-  background: transparent !important;
-  border-bottom: 0.5px solid var(--acf-divider) !important;
-}
-
-.logo::after {
-  display: none !important;
-}
-
-.lm {
-  color: var(--acf-blue-title) !important;
-  font-family: 'Inter', sans-serif !important;
-  letter-spacing: 0.5px !important;
-}
-
-.ls {
-  color: var(--acf-muted) !important;
-  font-family: 'Inter', sans-serif !important;
-  font-size: 12px !important;
-  letter-spacing: 0.3px !important;
-}
-
-.ni {
-  color: rgba(0, 0, 0, 0.5) !important;
-  border-right: 2px solid transparent !important;
-}
-
-.ni:hover {
-  color: rgba(0, 0, 0, 0.7) !important;
-  background: rgba(56, 120, 200, 0.04) !important;
-}
-
-.ni.on {
-  background: rgba(56, 120, 200, 0.09) !important;
-  border-right-color: var(--acf-blue) !important;
-  color: var(--acf-blue-title) !important;
-}
-
-body.sb-collapsed .ni.on {
-  background: rgba(56, 120, 200, 0.09) !important;
-}
-
-body.sb-collapsed .ni::after {
-  background: var(--acf-card) !important;
-  color: var(--acf-text) !important;
-  border: 0.5px solid var(--acf-blue-border) !important;
-  font-weight: 500 !important;
-}
-
-#user-badge {
-  background: transparent !important;
-  border-top: 0.5px solid var(--acf-divider) !important;
-}
-
-.ub-name {
-  color: var(--acf-text) !important;
-}
-
-.ub-role {
-  color: var(--acf-blue) !important;
-}
-
-.ub-av {
-  background: var(--acf-blue) !important;
-  color: #fff !important;
-}
-
-#sb-toggle {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.22) !important;
-  color: var(--acf-text-dim) !important;
-}
-
-#sb-toggle:hover {
-  background: rgba(56, 120, 200, 0.08) !important;
-  color: var(--acf-blue) !important;
-}
-
-#main {
-  background: transparent !important;
-}
-
-/* ── Top bar ──────────────────────────────────────────────────── */
-.tbar,
-.phd .ttl {
-  color: var(--acf-text) !important;
-  text-shadow: none !important;
-}
-
-.phd .sub {
-  color: var(--acf-muted) !important;
-}
-
-/* ── Stat cards ───────────────────────────────────────────────── */
-.sc,
-.sg .sc {
-  background: var(--acf-card) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-  border-top: 2px solid var(--acf-blue) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 2px 12px rgba(44, 49, 80, 0.06) !important;
-  color: var(--acf-text) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-.sc:hover {
-  border-color: rgba(56, 120, 200, 0.35) !important;
-  box-shadow: 0 4px 16px rgba(44, 49, 80, 0.08) !important;
-}
-
-.sl {
-  color: var(--acf-muted) !important;
-  opacity: 1 !important;
-}
-
-.sv,
-.sc.red .sv,
-.sc.cya .sv,
-.sc.grn .sv,
-.sc.ylw .sv,
-.gc-stat-num,
-.clk-t,
-.chcnt b {
-  color: var(--acf-blue) !important;
-}
-
-.ss {
-  color: var(--acf-muted) !important;
-}
-
-/* ── Cards (feed, channel, geocoder, user, etc.) ──────────────── */
-.mcs,
-.mc,
-.chc,
-.kwbox,
-.feed-wrap,
-.clock-card,
-.gc-card,
-.gc-stat,
-.gc-hint,
-.cu-form,
-.um-card,
-.modal,
-.mapw,
-.ov-grid > div > div,
-[style*="background:var(--card)"],
-[style*="background: var(--card)"] {
-  background: var(--acf-card) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-  border-top: 2px solid var(--acf-blue) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 2px 12px rgba(44, 49, 80, 0.06) !important;
-  color: var(--acf-text) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-.mcs,
-.mc {
-  border-top: none !important;
-  border-left: none !important;
-  border-right: none !important;
-}
-
-.mcs {
-  border: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-  border-top: 2px solid var(--acf-blue) !important;
-}
-
-.mc {
-  border-bottom: 0.5px solid var(--acf-divider) !important;
-  border-top: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-
-.mcs:first-child,
-.mc:first-child {
-  border-radius: 12px 12px 0 0 !important;
-}
-
-.mcs:hover,
-.chc:hover,
-.gc-card:hover,
-.um-card:hover {
-  border-color: rgba(56, 120, 200, 0.35) !important;
-}
-
-.mc:hover {
-  background: rgba(56, 120, 200, 0.03) !important;
-}
-
-.mc.crit,
-.mcs.crit {
-  border-left: 3px solid var(--acf-critical) !important;
-  background: rgba(220, 50, 50, 0.04) !important;
-}
-
-.feed-wrap {
-  overflow: hidden !important;
-}
-
-.feed-hdr {
-  background: rgba(56, 120, 200, 0.04) !important;
-  border-bottom: 0.5px solid var(--acf-divider) !important;
-}
-
-.feed-ttl {
-  color: var(--acf-blue-title) !important;
-}
-
-.clock-card {
-  border-top: 2px solid var(--acf-blue) !important;
-}
-
-.ct,
-.ct-ar {
-  color: var(--acf-text) !important;
-}
-
-.tbox {
-  background: rgba(56, 120, 200, 0.04) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.15) !important;
-  color: var(--acf-text-dim) !important;
-}
-
-.feed-ts {
-  background: rgba(56, 120, 200, 0.06) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.15) !important;
-  color: var(--acf-muted) !important;
-}
-
-.csrc,
-.fmeta,
-.cmeta,
-.chu,
-.chdes,
-.chcnt,
-.msub {
-  color: var(--acf-muted) !important;
-}
-
-.chn,
-.kwt,
-.mttl {
-  color: var(--acf-text) !important;
-}
-
-/* ── Buttons ──────────────────────────────────────────────────── */
-.btn {
-  background: rgba(56, 120, 200, 0.08) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.22) !important;
-  color: var(--acf-blue-title) !important;
-  border-radius: 8px !important;
-}
-
-.btn:hover {
-  background: rgba(56, 120, 200, 0.14) !important;
-  border-color: rgba(56, 120, 200, 0.35) !important;
-  color: var(--acf-blue-title) !important;
-}
-
-.btn.cyan,
-.bok,
-.login-btn {
-  background: var(--acf-blue) !important;
-  border-color: var(--acf-blue) !important;
-  color: #fff !important;
-  border-radius: 8px !important;
-}
-
-.btn.cyan:hover,
-.bok:hover,
-.login-btn:hover {
-  background: #2f6ab5 !important;
-  color: #fff !important;
-}
-
-.mb,
-.stab,
-.kmb,
-.pill {
-  background: rgba(255, 255, 255, 0.65) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-  color: rgba(0, 0, 0, 0.5) !important;
-}
-
-.mb.on,
-.stab.on,
-.kmb.on {
-  background: rgba(56, 120, 200, 0.09) !important;
-  border-color: rgba(56, 120, 200, 0.22) !important;
-  color: var(--acf-blue-title) !important;
-}
-
-.pill.on {
-  background: var(--acf-blue) !important;
-  border-color: var(--acf-blue) !important;
-  color: #fff !important;
-}
-
-.pill:hover {
-  border-color: rgba(56, 120, 200, 0.35) !important;
-  color: var(--acf-blue-title) !important;
-}
-
-.link-btn {
-  background: rgba(56, 120, 200, 0.08) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.22) !important;
-  color: var(--acf-blue-title) !important;
-}
-
-.link-btn:hover {
-  background: rgba(56, 120, 200, 0.14) !important;
-}
-
-/* ── Form inputs ──────────────────────────────────────────────── */
-.si,
-.fi,
-.kwin,
-.gc-input,
-.cu-form .fi,
-.login-field input {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 0.5px solid rgba(0, 0, 0, 0.12) !important;
-  border-radius: 8px !important;
-  color: var(--acf-text) !important;
-}
-
-.login-field input {
-  padding: 9px 12px !important;
-  font-size: 13px !important;
-}
-
-.si input,
-.gc-input {
-  color: var(--acf-text) !important;
-}
-
-.si input::placeholder,
-.gc-input::placeholder,
-.fi::placeholder,
-.kwin::placeholder,
-.login-field input::placeholder {
-  color: rgba(0, 0, 0, 0.35) !important;
-}
-
-.si:focus-within,
-.gc-input:focus,
-.cu-form .fi:focus,
-.login-field input:focus {
-  border-color: var(--acf-blue) !important;
-  box-shadow: 0 0 0 3px var(--acf-blue-glow) !important;
-  background: rgba(255, 255, 255, 0.9) !important;
-}
-
-.login-field label {
-  color: var(--acf-muted) !important;
-  font-family: 'Inter', sans-serif !important;
-  font-size: 11px !important;
-  letter-spacing: 0.3px !important;
-  text-transform: none !important;
-}
-
-/* ── Badges / status ──────────────────────────────────────────── */
-.chbdg.tg,
-.chbdg.wb,
-.kwtag,
-.um-role-badge.editor,
-.um-perm-tag,
-.ud-perm-yes,
-.gc-sug-badge.neighbourhood,
-.gc-sug-badge.community {
-  background: rgba(56, 120, 200, 0.09) !important;
-  color: var(--acf-blue-title) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.22) !important;
-}
-
-.um-role-badge.admin,
-.kwtag.crit,
-.login-err {
-  background: var(--acf-critical-soft) !important;
-  color: #8a1a1a !important;
-  border: 0.5px solid rgba(220, 50, 50, 0.22) !important;
-}
-
-.um-role-badge.viewer {
-  background: rgba(0, 0, 0, 0.04) !important;
-  color: var(--acf-muted) !important;
-  border: 0.5px solid rgba(0, 0, 0, 0.12) !important;
-}
-
-.gc-sug-badge.road {
-  background: var(--acf-amber-soft) !important;
-  color: #8a5c00 !important;
-  border: 0.5px solid rgba(234, 159, 20, 0.22) !important;
-}
-
-/* Active / green status */
-.live {
-  background: var(--acf-green-soft) !important;
-  border: 0.5px solid var(--acf-green-border) !important;
-  color: #357228 !important;
-}
-
-.ldot {
-  background: var(--acf-green) !important;
-}
-
-/* ── Login page ───────────────────────────────────────────────── */
-#login-overlay {
-  background: var(--acf-bg) !important;
-}
-
-.login-card {
-  background: rgba(255, 255, 255, 0.82) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.22) !important;
-  border-radius: 14px !important;
-  box-shadow: 0 8px 32px rgba(44, 49, 80, 0.08) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-}
-
-.login-logo .lm {
-  color: var(--acf-blue-title) !important;
-  font-size: 22px !important;
-  letter-spacing: 1px !important;
-}
-
-.login-logo .ls {
-  color: var(--acf-muted) !important;
-  font-size: 12px !important;
-}
-
-.login-title {
-  color: var(--acf-muted) !important;
-  font-family: 'Inter', sans-serif !important;
-}
-
-.login-btn {
-  width: 100% !important;
-  margin-top: 8px !important;
-  letter-spacing: 0.3px !important;
-  font-family: 'Inter', sans-serif !important;
-}
-
-.login-footer {
-  color: rgba(0, 0, 0, 0.25) !important;
-  font-family: 'Inter', sans-serif !important;
-  font-size: 11px !important;
-}
-
-.login-shield {
-  width: 48px !important;
-  height: 52px !important;
-  margin: 0 auto 12px !important;
-  background: var(--acf-blue) !important;
-  border-radius: 10px 10px 14px 14px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 0 !important;
-  line-height: 1 !important;
-  box-shadow: 0 4px 12px rgba(56, 120, 200, 0.25) !important;
-  position: relative !important;
-}
-
-.login-shield::before {
-  content: '';
-  display: block;
-  width: 22px;
-  height: 24px;
-  background: #fff;
-  clip-path: polygon(50% 0%, 100% 18%, 100% 62%, 50% 100%, 0% 62%, 0% 18%);
-}
-
-/* ── Channel avatars ──────────────────────────────────────────── */
-.chav,
-.chav.web,
-.um-av.editor {
-  background: var(--acf-blue) !important;
-  color: #fff !important;
-}
-
-/* ── Geocoder ─────────────────────────────────────────────────── */
-.gc-dropdown {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-}
-
-.gc-sug:hover,
-.gc-sug.active {
-  background: rgba(56, 120, 200, 0.06) !important;
-}
-
-.gc-sug-name {
-  color: var(--acf-text) !important;
-}
-
-.gc-sug-sub,
-.gc-stat-lbl,
-.gc-card-disp,
-.gc-card-name-ar {
-  color: var(--acf-muted) !important;
-}
-
-.gc-hint {
-  color: var(--acf-text-dim) !important;
-}
-
-.geo-panel {
-  background: var(--acf-card) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-}
-
-.geo-opt:hover {
-  background: rgba(56, 120, 200, 0.06) !important;
-}
-
-.geo-opt.active {
-  background: rgba(56, 120, 200, 0.09) !important;
-  border-color: var(--acf-blue) !important;
-}
-
-.geo-opt-en {
-  color: var(--acf-text) !important;
-}
-
-.geo-opt-ar {
-  color: var(--acf-muted) !important;
-}
-
-/* ── Modals & panels ──────────────────────────────────────────── */
-.modal,
-.mapw {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.22) !important;
-  box-shadow: 0 20px 60px rgba(44, 49, 80, 0.12) !important;
-}
-
-.sopt-panel {
-  background: rgba(255, 255, 255, 0.97) !important;
-  border-left: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-  box-shadow: -4px 0 24px rgba(44, 49, 80, 0.08) !important;
-}
-
-.sopt-hd {
-  background: rgba(56, 120, 200, 0.04) !important;
-  border-bottom: 0.5px solid var(--acf-divider) !important;
-}
-
-.sopt-hd-ttl {
-  color: var(--acf-blue-title) !important;
-}
-
-.sopt-row-label {
-  color: var(--acf-text) !important;
-}
-
-.sopt-btn.active {
-  border-color: var(--acf-blue) !important;
-  color: var(--acf-blue-title) !important;
-  background: rgba(56, 120, 200, 0.08) !important;
-}
-
-/* ── Toast & empty states ─────────────────────────────────────── */
-#toast {
-  background: var(--acf-card) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.22) !important;
-  color: var(--acf-blue-title) !important;
-  box-shadow: 0 4px 16px rgba(44, 49, 80, 0.1) !important;
-}
-
-#toast.crit {
-  background: var(--acf-critical-soft) !important;
-  border-color: rgba(220, 50, 50, 0.22) !important;
-  color: #8a1a1a !important;
-}
-
-.empty {
-  background: var(--acf-card) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-  color: var(--acf-muted) !important;
-}
-
-/* ── User management ──────────────────────────────────────────── */
-.um-name {
-  color: var(--acf-text) !important;
-}
-
-.role-opt {
-  background: rgba(255, 255, 255, 0.65) !important;
-  border: 0.5px solid rgba(0, 0, 0, 0.12) !important;
-  color: var(--acf-text-dim) !important;
-}
-
-.role-opt.selected,
-.role-opt.selected.r-editor {
-  border-color: var(--acf-blue) !important;
-  background: rgba(56, 120, 200, 0.08) !important;
-}
-
-.cu-form .fl {
-  color: var(--acf-muted) !important;
-}
-
-/* ── Dividers ─────────────────────────────────────────────────── */
-.feed-hdr,
-.logo,
-#user-badge,
-.gc-sug,
-.modal-hd,
-.mapfoot {
-  border-color: var(--acf-divider) !important;
-}
-
-/* ── Map canvas (keep readable, light border) ─────────────────── */
-#gaza-canvas {
-  background: #e8eef5 !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-}
-
-/* ── Screen options accent overrides ──────────────────────────── */
-body.accent-teal {
-  --cy: #3878c8;
-  --cyd: #2a5fa0;
-  --cyg: rgba(56, 120, 200, 0.08);
-}
-
-/* ── Logo pulse animation (blue glow) ─────────────────────────── */
-@keyframes logo-pulse {
-  0%, 100% { box-shadow: 0 0 12px rgba(56, 120, 200, 0.2), 0 2px 6px rgba(44, 49, 80, 0.06); }
-  50%      { box-shadow: 0 0 20px rgba(56, 120, 200, 0.35), 0 2px 10px rgba(44, 49, 80, 0.08); }
-}
-
-/* ── Mobile hamburger ─────────────────────────────────────────── */
-#hamb {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.22) !important;
-  color: var(--acf-blue) !important;
-}
-
-/* ── Feed action buttons & location tags ──────────────────────── */
-.loc-b {
-  background: rgba(56, 120, 200, 0.08) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.22) !important;
-  color: var(--acf-blue-title) !important;
-}
-
-.bmbtn {
-  border: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-  color: var(--acf-muted) !important;
-}
-
-.bmbtn:hover,
-.bmbtn.saved {
-  border-color: var(--acf-blue) !important;
-  color: var(--acf-blue-title) !important;
-  background: rgba(56, 120, 200, 0.08) !important;
-}
-
-/* ── User detail drawer rows ──────────────────────────────────── */
-.ud-row {
-  background: var(--acf-card) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.18) !important;
-}
-
-.ud-row-val {
-  color: var(--acf-text) !important;
-}
-
-.ud-perm-no {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 0.5px solid rgba(0, 0, 0, 0.10) !important;
-  color: var(--acf-muted) !important;
-}
-
-.perm-list {
-  background: rgba(56, 120, 200, 0.04) !important;
-  border: 0.5px solid rgba(56, 120, 200, 0.15) !important;
-  color: var(--acf-text-dim) !important;
-}
-
-.perm-list b {
-  color: var(--acf-blue) !important;
-}
-
-/* ── Accent color picker overrides (all map to blue family) ──── */
-body.accent-sky,
-body.accent-emerald,
-body.accent-teal {
-  --cy: #3878c8 !important;
-  --cyd: #2a5fa0 !important;
-  --cyg: rgba(56, 120, 200, 0.08) !important;
+    /* Color Tokens from your requirements */
+    --acf-blue: #3878c8;
+    --acf-green: #4a9e35;
+
+    /* Supporting Tokens */
+    --acf-dark-text: #333;
+    --acf-light-text: #fff;
+    --acf-border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* --- Base Layout & Background --- */
+.acf-body-background {
+    background-color: #f0f2f5; /* A neutral light grey background */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.acf-login-container {
+    padding: 20px;
+}
+
+/* --- Login Card --- */
+/* RULE: "Login card: white 82% opacity, blue glass border" */
+.acf-login-card {
+    background-color: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(56, 120, 200, 0.3); /* Subtle blue border */
+    backdrop-filter: blur(12px); /* This creates the "glass" effect */
+    -webkit-backdrop-filter: blur(12px); /* For Safari compatibility */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* --- Logo & Header --- */
+/* RULE: "Logo icon: shield with blue background" */
+.acf-logo-icon {
+    background-color: var(--acf-blue);
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px auto;
+    border-radius: 15%; /* Gives a soft shield-like shape */
+    /* A simple CSS "shield" icon using a pseudo-element */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+}
+/* You can add content like a letter inside the shield, or just leave it blank */
+.acf-logo-icon::before {
+    content: 'M'; 
+}
+
+
+.acf-header {
+    color: var(--acf-dark-text);
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+/* --- Form Elements --- */
+.acf-form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.acf-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--acf-dark-text);
+    font-weight: 500;
+}
+
+.acf-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--acf-border-color);
+    border-radius: 6px;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+    transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+/* RULE: "Input focus: blue glow rgba(56,120,200,0.08)" */
+.acf-input:focus {
+    outline: none;
+    border-color: var(--acf-blue);
+    /* I've used a slightly higher opacity for the glow to make it visible */
+    box-shadow: 0 0 0 4px rgba(56, 120, 200, 0.25); 
+}
+
+/* --- Button --- */
+/* RULE: "Button: solid blue background" */
+.acf-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.acf-button-primary {
+    background-color: var(--acf-blue);
+    color: var(--acf-light-text);
+}
+
+.acf-button-primary:hover {
+    /* A slightly darker shade for hover effect */
+    background-color: #2a5c9e; 
 }
