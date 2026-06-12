@@ -531,9 +531,59 @@ body::before{display:none !important;}
 #user-badge{
   background:rgba(56,120,200,0.04) !important;
   border-top:0.5px solid var(--acf-glass-blue-b) !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  padding:10px 12px !important;
 }
-.ub-name{color:#1a2332 !important;}
-.ub-role{color:var(--acf-blue) !important;}
+.ub-av{
+  width:30px !important;
+  height:30px !important;
+  border-radius:50% !important;
+  background:var(--acf-blue) !important;
+  color:#fff !important;
+  font-size:11px !important;
+  font-weight:500 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex-shrink:0 !important;
+  letter-spacing:0.03em !important;
+}
+.ub-info{flex:1 !important;min-width:0 !important;}
+.ub-name{
+  color:#1a2332 !important;
+  font-size:12px !important;
+  font-weight:500 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.ub-role{
+  color:var(--acf-blue) !important;
+  font-size:10px !important;
+  font-weight:400 !important;
+  margin-top:1px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.ub-logout{
+  background:none !important;
+  border:none !important;
+  color:#8fa0b4 !important;
+  cursor:pointer !important;
+  padding:4px !important;
+  border-radius:6px !important;
+  display:flex !important;
+  align-items:center !important;
+  flex-shrink:0 !important;
+  transition:color .15s,background .15s !important;
+}
+.ub-logout:hover{
+  color:var(--acf-blue) !important;
+  background:var(--acf-glass-blue) !important;
+}
 
 body.sb-collapsed .ni.on{
   background:var(--acf-glass-blue) !important;
@@ -1245,72 +1295,6 @@ img{pointer-events:none!important;-webkit-user-drag:none!important;}
     </div>
     <div class="sopt-body">
 
-      <!-- Appearance -->
-      <div class="sopt-section">
-        <div class="sopt-sec-ttl">🎨 Accent Color</div>
-        <div class="color-grid">
-          <div class="color-swatch active" data-accent="teal"    style="background:#0097A7" title="Teal (default)" onclick="setAccent('teal')"></div>
-          <div class="color-swatch"        data-accent="blue"    style="background:#3b82f6" title="Blue"           onclick="setAccent('blue')"></div>
-          <div class="color-swatch"        data-accent="purple"  style="background:#8b5cf6" title="Purple"         onclick="setAccent('purple')"></div>
-          <div class="color-swatch"        data-accent="green"   style="background:#22c55e" title="Green"          onclick="setAccent('green')"></div>
-          <div class="color-swatch"        data-accent="orange"  style="background:#f97316" title="Orange"         onclick="setAccent('orange')"></div>
-          <div class="color-swatch"        data-accent="rose"    style="background:#f43f5e" title="Rose"           onclick="setAccent('rose')"></div>
-          <div class="color-swatch"        data-accent="amber"   style="background:#f59e0b" title="Amber"          onclick="setAccent('amber')"></div>
-          <div class="color-swatch"        data-accent="indigo"  style="background:#6366f1" title="Indigo"         onclick="setAccent('indigo')"></div>
-          <div class="color-swatch"        data-accent="pink"    style="background:#ec4899" title="Pink"           onclick="setAccent('pink')"></div>
-          <div class="color-swatch"        data-accent="sky"     style="background:#0ea5e9" title="Sky"            onclick="setAccent('sky')"></div>
-          <div class="color-swatch"        data-accent="red"     style="background:#dc2626" title="Red"            onclick="setAccent('red')"></div>
-          <div class="color-swatch"        data-accent="emerald" style="background:#10b981" title="Emerald"        onclick="setAccent('emerald')"></div>
-        </div>
-      </div>
-
-      <!-- Background Color -->
-      <div class="sopt-section">
-        <div class="sopt-sec-ttl">🖼️ Background Color</div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px" id="bg-swatch-grid">
-          <div class="color-swatch bg-swatch active" data-bg="default" title="Default"  onclick="setBgColor('default')"  style="background:linear-gradient(135deg,#EDF2F7,#E2E8F0);border:2px solid var(--tx-head)"></div>
-          <div class="color-swatch bg-swatch"        data-bg="slate"   title="Slate"    onclick="setBgColor('slate')"    style="background:#1e293b"></div>
-          <div class="color-swatch bg-swatch"        data-bg="navy"    title="Navy"     onclick="setBgColor('navy')"     style="background:#0f172a"></div>
-          <div class="color-swatch bg-swatch"        data-bg="forest"  title="Forest"   onclick="setBgColor('forest')"   style="background:#14532d"></div>
-          <div class="color-swatch bg-swatch"        data-bg="wine"    title="Wine"     onclick="setBgColor('wine')"     style="background:#4c0519"></div>
-          <div class="color-swatch bg-swatch"        data-bg="graphite"title="Graphite" onclick="setBgColor('graphite')" style="background:#27272a"></div>
-          <div class="color-swatch bg-swatch"        data-bg="cream"   title="Cream"    onclick="setBgColor('cream')"    style="background:#fef9f0"></div>
-          <div class="color-swatch bg-swatch"        data-bg="sand"    title="Sand"     onclick="setBgColor('sand')"     style="background:#d4c5a9"></div>
-          <div class="color-swatch bg-swatch"        data-bg="sky"     title="Sky"      onclick="setBgColor('sky')"      style="background:#bfdbfe"></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
-          <label style="font-size:11px;color:var(--dm);font-family:'JetBrains Mono',monospace;flex-shrink:0">CUSTOM:</label>
-          <input type="color" id="bg-custom-picker" value="#EDF2F7"
-            style="width:36px;height:28px;border:1px solid var(--b1);border-radius:6px;cursor:pointer;background:none;padding:1px"
-            onchange="setBgColorCustom(this.value)" title="Pick any background color">
-          <span id="bg-custom-val" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cy)">#EDF2F7</span>
-          <button onclick="setBgColor('default')" style="margin-left:auto;background:none;border:1px solid var(--b1);border-radius:5px;padding:3px 8px;font-size:11px;color:var(--dm);cursor:pointer">Reset</button>
-        </div>
-      </div>
-
-      <!-- Foreground / Text Color -->
-      <div class="sopt-section">
-        <div class="sopt-sec-ttl">✏️ Text Color</div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px" id="fg-swatch-grid">
-          <div class="color-swatch fg-swatch active" data-fg="default" title="Default"    onclick="setFgColor('default')"  style="background:linear-gradient(135deg,#1A2535,#3D4A5C);border:2px solid var(--tx-head)"></div>
-          <div class="color-swatch fg-swatch"        data-fg="white"   title="White"      onclick="setFgColor('white')"    style="background:#ffffff;border:1px solid #ccc"></div>
-          <div class="color-swatch fg-swatch"        data-fg="cream"   title="Cream"      onclick="setFgColor('cream')"    style="background:#fef9f0"></div>
-          <div class="color-swatch fg-swatch"        data-fg="cyan"    title="Cyan"       onclick="setFgColor('cyan')"     style="background:#00FFFF"></div>
-          <div class="color-swatch fg-swatch"        data-fg="yellow"  title="Yellow"     onclick="setFgColor('yellow')"   style="background:#fbbf24"></div>
-          <div class="color-swatch fg-swatch"        data-fg="lime"    title="Lime"       onclick="setFgColor('lime')"     style="background:#84cc16"></div>
-          <div class="color-swatch fg-swatch"        data-fg="silver"  title="Silver"     onclick="setFgColor('silver')"   style="background:#cbd5e1"></div>
-          <div class="color-swatch fg-swatch"        data-fg="rose"    title="Rose"       onclick="setFgColor('rose')"     style="background:#fb7185"></div>
-          <div class="color-swatch fg-swatch"        data-fg="black"   title="Black"      onclick="setFgColor('black')"    style="background:#0f172a"></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
-          <label style="font-size:11px;color:var(--dm);font-family:'JetBrains Mono',monospace;flex-shrink:0">CUSTOM:</label>
-          <input type="color" id="fg-custom-picker" value="#3D4A5C"
-            style="width:36px;height:28px;border:1px solid var(--b1);border-radius:6px;cursor:pointer;background:none;padding:1px"
-            onchange="setFgColorCustom(this.value)" title="Pick any text color">
-          <span id="fg-custom-val" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cy)">#3D4A5C</span>
-          <button onclick="setFgColor('default')" style="margin-left:auto;background:none;border:1px solid var(--b1);border-radius:5px;padding:3px 8px;font-size:11px;color:var(--dm);cursor:pointer">Reset</button>
-        </div>
-      </div>
 
       <!-- Card Style -->
       <div class="sopt-section">
