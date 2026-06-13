@@ -1112,74 +1112,147 @@ body.sb-collapsed .ni::after{
 .ldot{animation:none!important;}
 .tload::before{animation:sp .7s linear infinite;}
 
-/* ══ LOGIN OVERLAY — ACF Light Theme ══ */
+/* ══ LOGIN OVERLAY — S-TRACKER Design System ══ */
 #login-overlay{
   position:fixed;inset:0;
-  background:#f7f9fc;
+  background:#090d1a;
   display:flex;align-items:center;justify-content:center;
   z-index:999;padding:16px;
 }
 #login-overlay.hidden{display:none;}
 .login-box{
-  display:flex;flex-direction:column;align-items:center;gap:16px;
-  width:100%;max-width:320px;
+  width:100%;max-width:400px;
 }
-.login-logo{
-  display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
-}
-.login-shield{font-size:28px;}
-.login-logo .lm{font-size:18px!important;font-weight:500!important;color:#2a5fa0!important;letter-spacing:1px!important;}
-.login-logo .ls{font-size:11px!important;font-weight:400!important;color:rgba(0,0,0,0.4)!important;letter-spacing:1px!important;}
+/* Card wraps everything */
 .login-card{
   width:100%;
-  background:rgba(255,255,255,0.92);
-  border:0.5px solid rgba(56,120,200,0.22);
+  background:#0d1224;
+  border:1px solid #1e2d47;
   border-radius:14px;
-  padding:20px;
+  padding:32px 36px 28px;
+  box-shadow:0 4px 32px rgba(0,0,0,0.6);
 }
-.login-title{
-  font-size:13px;font-weight:500;color:#1a2332;
-  margin-bottom:14px;text-align:center;
+/* Header row: orange icon + title + subtitle */
+.login-header{
+  display:flex;align-items:center;gap:14px;
+  padding-bottom:20px;
+  border-bottom:1px solid #1e2d47;
+  margin-bottom:28px;
 }
+.login-icon{
+  width:52px;height:52px;flex-shrink:0;
+  background:#f97316;
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+}
+.login-icon svg{width:26px;height:26px;color:#fff;stroke:#fff;}
+.login-brand{}
+.login-brand-name{
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:20px;font-weight:700;
+  color:#e2e8f0;letter-spacing:-0.01em;line-height:1.2;
+}
+.login-brand-sub{
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:11px;font-weight:600;
+  color:#94a3b8;letter-spacing:0.06em;text-transform:uppercase;
+  margin-top:2px;
+}
+/* Welcome heading */
+.login-welcome{
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:22px;font-weight:700;
+  color:#e2e8f0;letter-spacing:-0.01em;
+  margin-bottom:6px;
+}
+.login-sub{
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:13px;color:#94a3b8;font-weight:400;
+  margin-bottom:24px;
+}
+/* Error */
 .login-err{
-  font-size:12px;color:#8a1a1a;
-  background:rgba(220,50,50,0.06);
-  border:0.5px solid rgba(220,50,50,0.2);
-  border-radius:6px;padding:7px 10px;
-  margin-bottom:10px;display:none;
-  text-align:center;
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:12px;color:#ef4444;
+  background:rgba(239,68,68,0.08);
+  border:1px solid rgba(239,68,68,0.3);
+  border-radius:6px;padding:8px 12px;
+  margin-bottom:14px;display:none;text-align:center;
 }
 .login-err.visible{display:block;}
-.login-field{margin-bottom:10px;}
+/* Fields */
+.login-field{margin-bottom:14px;}
 .login-field label{
-  display:block;font-size:10px;font-weight:500;
-  color:#8fa0b4;letter-spacing:0.07em;text-transform:uppercase;
-  margin-bottom:4px;
+  display:block;
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:11px;font-weight:600;
+  color:#94a3b8;letter-spacing:0.06em;text-transform:uppercase;
+  margin-bottom:6px;
 }
 .login-field input{
   width:100%;
-  background:rgba(0,0,0,0.04);
-  border:0.5px solid rgba(0,0,0,0.12);
-  border-radius:8px;padding:9px 12px;
-  font-size:13px;font-family:inherit;
-  color:#1a2332;outline:none;
+  background:#111827;
+  border:1px solid #1e2d47;
+  border-radius:8px;padding:11px 14px;
+  font-size:13px;font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  color:#e2e8f0;outline:none;
   transition:border-color .15s,box-shadow .15s;
 }
+.login-field input::placeholder{color:#4a5568;}
 .login-field input:focus{
-  border-color:#3878c8;
-  box-shadow:0 0 0 3px rgba(56,120,200,0.10);
+  border-color:#f97316;
+  box-shadow:0 0 0 3px rgba(249,115,22,0.15);
 }
+/* Sign In button */
 .login-btn{
-  width:100%;background:#3878c8;color:#fff;
+  width:100%;background:#f97316;color:#fff;
   border:none;border-radius:8px;
-  padding:10px;font-size:13px;font-weight:500;
-  font-family:inherit;cursor:pointer;margin-top:4px;
-  transition:background .15s;
+  padding:12px;font-size:14px;font-weight:600;
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  cursor:pointer;margin-top:6px;
+  transition:background .15s,transform .1s;
+  letter-spacing:0.01em;
 }
-.login-btn:hover{background:#2a5fa0;}
+.login-btn:hover{background:#ea6c0a;transform:translateY(-1px);}
+.login-btn:active{transform:translateY(0);}
+/* Demo account box */
+.login-demo{
+  margin-top:20px;
+  background:#111827;
+  border:1px solid #1e2d47;
+  border-radius:8px;
+  padding:14px 16px;
+}
+.login-demo-title{
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:11px;font-weight:700;
+  color:#f97316;letter-spacing:0.06em;text-transform:uppercase;
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.login-demo-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:6px;
+}
+.login-demo-row:last-child{margin-bottom:0;}
+.login-demo-lbl{
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:12px;color:#94a3b8;font-weight:400;
+}
+.login-demo-val{
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:12px;color:#e2e8f0;font-weight:500;
+  background:#1a2236;border:1px solid #1e2d47;
+  border-radius:5px;padding:3px 10px;
+}
+/* Footer */
 .login-footer{
-  font-size:11px;color:#8fa0b4;text-align:center;
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:11px;color:#4a5568;text-align:center;
+  margin-top:20px;
 }
+/* old selectors kept for JS compat */
+.login-logo{display:none;}
+.login-shield{display:none;}
 
 </style>
 <style>
@@ -1197,23 +1270,47 @@ img{pointer-events:none!important;-webkit-user-drag:none!important;}
 <!-- ══ LOGIN OVERLAY ══ -->
 <div id="login-overlay">
   <div class="login-box">
-    <div class="login-logo">
-      <div class="login-shield">🛡️</div>
-      <div class="lm">M-TRACKER</div>
-      <div class="ls">ACF · GAZA BASE · SECURE ACCESS</div>
-    </div>
     <div class="login-card">
-      <div class="login-title">🔐 Credential Login</div>
+      <!-- Header: orange icon + M-TRACKER branding -->
+      <div class="login-header">
+        <div class="login-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="login-brand">
+          <div class="login-brand-name">M-TRACKER</div>
+          <div class="login-brand-sub">ACF · Gaza Base · Secure Access</div>
+        </div>
+      </div>
+      <!-- Welcome -->
+      <div class="login-welcome">Welcome back</div>
+      <div class="login-sub">Sign in to your account to continue</div>
+      <!-- Error -->
       <div class="login-err" id="login-err">Invalid username or password</div>
+      <!-- Fields -->
       <div class="login-field">
         <label>Username or Email</label>
         <input type="text" id="l-user" placeholder="Enter username or email" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
       </div>
       <div class="login-field">
         <label>Password</label>
-        <input type="password" id="l-pass" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        <input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
       </div>
-      <button class="login-btn" onclick="doLogin()">ACCESS SYSTEM</button>
+      <button class="login-btn" onclick="doLogin()">Sign In</button>
+      <!-- Demo account info box -->
+      <div class="login-demo">
+        <div class="login-demo-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Demo Account
+        </div>
+        <div class="login-demo-row">
+          <span class="login-demo-lbl">Username</span>
+          <span class="login-demo-val">demo</span>
+        </div>
+        <div class="login-demo-row">
+          <span class="login-demo-lbl">Password</span>
+          <span class="login-demo-val">Demo@2024!</span>
+        </div>
+      </div>
     </div>
     <div class="login-footer">M-TRACKER v6 · ACF Operations · Restricted Access</div>
   </div>
