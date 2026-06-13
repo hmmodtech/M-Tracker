@@ -1,596 +1,1324 @@
 /*
  * ============================================================
- *  ACF TRACKERS — UNIFIED DESIGN SYSTEM
- *  Projects: C-Tracker · M-Tracker · S-Tracker
- *  Version:  1.0
- * ============================================================
- *
- *  HOW TO USE (for AI agents / developers)
- *  ----------------------------------------
- *  1. Import this file once in your project root:
- *       <link rel="stylesheet" href="acf-design-system.css">
- *     or in JS:
- *       import './acf-design-system.css';
- *
- *  2. All tokens live on :root — use them anywhere:
- *       background: var(--acf-glass-green);
- *       color: var(--acf-green);
- *
- *  3. Utility classes are ready to use directly in HTML.
- *
- *  4. Each project has its own accent variable:
- *       C-Tracker  → use --acf-green  (dashboard / central)
- *       M-Tracker  → use --acf-blue   (secure / field access)
- *       S-Tracker  → use --acf-green  (staff safety)
- *
- * ============================================================
- *  AI AGENT INSTRUCTIONS
- * ============================================================
- *
- *  IDENTITY
- *  - Organisation: ACF (Action Contre la Faim) — Gaza Operations
- *  - Brand logo colors: Green #4a9e35 (leaf) + Blue #3878c8 (water drop)
- *  - All three projects share ONE design system. Never invent new
- *    colors; always pull from the tokens below.
- *
- *  DESIGN LANGUAGE
- *  - Light, airy UI with frosted-glass transparency effects
- *  - White/near-white backgrounds with colored glass overlays
- *  - Subtle borders using rgba (never solid dark borders)
- *  - Border-radius: 8px components, 12-14px cards, 20px pills/badges
- *  - No drop-shadows except focus rings
- *  - Font: system sans-serif (Inter, Segoe UI, or similar)
- *  - Font weights: 400 regular, 500 medium only — never 600/700
- *  - All text: sentence case. No ALL CAPS except mono status tags.
- *
- *  COLOR RULES FOR AI
- *  - Green = active, healthy, nature, staff, operations
- *  - Blue  = data, sync, secure, water, reports, field access
- *  - Warning status → #ea9f14 (amber) — never yellow
- *  - Critical/danger → #dc3232 (red)
- *  - Glass effects: always rgba at 6-10% opacity for fills,
- *    20-25% for borders
- *  - Never use pure black (#000) for text — use --acf-text
- *  - Never use white (#fff) as a border — use rgba whites
- *
- *  COMPONENT RULES FOR AI
- *  - Buttons: solid fill for primary, glass fill for secondary
- *  - Cards: white 70% opacity background + colored top border (2px)
- *  - Badges: glass fill + matching border, 20px border-radius
- *  - Navbars: glass background, no hard borders
- *  - Login screens: white 82% opacity card, soft shadow
- *  - Progress bars: 3px height, rounded, colored fill
- *  - Status dots: 5x5px circles inside badges
- *
- *  PROJECT DIFFERENTIATION
- *  - C-Tracker: green accent, dashboard layout, central hub
- *  - M-Tracker: blue accent, secure login, field records
- *  - S-Tracker: green accent, staff profiles, incident tracking
- *
+ *  S-TRACKER DESIGN SYSTEM — Applied to M-TRACKER
+ *  Source: hmmodtech-s-tracker.hf.space
+ *  Version: 2.0
  * ============================================================
  */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* ============================================================
-   1. COLOR TOKENS
+   DARK MODE (default) — CSS Custom Properties
    ============================================================ */
-
 :root {
+  --bg-primary:           #090d1a;
+  --bg-surface:           #0d1224;
+  --bg-elevated:          #111827;
+  --bg-hover:             #1a2236;
+  --border-color:         #1e2d47;
+  --border-subtle:        rgba(255,255,255,0.06);
 
-  /* --- Primary Brand Colors (from logo) --- */
-  --acf-green:            #4a9e35;
-  --acf-green-dark:       #357228;
-  --acf-green-light:      #e8f5e2;
-  --acf-green-mid:        #c2e0b4;
+  --text-primary:         #e2e8f0;
+  --text-secondary:       #94a3b8;
+  --text-muted:           #4a5568;
+  --text-on-accent:       #ffffff;
 
-  --acf-blue:             #3878c8;
-  --acf-blue-dark:        #2a5fa0;
-  --acf-blue-light:       #e3edf9;
-  --acf-blue-mid:         #aecbf0;
+  --accent-orange:        #f97316;
+  --accent-orange-hover:  #ea6c0a;
+  --accent-orange-glow:   rgba(249,115,22,0.15);
 
-  /* --- Glass / Transparency Fills --- */
-  --acf-glass-green:         rgba(74, 158, 53,  0.08);
-  --acf-glass-green-hover:   rgba(74, 158, 53,  0.14);
-  --acf-glass-green-border:  rgba(74, 158, 53,  0.22);
+  --status-low:           #22c55e;
+  --status-med:           #eab308;
+  --status-high:          #f97316;
+  --status-crit:          #ef4444;
+  --status-live:          #22c55e;
 
-  --acf-glass-blue:          rgba(56, 120, 200, 0.08);
-  --acf-glass-blue-hover:    rgba(56, 120, 200, 0.14);
-  --acf-glass-blue-border:   rgba(56, 120, 200, 0.22);
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-  /* --- Surface / Background --- */
-  --acf-bg:               #f7f9fc;
-  --acf-surface:          rgba(255, 255, 255, 0.72);
-  --acf-surface-border:   rgba(255, 255, 255, 0.90);
-  --acf-card-bg:          rgba(255, 255, 255, 0.82);
+  /* Legacy variable mappings for M-Tracker compatibility */
+  --bg:                   #090d1a;
+  --bg-solid:             #090d1a;
+  --sb:                   #0d1224;
+  --card:                 #0d1224;
+  --card2:                #111827;
+  --b1:                   #1e2d47;
+  --b2:                   rgba(255,255,255,0.1);
+  --cy:                   #f97316;
+  --cyd:                  #ea6c0a;
+  --cyg:                  rgba(249,115,22,0.15);
+  --tx:                   #e2e8f0;
+  --tx-head:              #e2e8f0;
+  --dm:                   #94a3b8;
+  --red:                  #ef4444;
+  --grn:                  #22c55e;
+  --sha:                  none;
 
-  /* --- Text --- */
-  --acf-text:             #1a2332;
-  --acf-text-muted:       #5a6a7e;
-  --acf-text-faint:       #8fa0b4;
-
-  /* --- Status Colors --- */
-  --acf-status-active:    #4a9e35;   /* green — same as brand */
-  --acf-status-synced:    #3878c8;   /* blue  — same as brand */
-  --acf-status-warning:   #ea9f14;   /* amber */
-  --acf-status-critical:  #dc3232;   /* red */
-  --acf-status-nodata:    #8fa0b4;   /* faint gray */
-
-  /* Status glass backgrounds */
-  --acf-status-active-bg:   rgba(74,  158,  53, 0.09);
-  --acf-status-warning-bg:  rgba(234, 159,  20, 0.10);
-  --acf-status-critical-bg: rgba(220,  50,  50, 0.09);
-  --acf-status-synced-bg:   rgba(56,  120, 200, 0.09);
-
-  /* --- Border / Divider --- */
-  --acf-border:           rgba(0, 0, 0, 0.08);
-  --acf-border-strong:    rgba(0, 0, 0, 0.15);
-
-  /* --- Border Radius --- */
-  --acf-radius-sm:   6px;
-  --acf-radius-md:   8px;
-  --acf-radius-lg:   12px;
-  --acf-radius-xl:   14px;
-  --acf-radius-pill: 20px;
-
-  /* --- Spacing Scale --- */
-  --acf-space-xs:  4px;
-  --acf-space-sm:  8px;
-  --acf-space-md:  12px;
-  --acf-space-lg:  16px;
-  --acf-space-xl:  24px;
-  --acf-space-2xl: 40px;
-
-  /* --- Typography --- */
-  --acf-font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
-  --acf-font-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
-
-  --acf-text-xs:   11px;
-  --acf-text-sm:   12px;
-  --acf-text-base: 14px;
-  --acf-text-md:   16px;
-  --acf-text-lg:   18px;
-  --acf-text-xl:   22px;
-  --acf-text-stat: 26px;
+  /* ACF legacy tokens → S-TRACKER mapping */
+  --acf-green:            #22c55e;
+  --acf-green-dark:       #16a34a;
+  --acf-green-light:      rgba(34,197,94,0.15);
+  --acf-green-mid:        rgba(34,197,94,0.3);
+  --acf-blue:             #f97316;
+  --acf-blue-dark:        #ea6c0a;
+  --acf-blue-light:       rgba(249,115,22,0.15);
+  --acf-blue-mid:         rgba(249,115,22,0.3);
+  --acf-glass-green:      rgba(34,197,94,0.08);
+  --acf-glass-green-hover:rgba(34,197,94,0.14);
+  --acf-glass-green-b:    rgba(34,197,94,0.22);
+  --acf-glass-green-border:rgba(34,197,94,0.22);
+  --acf-glass-blue:       rgba(249,115,22,0.08);
+  --acf-glass-blue-hover: rgba(249,115,22,0.14);
+  --acf-glass-blue-b:     rgba(249,115,22,0.22);
+  --acf-glass-blue-border:rgba(249,115,22,0.22);
+  --acf-text:             #e2e8f0;
+  --acf-font:             'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
+/* ============================================================
+   LIGHT MODE
+   ============================================================ */
+[data-theme="light"] {
+  --bg-primary:           #f1f5f9;
+  --bg-surface:           #ffffff;
+  --bg-elevated:          #f8fafc;
+  --bg-hover:             #e2e8f0;
+  --border-color:         #cbd5e1;
+  --border-subtle:        rgba(0,0,0,0.08);
+
+  --text-primary:         #0f172a;
+  --text-secondary:       #475569;
+  --text-muted:           #94a3b8;
+  --text-on-accent:       #ffffff;
+
+  --accent-orange:        #f97316;
+  --accent-orange-hover:  #ea6c0a;
+  --accent-orange-glow:   rgba(249,115,22,0.12);
+
+  --bg:                   #f1f5f9;
+  --bg-solid:             #f1f5f9;
+  --sb:                   #ffffff;
+  --card:                 #ffffff;
+  --card2:                #f8fafc;
+  --b1:                   #cbd5e1;
+  --b2:                   rgba(0,0,0,0.14);
+  --cy:                   #f97316;
+  --cyd:                  #ea6c0a;
+  --cyg:                  rgba(249,115,22,0.12);
+  --tx:                   #0f172a;
+  --tx-head:              #0f172a;
+  --dm:                   #475569;
+  --sha:                  0 1px 4px rgba(0,0,0,0.08);
+
+  --acf-blue:             #f97316;
+  --acf-blue-dark:        #ea6c0a;
+  --acf-glass-blue:       rgba(249,115,22,0.08);
+  --acf-glass-blue-b:     rgba(249,115,22,0.2);
+  --acf-glass-blue-border:rgba(249,115,22,0.2);
+}
 
 /* ============================================================
-   2. RESET & BASE
+   GLOBAL RESET & BASE
    ============================================================ */
-
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html {
+  font-size: 13px;
 }
 
 body {
-  font-family: var(--acf-font);
-  font-size: var(--acf-text-base);
-  color: var(--acf-text);
-  background: var(--acf-bg);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-sans) !important;
+  background: var(--bg-primary) !important;
+  background-image: none !important;
+  color: var(--text-primary) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
-
-/* ============================================================
-   3. TYPOGRAPHY UTILITIES
-   ============================================================ */
-
-.acf-page-title   { font-size: var(--acf-text-xl);  font-weight: 500; color: var(--acf-text); }
-.acf-section-title{ font-size: var(--acf-text-md);  font-weight: 500; color: var(--acf-text); }
-.acf-body         { font-size: var(--acf-text-base); font-weight: 400; color: var(--acf-text); }
-.acf-caption      { font-size: var(--acf-text-sm);  font-weight: 400; color: var(--acf-text-muted); }
-.acf-label        { font-size: var(--acf-text-xs);  font-weight: 500; color: var(--acf-text-faint);
-                    text-transform: uppercase; letter-spacing: 0.08em; }
-.acf-mono         { font-family: var(--acf-font-mono); font-size: var(--acf-text-sm); }
-.acf-stat         { font-size: var(--acf-text-stat); font-weight: 500; color: var(--acf-text); }
-
-
-/* ============================================================
-   4. BADGE / STATUS CHIPS
-   ============================================================ */
-
-.acf-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  border-radius: var(--acf-radius-pill);
-  font-size: var(--acf-text-xs);
-  font-weight: 500;
-  border: 0.5px solid transparent;
+body::before {
+  display: none !important;
 }
-
-.acf-badge-green {
-  background: var(--acf-status-active-bg);
-  color: var(--acf-green-dark);
-  border-color: var(--acf-glass-green-border);
-}
-
-.acf-badge-blue {
-  background: var(--acf-status-synced-bg);
-  color: var(--acf-blue-dark);
-  border-color: var(--acf-glass-blue-border);
-}
-
-.acf-badge-warning {
-  background: var(--acf-status-warning-bg);
-  color: #8a5c00;
-  border-color: rgba(234, 159, 20, 0.25);
-}
-
-.acf-badge-critical {
-  background: var(--acf-status-critical-bg);
-  color: #8a1a1a;
-  border-color: rgba(220, 50, 50, 0.22);
-}
-
-.acf-badge-neutral {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--acf-text-muted);
-  border-color: rgba(0, 0, 0, 0.10);
-}
-
-/* Status dot inside badge */
-.acf-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-
-/* ============================================================
-   5. BUTTONS
-   ============================================================ */
-
-.acf-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 15px;
-  border-radius: var(--acf-radius-md);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--acf-font);
-  cursor: pointer;
-  border: 0.5px solid transparent;
-  transition: opacity 0.15s;
-  text-decoration: none;
-}
-.acf-btn:hover  { opacity: 0.88; }
-.acf-btn:active { transform: scale(0.98); }
-
-/* Solid — Green */
-.acf-btn-green {
-  background: var(--acf-green);
-  color: #fff;
-  border-color: var(--acf-green-dark);
-}
-
-/* Solid — Blue */
-.acf-btn-blue {
-  background: var(--acf-blue);
-  color: #fff;
-  border-color: var(--acf-blue-dark);
-}
-
-/* Ghost — Green */
-.acf-btn-ghost-green {
-  background: var(--acf-glass-green);
-  color: var(--acf-green-dark);
-  border-color: var(--acf-glass-green-border);
-}
-.acf-btn-ghost-green:hover {
-  background: var(--acf-glass-green-hover);
-  opacity: 1;
-}
-
-/* Ghost — Blue */
-.acf-btn-ghost-blue {
-  background: var(--acf-glass-blue);
-  color: var(--acf-blue-dark);
-  border-color: var(--acf-glass-blue-border);
-}
-.acf-btn-ghost-blue:hover {
-  background: var(--acf-glass-blue-hover);
-  opacity: 1;
-}
-
-/* Outline (neutral / danger) */
-.acf-btn-outline {
-  background: transparent;
-  color: var(--acf-text-muted);
-  border-color: var(--acf-border-strong);
-}
-
-/* Danger */
-.acf-btn-danger {
-  background: var(--acf-status-critical-bg);
-  color: #8a1a1a;
-  border-color: rgba(220, 50, 50, 0.22);
-}
-
-/* Button sizes */
-.acf-btn-sm { padding: 5px 10px; font-size: 12px; }
-.acf-btn-lg { padding: 10px 20px; font-size: 14px; }
-.acf-btn-full { width: 100%; justify-content: center; }
-
-
-/* ============================================================
-   6. CARDS
-   ============================================================ */
-
-/* Base glass card */
-.acf-card {
-  background: var(--acf-card-bg);
-  border: 0.5px solid var(--acf-surface-border);
-  border-radius: var(--acf-radius-xl);
-  padding: 16px 20px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-/* Tracker card — green accent top */
-.acf-card-green {
-  background: rgba(255, 255, 255, 0.78);
-  border: 0.5px solid var(--acf-glass-green-border);
-  border-top: 2px solid var(--acf-green);
-  border-radius: var(--acf-radius-lg);
-  padding: 16px 18px;
-}
-
-/* Tracker card — blue accent top */
-.acf-card-blue {
-  background: rgba(255, 255, 255, 0.78);
-  border: 0.5px solid var(--acf-glass-blue-border);
-  border-top: 2px solid var(--acf-blue);
-  border-radius: var(--acf-radius-lg);
-  padding: 16px 18px;
-}
-
-/* Tracker card — warning accent */
-.acf-card-warning {
-  background: rgba(255, 255, 255, 0.78);
-  border: 0.5px solid rgba(234, 159, 20, 0.25);
-  border-top: 2px solid var(--acf-status-warning);
-  border-radius: var(--acf-radius-lg);
-  padding: 16px 18px;
-}
-
-/* Icon container inside card */
-.acf-card-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--acf-radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-.acf-card-icon-green {
-  background: var(--acf-glass-green);
-  border: 0.5px solid var(--acf-glass-green-border);
-}
-.acf-card-icon-blue {
-  background: var(--acf-glass-blue);
-  border: 0.5px solid var(--acf-glass-blue-border);
-}
-
-/* Stat summary mini card */
-.acf-stat-mini {
-  background: rgba(0, 0, 0, 0.03);
-  border: 0.5px solid var(--acf-border);
-  border-radius: var(--acf-radius-md);
-  padding: 10px 12px;
-}
-
-
-/* ============================================================
-   7. PROGRESS BAR
-   ============================================================ */
-
-.acf-progress {
-  height: 3px;
-  background: rgba(0, 0, 0, 0.07);
-  border-radius: 2px;
-  margin: 10px 0 6px;
-  overflow: hidden;
-}
-
-.acf-progress-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.4s ease;
-}
-
-.acf-progress-green   { background: var(--acf-green); }
-.acf-progress-blue    { background: var(--acf-blue); }
-.acf-progress-warning { background: var(--acf-status-warning); }
-.acf-progress-critical{ background: var(--acf-status-critical); }
-
-
-/* ============================================================
-   8. NAVBAR
-   ============================================================ */
-
-.acf-navbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: var(--acf-radius-lg);
-  border: 0.5px solid var(--acf-border);
-}
-
-/* Per-project navbar tints */
-.acf-navbar-c {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: var(--acf-border);
-}
-.acf-navbar-m {
-  background: var(--acf-glass-blue);
-  border-color: var(--acf-glass-blue-border);
-}
-.acf-navbar-s {
-  background: var(--acf-glass-green);
-  border-color: var(--acf-glass-green-border);
-}
-
-.acf-navbar-brand {
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-}
-.acf-navbar-brand-green { color: var(--acf-green-dark); }
-.acf-navbar-brand-blue  { color: var(--acf-blue-dark); }
-
-.acf-nav-link {
-  font-size: 12px;
-  color: var(--acf-text-muted);
-  padding: 3px 8px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: background 0.15s;
-}
-.acf-nav-link:hover          { background: rgba(0,0,0,0.05); }
-.acf-nav-link-active-green   { background: var(--acf-glass-green); color: var(--acf-green-dark); }
-.acf-nav-link-active-blue    { background: var(--acf-glass-blue);  color: var(--acf-blue-dark);  }
-
-/* Logo mark */
-.acf-logo-mark {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 13px;
-}
-.acf-logo-green { background: var(--acf-green); }
-.acf-logo-blue  { background: var(--acf-blue);  }
-
-
-/* ============================================================
-   9. LOGIN / AUTH SCREEN
-   ============================================================ */
-
-.acf-login-card {
-  background: var(--acf-card-bg);
-  border: 0.5px solid var(--acf-border);
-  border-radius: var(--acf-radius-xl);
-  padding: 24px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  max-width: 320px;
-  width: 100%;
-}
-
-.acf-login-card-green { border-color: var(--acf-glass-green-border); }
-.acf-login-card-blue  { border-color: var(--acf-glass-blue-border);  }
-
-.acf-login-field {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.04);
-  border: 0.5px solid var(--acf-border-strong);
-  border-radius: var(--acf-radius-md);
-  padding: 9px 12px;
-  font-size: 13px;
-  font-family: var(--acf-font);
-  color: var(--acf-text);
-  outline: none;
-  transition: border-color 0.15s;
-}
-.acf-login-field:focus {
-  border-color: var(--acf-blue);
-  box-shadow: 0 0 0 3px var(--acf-glass-blue);
-}
-
-
-/* ============================================================
-   10. DIVIDER
-   ============================================================ */
-
-.acf-divider {
-  height: 0.5px;
-  background: var(--acf-border);
-  border: none;
-  margin: 20px 0;
-}
-
-
-/* ============================================================
-   11. LAYOUT HELPERS
-   ============================================================ */
-
-.acf-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.acf-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.acf-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-
-.acf-flex   { display: flex; align-items: center; }
-.acf-flex-between { display: flex; align-items: center; justify-content: space-between; }
-.acf-gap-sm { gap: 8px;  }
-.acf-gap-md { gap: 12px; }
-.acf-gap-lg { gap: 16px; }
-.acf-spacer { flex: 1; }
-
-
-/* ============================================================
-   12. FORM INPUTS (general)
-   ============================================================ */
-
-.acf-input {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.03);
-  border: 0.5px solid var(--acf-border-strong);
-  border-radius: var(--acf-radius-md);
-  padding: 8px 12px;
-  font-size: 13px;
-  font-family: var(--acf-font);
-  color: var(--acf-text);
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.acf-input:focus {
-  border-color: var(--acf-blue);
-  box-shadow: 0 0 0 3px var(--acf-glass-blue);
-}
-
-.acf-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238fa0b4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 28px;
-}
-
-
-/* ============================================================
-   13. SCROLL & MISC
-   ============================================================ */
 
 :focus-visible {
-  outline: 2px solid var(--acf-blue);
-  outline-offset: 2px;
+  outline: 2px solid var(--accent-orange) !important;
+  outline-offset: 2px !important;
 }
 
-::selection {
-  background: var(--acf-blue-light);
-  color: var(--acf-blue-dark);
-}
-
-/* Scrollbar (webkit) */
-::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
-
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 
 /* ============================================================
-   END OF FILE
-   acf-design-system.css — v1.0
-   C-Tracker · M-Tracker · S-Tracker
+   SIDEBAR
    ============================================================ */
+#sb {
+  background: var(--bg-surface) !important;
+  border-right: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
+}
+
+.logo {
+  background: transparent !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.logo::after { display: none !important; }
+
+.lm {
+  font-family: var(--font-sans) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.02em !important;
+}
+
+.ls {
+  font-family: var(--font-sans) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: var(--text-secondary) !important;
+  letter-spacing: 0.02em !important;
+}
+
+.ni {
+  color: var(--text-secondary) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  border-right: 2px solid transparent !important;
+  padding: 6px 10px !important;
+  border-radius: 0 !important;
+}
+
+.ni:hover {
+  color: var(--text-primary) !important;
+  background: var(--bg-hover) !important;
+}
+
+.ni.on {
+  color: var(--accent-orange) !important;
+  background: var(--accent-orange-glow) !important;
+  border-right-color: var(--accent-orange) !important;
+}
+
+.ni svg { opacity: 0.6 !important; }
+.ni.on svg { opacity: 1 !important; }
+
+.ni-label {
+  font-family: var(--font-sans) !important;
+  font-weight: 500 !important;
+}
+
+#sb-toggle {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-left: none !important;
+  color: var(--text-secondary) !important;
+}
+
+#sb-toggle:hover {
+  background: var(--bg-hover) !important;
+  color: var(--accent-orange) !important;
+}
+
+body.sb-collapsed .ni.on {
+  background: var(--accent-orange-glow) !important;
+  border-right: none !important;
+}
+
+body.sb-collapsed .ni::after {
+  background: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 500 !important;
+}
+
+/* User Badge */
+#user-badge {
+  background: var(--bg-elevated) !important;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+.ub-av {
+  background: var(--accent-orange) !important;
+  color: var(--text-on-accent) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+}
+
+.ub-name {
+  color: var(--text-primary) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.ub-role {
+  color: var(--accent-orange) !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.ub-logout {
+  background: none !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+  border-radius: 6px !important;
+  transition: color 0.15s ease, background 0.15s ease !important;
+}
+
+.ub-logout:hover {
+  color: var(--accent-orange) !important;
+  background: var(--accent-orange-glow) !important;
+}
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+#main {
+  background: var(--bg-primary) !important;
+}
+
+.inner {
+  padding: 20px 24px 48px !important;
+}
+
+/* ============================================================
+   TOP BAR / PAGE HEADERS
+   ============================================================ */
+.phd .ttl {
+  font-family: var(--font-sans) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.01em !important;
+  text-shadow: none !important;
+}
+
+.phd .sub {
+  color: var(--text-secondary) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+/* Primary */
+.btn {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  border-radius: 6px !important;
+  padding: 7px 14px !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.btn:hover {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.btn.cyan, .btn.primary {
+  background: var(--accent-orange) !important;
+  color: var(--text-on-accent) !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+.btn.cyan:hover, .btn.primary:hover {
+  background: var(--accent-orange-hover) !important;
+  color: var(--text-on-accent) !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn.cyan:active, .btn.primary:active {
+  transform: translateY(0) !important;
+}
+
+/* Icon buttons */
+.icb, .bcan-icon {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  border-radius: 6px !important;
+  padding: 6px 8px !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.icb:hover {
+  background: var(--bg-hover) !important;
+  color: var(--accent-orange) !important;
+}
+
+.icb.del:hover {
+  color: #ef4444 !important;
+  background: rgba(239,68,68,0.1) !important;
+}
+
+/* Modal buttons */
+.bok {
+  background: var(--accent-orange) !important;
+  color: var(--text-on-accent) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  font-family: var(--font-sans) !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease !important;
+}
+
+.bok:hover {
+  background: var(--accent-orange-hover) !important;
+}
+
+.bcan {
+  background: transparent !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  border-radius: 6px !important;
+  padding: 7px 14px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  font-family: var(--font-sans) !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.bcan:hover {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Screen options / toggle buttons */
+.sopt-btn, .mb, .stab, .kmb, .pill {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.sopt-btn:hover, .mb:hover, .stab:hover, .kmb:hover, .pill:hover,
+.sopt-btn.active, .mb.on, .stab.on, .kmb.on {
+  background: var(--accent-orange-glow) !important;
+  color: var(--accent-orange) !important;
+  border-color: rgba(249,115,22,0.4) !important;
+}
+
+.pill.on {
+  background: var(--accent-orange) !important;
+  color: var(--text-on-accent) !important;
+  border-color: var(--accent-orange) !important;
+}
+
+.pills-toggle {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  border-radius: 6px !important;
+}
+
+.pills-toggle:hover {
+  border-color: var(--accent-orange) !important;
+  color: var(--accent-orange) !important;
+}
+
+/* ============================================================
+   FORM INPUTS
+   ============================================================ */
+.fi, .si, .kwin, .gc-input,
+input[type="text"], input[type="password"], input[type="number"],
+input[type="email"], input[type="search"], select, textarea {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  padding: 8px 10px !important;
+  outline: none !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.fi:focus, .kwin:focus, .gc-input:focus,
+input[type="text"]:focus, input[type="password"]:focus,
+input[type="number"]:focus, input[type="email"]:focus,
+select:focus, textarea:focus {
+  border-color: var(--accent-orange) !important;
+  box-shadow: 0 0 0 3px var(--accent-orange-glow) !important;
+}
+
+.fi::placeholder, .kwin::placeholder, .gc-input::placeholder,
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.si {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.si:focus-within {
+  border-color: var(--accent-orange) !important;
+  box-shadow: 0 0 0 3px var(--accent-orange-glow) !important;
+}
+
+.si input {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Input labels */
+.fl {
+  font-family: var(--font-sans) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--text-secondary) !important;
+  margin-bottom: 4px !important;
+}
+
+/* Range slider */
+input[type="range"] {
+  accent-color: var(--accent-orange) !important;
+}
+
+.sopt-slider {
+  accent-color: var(--accent-orange) !important;
+}
+
+/* Toggle switch */
+.sopt-toggle input:checked + .sopt-toggle-track {
+  background: var(--accent-orange) !important;
+}
+
+.sopt-toggle-track {
+  background: var(--border-color) !important;
+}
+
+/* ============================================================
+   CARDS & STAT CARDS
+   ============================================================ */
+.sc, .sg .sc {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-top: 2px solid var(--accent-orange) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease !important;
+}
+
+.sc:hover {
+  border-color: var(--accent-orange-glow) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.sc.cya { border-top-color: var(--accent-orange) !important; }
+.sc.grn { border-top-color: var(--status-low) !important; border-color: var(--border-color) !important; }
+.sc.red { border-top-color: var(--status-crit) !important; border-color: var(--border-color) !important; }
+.sc.ylw { border-top-color: var(--status-med) !important; border-color: var(--border-color) !important; }
+
+.sl {
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  color: var(--text-secondary) !important;
+  text-transform: uppercase !important;
+}
+
+.sv {
+  font-family: var(--font-sans) !important;
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  line-height: 1 !important;
+}
+
+.sc.cya .sv { color: var(--accent-orange) !important; }
+.sc.grn .sv { color: var(--status-low) !important; }
+.sc.red .sv { color: var(--status-crit) !important; }
+.sc.ylw .sv { color: var(--status-med) !important; }
+
+.ss {
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  color: var(--text-secondary) !important;
+  font-family: var(--font-sans) !important;
+}
+
+.sc-ico { opacity: 0.6 !important; }
+
+/* ============================================================
+   MESSAGE / CONTENT CARDS
+   ============================================================ */
+.mc {
+  background: var(--bg-elevated) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  transition: background 0.15s ease !important;
+}
+
+.mc:hover {
+  background: var(--bg-hover) !important;
+}
+
+.mc.crit {
+  border-left: 3px solid var(--status-crit) !important;
+  background: rgba(239,68,68,0.04) !important;
+}
+
+.mcs {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-top: 2px solid var(--accent-orange) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease !important;
+}
+
+.mcs:hover {
+  border-color: var(--accent-orange-glow) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.mcs.crit {
+  border-top: 2px solid var(--status-crit) !important;
+}
+
+/* ============================================================
+   PANELS / SIDEPANELS
+   ============================================================ */
+.sopt-panel {
+  background: var(--bg-surface) !important;
+  border-left: 1px solid var(--border-color) !important;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.4) !important;
+}
+
+.sopt-hd {
+  background: var(--bg-elevated) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 12px 16px !important;
+}
+
+.sopt-hd-ttl {
+  font-family: var(--font-sans) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--text-secondary) !important;
+}
+
+.sopt-body { padding: 12px 16px !important; }
+
+.sopt-sec-ttl {
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--text-muted) !important;
+}
+
+.sopt-row {
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+.sopt-row-label {
+  font-family: var(--font-sans) !important;
+  color: var(--text-primary) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+}
+
+.sopt-row-sub {
+  color: var(--text-secondary) !important;
+  font-size: 11px !important;
+}
+
+/* ============================================================
+   FEED
+   ============================================================ */
+.feed-wrap {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-top: 2px solid var(--accent-orange) !important;
+}
+
+.feed-hdr {
+  background: var(--bg-elevated) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.feed-ttl {
+  font-family: var(--font-sans) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+}
+
+/* ============================================================
+   CLOCK CARD
+   ============================================================ */
+.clock-card {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
+}
+
+.clk-t {
+  color: var(--accent-orange) !important;
+  text-shadow: none !important;
+  font-weight: 600 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.clk-d {
+  color: var(--text-secondary) !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* ============================================================
+   BADGES & STATUS
+   ============================================================ */
+.live {
+  background: rgba(34,197,94,0.12) !important;
+  border: 1px solid rgba(34,197,94,0.3) !important;
+  color: var(--status-live) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  border-radius: 10px !important;
+}
+
+.ldot {
+  background: var(--status-live) !important;
+  animation: pulse-dot 1.5s ease-in-out infinite !important;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.3); }
+}
+
+/* Notification badge */
+.bbn {
+  background: var(--status-crit) !important;
+  color: #fff !important;
+  font-family: var(--font-sans) !important;
+  font-size: 8px !important;
+}
+
+/* ============================================================
+   MODAL / DIALOG
+   ============================================================ */
+.ovm {
+  background: rgba(0,0,0,0.75) !important;
+}
+
+.modal {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.7) !important;
+  padding: 16px 20px !important;
+}
+
+.mttl {
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+}
+
+.msub {
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+  color: var(--text-secondary) !important;
+}
+
+.mapw {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 10px !important;
+}
+
+.maphd {
+  border-bottom: 1px solid var(--border-color) !important;
+  background: var(--bg-elevated) !important;
+}
+
+.maphd span {
+  font-family: var(--font-sans) !important;
+  color: var(--accent-orange) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+.maphd button {
+  background: none !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  cursor: pointer !important;
+}
+
+.maphd button:hover {
+  color: var(--text-primary) !important;
+}
+
+.mapfoot {
+  border-top: 1px solid var(--border-color) !important;
+  background: var(--bg-elevated) !important;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+#toast {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--accent-orange) !important;
+  color: var(--accent-orange) !important;
+  border-radius: 10px !important;
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+}
+
+#toast.crit {
+  border-color: var(--status-crit) !important;
+  color: var(--status-crit) !important;
+}
+
+/* ============================================================
+   CHANNEL CARDS
+   ============================================================ */
+.chc {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-top: 2px solid var(--accent-orange) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease !important;
+}
+
+.chc:hover {
+  background: var(--bg-hover) !important;
+  border-color: var(--accent-orange-glow) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.chav {
+  background: var(--accent-orange) !important;
+  color: var(--text-on-accent) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.chav.web { background: var(--status-low) !important; }
+
+.chn {
+  color: var(--text-primary) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+.chu, .chdes { color: var(--text-secondary) !important; font-family: var(--font-sans) !important; }
+
+.chbdg.tg, .chbdg.wb {
+  background: var(--accent-orange-glow) !important;
+  color: var(--accent-orange) !important;
+  border: 1px solid rgba(249,115,22,0.4) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+}
+
+.chcnt b { color: var(--text-primary) !important; font-weight: 600 !important; }
+
+/* ============================================================
+   TEXT ELEMENTS
+   ============================================================ */
+.ttl, .phd .ttl, .csrc, .feed-ttl, .kwt, .mttl, .chn {
+  color: var(--text-primary) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 600 !important;
+}
+
+.sub, .phd .sub, .msub, .chdes {
+  color: var(--text-secondary) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 400 !important;
+}
+
+.ct, .ct-ar {
+  color: var(--text-primary) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 400 !important;
+  font-size: 13px !important;
+}
+
+.fmeta, .cmeta, .chcnt, .chu {
+  color: var(--text-muted) !important;
+  font-family: var(--font-sans) !important;
+}
+
+.tbox {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  font-family: var(--font-sans) !important;
+  border-radius: 6px !important;
+}
+
+.tbox-lbl { color: var(--accent-orange) !important; }
+
+.loc-b {
+  background: rgba(34,197,94,0.1) !important;
+  border: 1px solid rgba(34,197,94,0.25) !important;
+  color: var(--status-low) !important;
+}
+
+.rdm, .tgl, .kh { color: var(--accent-orange) !important; }
+
+/* ============================================================
+   KEYWORDS
+   ============================================================ */
+.kwbox {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-top: 2px solid var(--accent-orange) !important;
+  border-radius: 8px !important;
+}
+
+.kwt {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.kwtag {
+  background: var(--accent-orange-glow) !important;
+  border: 1px solid rgba(249,115,22,0.4) !important;
+  color: var(--accent-orange) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 500 !important;
+  border-radius: 10px !important;
+}
+
+.kwtag.crit {
+  background: rgba(239,68,68,0.12) !important;
+  border-color: rgba(239,68,68,0.3) !important;
+  color: #ef4444 !important;
+}
+
+.kwtag button { color: inherit !important; }
+
+.kc { background: rgba(239,68,68,0.12) !important; color: #ef4444 !important; }
+.kh { background: var(--accent-orange-glow) !important; color: var(--accent-orange) !important; }
+
+/* ============================================================
+   USER MANAGEMENT CARDS
+   ============================================================ */
+.um-card {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-top: 2px solid var(--accent-orange) !important;
+  border-radius: 8px !important;
+}
+
+.um-card:hover { border-color: var(--accent-orange-glow) !important; }
+
+.um-avatar {
+  background: var(--accent-orange-glow) !important;
+  border: 1px solid rgba(249,115,22,0.3) !important;
+  color: var(--accent-orange) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 600 !important;
+}
+
+.um-name { color: var(--text-primary) !important; font-weight: 500 !important; }
+
+.um-role {
+  background: var(--accent-orange-glow) !important;
+  color: var(--accent-orange) !important;
+  border: 1px solid rgba(249,115,22,0.3) !important;
+  border-radius: 10px !important;
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+}
+
+.um-role.admin {
+  background: rgba(34,197,94,0.12) !important;
+  color: var(--status-low) !important;
+  border-color: rgba(34,197,94,0.3) !important;
+}
+
+/* ============================================================
+   GEOCODER
+   ============================================================ */
+.gc-stat {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-top: 2px solid var(--accent-orange) !important;
+  border-radius: 8px !important;
+}
+
+.gc-stat-num { color: var(--accent-orange) !important; font-weight: 600 !important; }
+.gc-stat-lbl { color: var(--text-muted) !important; font-family: var(--font-sans) !important; }
+
+.gc-hint {
+  background: var(--accent-orange-glow) !important;
+  border: 1px solid rgba(249,115,22,0.25) !important;
+  color: var(--text-secondary) !important;
+  border-radius: 8px !important;
+  font-family: var(--font-sans) !important;
+}
+
+.gc-ico { color: var(--text-muted) !important; }
+
+.gc-input {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  padding: 10px 36px 10px 38px !important;
+  border-radius: 8px !important;
+}
+
+.gc-clear { color: var(--text-muted) !important; background: none !important; border: none !important; }
+
+.gc-dropdown {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+  border-radius: 8px !important;
+}
+
+.gc-sug:hover, .gc-sug.active { background: var(--bg-hover) !important; }
+.gc-sug-name { color: var(--text-primary) !important; font-weight: 500 !important; }
+.gc-sug-sub { color: var(--text-secondary) !important; }
+
+.gc-card {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-top: 2px solid var(--accent-orange) !important;
+  border-radius: 8px !important;
+}
+
+.gc-card:hover { border-color: var(--accent-orange-glow) !important; transform: none !important; box-shadow: none !important; }
+.gc-card-name { color: var(--text-primary) !important; font-weight: 500 !important; }
+
+/* ============================================================
+   GEO PANEL
+   ============================================================ */
+.geo-panel {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5) !important;
+}
+
+.geo-panel-title {
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--text-muted) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+.geo-opt { border: 1px solid transparent !important; border-radius: 6px !important; }
+
+.geo-opt:hover {
+  background: var(--bg-hover) !important;
+  border-color: var(--accent-orange-glow) !important;
+}
+
+.geo-opt.active {
+  background: var(--accent-orange-glow) !important;
+  border-color: rgba(249,115,22,0.3) !important;
+}
+
+.geo-opt-en { color: var(--text-primary) !important; font-family: var(--font-sans) !important; font-size: 13px !important; }
+.geo-opt.active .geo-opt-en { color: var(--accent-orange) !important; font-weight: 600 !important; }
+.geo-opt-ar { color: var(--text-secondary) !important; }
+
+.geo-opt-check {
+  border: 1px solid var(--border-color) !important;
+  background: transparent !important;
+  border-radius: 50% !important;
+}
+
+.geo-opt.active .geo-opt-check {
+  background: var(--accent-orange) !important;
+  border-color: var(--accent-orange) !important;
+}
+
+/* ============================================================
+   CREATE USER FORM
+   ============================================================ */
+.cu-form {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-top: 2px solid var(--accent-orange) !important;
+  border-radius: 8px !important;
+}
+
+.cu-field-err { color: var(--status-crit) !important; }
+
+.role-select-grid { gap: 10px !important; }
+
+.role-opt {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.role-opt:hover { border-color: rgba(249,115,22,0.4) !important; background: var(--accent-orange-glow) !important; }
+.role-opt.selected { border-color: var(--accent-orange) !important; background: var(--accent-orange-glow) !important; }
+
+.role-opt-name { color: var(--text-primary) !important; font-weight: 500 !important; font-family: var(--font-sans) !important; }
+.role-opt.selected .role-opt-name { color: var(--accent-orange) !important; }
+.role-opt-desc { color: var(--text-secondary) !important; font-family: var(--font-sans) !important; }
+
+.perm-list { background: var(--bg-elevated) !important; border: 1px solid var(--border-subtle) !important; color: var(--text-secondary) !important; }
+.ud-perm-yes { background: rgba(34,197,94,0.1) !important; border: 1px solid rgba(34,197,94,0.25) !important; color: var(--status-low) !important; }
+
+/* ============================================================
+   EMPTY STATE & MISC
+   ============================================================ */
+.empty {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  color: var(--text-muted) !important;
+}
+
+.emptylbl {
+  font-family: var(--font-sans) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.06em !important;
+  color: var(--text-muted) !important;
+}
+
+.loading {
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+  color: var(--text-muted) !important;
+}
+
+#gaza-canvas { background: var(--bg-primary) !important; border-radius: 8px !important; }
+
+/* ============================================================
+   HAMB / MOBILE
+   ============================================================ */
+#hamb {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--accent-orange) !important;
+}
+
+/* ============================================================
+   LOGIN OVERLAY — S-TRACKER Design
+   ============================================================ */
+#login-overlay {
+  background: var(--bg-primary) !important;
+}
+
+.login-box { max-width: 360px !important; }
+
+.login-logo .lm {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.02em !important;
+  font-family: var(--font-sans) !important;
+}
+
+.login-logo .ls {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: var(--text-secondary) !important;
+  letter-spacing: 0.02em !important;
+  font-family: var(--font-sans) !important;
+}
+
+.login-card {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px !important;
+  padding: 32px 36px !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important;
+}
+
+.login-title {
+  font-family: var(--font-sans) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  text-align: center !important;
+  margin-bottom: 24px !important;
+}
+
+.login-err {
+  font-size: 12px !important;
+  color: var(--status-crit) !important;
+  background: rgba(239,68,68,0.08) !important;
+  border: 1px solid rgba(239,68,68,0.3) !important;
+  border-radius: 6px !important;
+  font-family: var(--font-sans) !important;
+}
+
+.login-field label {
+  font-family: var(--font-sans) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--text-secondary) !important;
+}
+
+.login-field input {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  padding: 8px 10px !important;
+}
+
+.login-field input:focus {
+  border-color: var(--accent-orange) !important;
+  box-shadow: 0 0 0 3px var(--accent-orange-glow) !important;
+}
+
+.login-field input::placeholder { color: var(--text-muted) !important; }
+
+.login-btn {
+  width: 100% !important;
+  background: var(--accent-orange) !important;
+  color: var(--text-on-accent) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 10px !important;
+  height: 40px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  font-family: var(--font-sans) !important;
+  cursor: pointer !important;
+  letter-spacing: 0.02em !important;
+  transition: background 0.15s ease, transform 0.1s ease !important;
+}
+
+.login-btn:hover { background: var(--accent-orange-hover) !important; transform: translateY(-1px) !important; }
+.login-btn:active { transform: translateY(0) !important; }
+
+.login-footer {
+  font-family: var(--font-sans) !important;
+  font-size: 11px !important;
+  color: var(--text-muted) !important;
+}
+
+/* ============================================================
+   ACCENT COLOR THEMES — remap to orange-based variants
+   ============================================================ */
+body.accent-teal { --cy:#f97316; --cyd:#ea580c; --cyg:rgba(249,115,22,0.12); }
+body.accent-blue { --cy:#f97316; --cyd:#ea580c; --cyg:rgba(249,115,22,0.12); }
+body.accent-orange { --cy:#f97316; --cyd:#ea580c; --cyg:rgba(249,115,22,0.12); }
+
+/* ============================================================
+   COLOR SWATCHES (screen options)
+   ============================================================ */
+.card-style-opt {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  border-radius: 8px !important;
+}
+
+.card-style-opt:hover { border-color: var(--accent-orange) !important; }
+.card-style-opt.active { border-color: var(--accent-orange) !important; color: var(--accent-orange) !important; background: var(--accent-orange-glow) !important; }
+
+.density-opt {
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  background: var(--bg-elevated) !important;
+  border-radius: 6px !important;
+}
+
+.density-opt:hover { border-color: var(--accent-orange) !important; }
+.density-opt.active { border-color: var(--accent-orange) !important; color: var(--accent-orange) !important; background: var(--accent-orange-glow) !important; }
+
+/* ============================================================
+   FONT: remove JetBrains Mono, enforce Inter everywhere
+   ============================================================ */
+.lm, .ls, .phd .ttl, .sl, .sv, .ss, .stab, .ni, .ni-label,
+.fl, .chbdg, .emptylbl, .loading, .sopt-hd-ttl, .sopt-sec-ttl {
+  font-family: var(--font-sans) !important;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+@media (max-width: 768px) {
+  #hamb { display: flex !important; }
+
+  #sb {
+    background: var(--bg-surface) !important;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.6) !important;
+  }
+
+  .inner { padding: 12px 12px 40px !important; }
+
+  .login-card { padding: 24px 20px !important; }
+
+  .btn { min-height: 40px !important; }
+  .login-btn { min-height: 44px !important; }
+}
+
+/* ============================================================
+   REMOVE ALL LINGERING HOVER TRANSFORMS
+   ============================================================ */
+.sc:hover, .mcs:hover, .chc:hover, .gc-card:hover {
+  transform: none !important;
+  filter: none !important;
+}
