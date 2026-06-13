@@ -16,36 +16,44 @@
   },true);
 })();
 </script>
+<script>
+(function(){
+  /* S-TRACKER theme init — runs before render to prevent flash */
+  var saved = localStorage.getItem('theme');
+  if(!saved){
+    /* Also check legacy sopt key */
+    try{var o=JSON.parse(localStorage.getItem('m_sopt')||'{}');if(o.dark===false)saved='light';}catch(e){}
+  }
+  if(saved==='light'){
+    document.documentElement.setAttribute('data-theme','light');
+    document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('light');});
+  }
+  /* Default: dark (no attribute needed) */
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
 <title>M-TRACKER · ACF Gaza</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* Deep purple/blue gradient background */
-  --bg:linear-gradient(135deg,#EDF2F7 0%,#E8EEF5 50%,#E2E8F0 100%);
-  --bg-solid:#EDF2F7;
-  --sb:rgba(255,255,255,0.6);
-  /* Glassmorphism cards */
-  --card:rgba(255,255,255,0.55);
-  --card2:rgba(255,255,255,0.75);
-  --b1:rgba(61,74,92,0.15);
-  --b2:rgba(61,74,92,0.3);
-  /* Electric Cyan accent (#00FFFF) + Gold */
-  --cy:#0097A7;--cyd:#00838F;--cyg:rgba(0,151,167,0.08);
-  /* Cool White (#F0F8FF) and Silver (#C0C0C0) */
-  --tx:#3D4A5C;--tx-head:#1A2535;
-  --dm:#6B7A8D;--red:#ef4444;--grn:#00FFFF;
-  --sha:0 4px 20px rgba(61,74,92,0.12);
-  /* Layout */
+  /* S-TRACKER Design System — Dark Mode Default */
+  --bg:#090d1a;--bg-solid:#090d1a;
+  --sb:#0d1224;--card:#0d1224;--card2:#111827;
+  --b1:#1e2d47;--b2:rgba(255,255,255,0.1);
+  --cy:#f97316;--cyd:#ea6c0a;--cyg:rgba(249,115,22,0.15);
+  --tx:#e2e8f0;--tx-head:#e2e8f0;
+  --dm:#94a3b8;--red:#ef4444;--grn:#22c55e;
+  --sha:none;
+  /* Layout — preserved */
   --sb-width:270px;
   --map-h:400px;
-  --inner-pad:26px 34px;
-  --feed-pad:26px 28px;
+  --inner-pad:20px 24px;
+  --feed-pad:20px 24px;
 }
-body.light{--bg:linear-gradient(135deg,#f0f4ff 0%,#e8eeff 40%,#f5f0ff 100%);--bg-solid:#f0f4ff;--sb:rgba(255,255,255,0.75);--card:rgba(255,255,255,0.65);--card2:rgba(255,255,255,0.88);--b1:rgba(80,90,120,0.13);--b2:rgba(80,90,120,0.28);--tx:#1e2340;--tx-head:#0d1120;--dm:#5a6080;--sha:0 4px 22px rgba(80,90,140,0.13)}
-body{font-family:'Inter',sans-serif;background:var(--bg-solid);background-image:var(--bg);background-position:center;background-attachment:fixed;color:var(--tx);display:flex;height:100vh;overflow:hidden;transition:background .3s,background-image .3s,color .3s;font-size:17px;font-weight:600}
+[data-theme="light"]{--bg:#f1f5f9;--bg-solid:#f1f5f9;--sb:#ffffff;--card:#ffffff;--card2:#f8fafc;--b1:#cbd5e1;--b2:rgba(0,0,0,0.14);--cy:#f97316;--cyd:#ea6c0a;--cyg:rgba(249,115,22,0.12);--tx:#0f172a;--tx-head:#0f172a;--dm:#475569;--sha:0 1px 4px rgba(0,0,0,0.08)}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg-solid);background-image:none;color:var(--tx);display:flex;height:100vh;overflow:hidden;transition:background 0.2s ease,color 0.2s ease;font-size:13px;font-weight:400}
 /* Subtle background texture overlay */
 body::before{content:'';position:fixed;inset:0;background:linear-gradient(135deg,rgba(237,242,247,0.0) 0%,rgba(226,232,240,0.0) 100%);pointer-events:none;z-index:0}
 #sb,#main{position:relative;z-index:1}
@@ -3008,14 +3016,15 @@ function drawMap(){
 
 function setTheme(d){
   dark=!!d;
+  /* S-TRACKER pattern: data-theme attribute on documentElement */
+  if(dark){document.documentElement.removeAttribute('data-theme');}
+  else{document.documentElement.setAttribute('data-theme','light');}
   document.body.classList.toggle('light',!dark);
-  /* Clear inline bg overrides so CSS theme vars take control */
   document.body.style.backgroundColor='';
   document.body.style.backgroundImage='';
-  /* Sync the toggle checkbox */
   var tog=document.getElementById('tog-dark');
   if(tog)tog.checked=dark;
-  /* Persist immediately */
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
   saveSopt();
   buildActs();
   showToast(dark?'Dark mode':'Light mode');
@@ -3082,6 +3091,7 @@ function loadScreenOptions(){
     /* Restore dark/light theme first so background CSS vars are correct */
     if(typeof o.dark==='boolean' && o.dark===false){
       dark=false;
+      document.documentElement.setAttribute('data-theme','light');
       document.body.classList.add('light');
       var tog=document.getElementById('tog-dark');if(tog)tog.checked=false;
     }
