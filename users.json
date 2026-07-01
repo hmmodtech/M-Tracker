@@ -22,5 +22,17 @@
     "created": "2024-01-01T00:00:00Z",
     "isBuiltIn": true,
     "isSuperAdmin": false
+ },
+  {
+    "id": "u_admin3",
+    "username": "acf",
+    "email": "acf@pt.acfspain.org",
+    "email2": "",
+    "name": "acf",
+    "password": "3030",
+    "role": "admin",
+    "created": "2024-01-01T00:00:00Z",
+    "isBuiltIn": true,
+    "isSuperAdmin": false
   }
 ]
