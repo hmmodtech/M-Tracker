@@ -331,6 +331,13 @@ body.focus-mode .phd .sub{display:none}
 .mb{background:var(--card);backdrop-filter:blur(6px);border:1px solid var(--b1);border-radius:9px;padding:10px 14px;color:var(--dm);font-size:14px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;white-space:nowrap}
 .mb.on{border-color:var(--cyd);color:var(--cy);background:var(--cyg)}
 .fmeta{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dm);margin-bottom:7px;flex-wrap:wrap;gap:4px}
+.srow-center-wrap{display:flex;justify-content:center;margin:2px 0 14px}
+.srow-center{justify-content:center;max-width:640px;width:100%}
+.ch-filter-chip{display:inline-flex;align-items:center;gap:7px;background:var(--cyg);border:1px solid var(--cyd);color:var(--cy);border-radius:20px;padding:6px 8px 6px 14px;font-size:12.5px;font-weight:600;margin-bottom:10px}
+.ch-filter-chip button{background:none;border:none;color:inherit;font-size:16px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:50%;transition:.15s}
+.ch-filter-chip button:hover{background:rgba(0,0,0,.08)}
+.icb.follow{width:auto;gap:5px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--cy);border:1px solid var(--cyd);border-radius:7px;background:var(--cyg)}
+.icb.follow:hover{background:var(--cyd);color:#fff}
 /* MESSAGE CARD (feed item) */
 .mc{background:rgba(255,255,255,0.4);border-bottom:1px solid var(--b1);padding:var(--feed-pad);transition:.15s}
 .mc:last-child{border-bottom:none}
@@ -454,15 +461,27 @@ body.focus-mode .phd .sub{display:none}
 #gaza-canvas{width:100%;border-radius:8px;cursor:pointer;display:block;background:#0a1520}
 /* MOBILE */
 #hamb{display:none;position:fixed;top:10px;left:10px;z-index:60;background:rgba(255,255,255,0.8);backdrop-filter:blur(10px);border:1px solid var(--b1);border-radius:8px;padding:7px;cursor:pointer;color:var(--cy);align-items:center}
+#bnav{display:none}
 @media(max-width:768px){
   #hamb{display:flex}
   #sb{position:fixed;top:0;bottom:0;left:0;width:var(--sb-width);min-width:var(--sb-width);transform:translateX(-110%);transition:.3s;z-index:50;box-shadow:4px 0 20px rgba(0,0,0,.4)}
   #sb.open{transform:translateX(0)}
   #sb-toggle{display:none}
+  #sb #nav{display:none}
+  #bnav{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:55;
+    background:rgba(17,22,32,0.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-top:1px solid var(--b1);
+    padding:2px 2px calc(2px + env(safe-area-inset-bottom));
+  }
+  .bni{flex:1;display:flex;align-items:center;justify-content:center;padding:10px 0;cursor:pointer;color:rgba(255,255,255,.45);transition:.15s;-webkit-tap-highlight-color:transparent}
+  .bni svg{width:24px;height:24px;flex-shrink:0}
+  .bni.on{color:var(--cy)}
   .sg{grid-template-columns:1fr 1fr}
   .ov-grid{grid-template-columns:1fr}
-  .inner{padding:12px 12px 40px}
+  .inner{padding:12px 12px calc(78px + env(safe-area-inset-bottom))}
   .tbar{flex-direction:column}
+  .srow-center{justify-content:flex-start;flex-wrap:wrap}
 }
 @media(max-width:420px){.sg{grid-template-columns:1fr 1fr}}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--b1);border-radius:3px}
@@ -514,6 +533,13 @@ body::before{display:none !important;}
   border-right:0.5px solid var(--acf-glass-blue-b) !important;
   box-shadow:2px 0 12px rgba(0,0,0,0.05) !important;
 }
+#bnav{
+  background:rgba(255,255,255,0.97) !important;
+  backdrop-filter:none !important;
+  border-top:0.5px solid var(--acf-glass-blue-b) !important;
+}
+.bni{color:rgba(0,0,0,0.35) !important;}
+.bni.on{color:var(--acf-blue) !important;}
 .logo{
   background:rgba(56,120,200,0.04) !important;
   border-bottom:0.5px solid var(--acf-glass-blue-b) !important;
@@ -1353,6 +1379,7 @@ img{pointer-events:none!important;-webkit-user-drag:none!important;}
 <button id="sb-toggle" onclick="toggleSBCollapse()" title="Toggle sidebar">
   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
 </button>
+<div id="bnav"></div>
 <div id="main"><div class="inner">
 
 <!-- ══ OVERVIEW (merged with Live Feed) ══ -->
@@ -1364,15 +1391,25 @@ img{pointer-events:none!important;-webkit-user-drag:none!important;}
     </div>
     <div class="acts" id="acts-ov"></div>
   </div>
+
+  <!-- Centered search + filter bar -->
+  <div class="srow-center-wrap">
+    <div class="srow srow-center">
+      <div class="si">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--dm)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="ov-q" placeholder="Search messages..." oninput="renderFeed()">
+      </div>
+      <button class="mb on" id="fm-all"  onclick="setFeedMode('all')">All</button>
+      <button class="mb"    id="fm-kw"   onclick="setFeedMode('kw')">Keywords</button>
+      <button class="mb"    id="fm-crit" onclick="setFeedMode('crit')">&#9888; Critical</button>
+      <button class="mb"    id="fm-loc"  onclick="setFeedMode('loc')">&#128205; Located</button>
+    </div>
+  </div>
   <!-- Compact stats bar -->
   <div class="sg">
     <div class="sc" title="Active monitored channels">
       <div class="sc-left"><div class="sl">CHANNELS</div><div class="sv" id="s-ch">—</div><div class="ss" id="ss-ch">active</div></div>
       <div class="sc-ico">📡</div>
-    </div>
-    <div class="sc" title="Total messages collected">
-      <div class="sc-left"><div class="sl">MESSAGES</div><div class="sv" id="s-msg">—</div><div class="ss" id="ss-msg">total</div></div>
-      <div class="sc-ico">📨</div>
     </div>
     <div class="sc red" title="Critical keyword alerts">
       <div class="sc-left"><div class="sl">CRITICAL</div><div class="sv" id="s-crit">—</div><div class="ss">alerts</div></div>
@@ -1381,10 +1418,6 @@ img{pointer-events:none!important;-webkit-user-drag:none!important;}
     <div class="sc cya" title="Messages with confirmed location">
       <div class="sc-left"><div class="sl">LOCATED</div><div class="sv" id="s-loc">—</div><div class="ss">on map</div></div>
       <div class="sc-ico">📍</div>
-    </div>
-    <div class="sc grn" title="New messages since last visit">
-      <div class="sc-left"><div class="sl">NEW</div><div class="sv" id="s-new">—</div><div class="ss">since refresh</div></div>
-      <div class="sc-ico">🆕</div>
     </div>
     <div class="sc ylw" title="Keywords being tracked">
       <div class="sc-left"><div class="sl">KEYWORDS</div><div class="sv" id="s-kw">—</div><div class="ss">tracked</div></div>
@@ -1480,22 +1513,7 @@ img{pointer-events:none!important;-webkit-user-drag:none!important;}
   <div class="ov-grid">
     <!-- LEFT: Live Feed -->
     <div>
-      <div class="pills-wrap">
-        <div class="pills" id="ov-pills"></div>
-        <button class="pills-toggle" id="pills-toggle" onclick="togglePills()" style="display:none">
-          <span id="pills-toggle-lbl">Show more</span>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-      </div>
-      <div class="srow">
-        <div class="si">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--dm)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input id="ov-q" placeholder="Search messages..." oninput="renderFeed()">
-        </div>
-        <button class="mb on" id="fm-all"  onclick="setFeedMode('all')">All</button>
-        <button class="mb"    id="fm-kw"   onclick="setFeedMode('kw')">Keywords</button>
-        <button class="mb"    id="fm-crit" onclick="setFeedMode('crit')">&#9888; Critical</button>
-      </div>
+      <div id="ch-filter-chip-wrap"></div>
       <div class="fmeta">
         <span>Showing <b id="f-cnt">0</b></span>
         <span>Total in DB <b id="f-tot">0</b></span>
@@ -3274,14 +3292,18 @@ function setTheme(d){
 
 function activePg(){var e=document.querySelector('.page.on');return e?e.id.replace('pg-',''):'overview';}
 function buildNav(){
-  var ap=activePg(),h='';
+  var ap=activePg(),h='',hb='';
   PAGES.forEach(function(p){
     if(p.adminOnly&&(!currentUser||currentUser.role!=='admin'))return;
     h+='<div class="ni'+(p.id===ap?' on':'')+'" onclick="showPage(\''+p.id+'\')" data-label="'+p.en+'">'+
        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+p.ico+'</svg>'+
        '<span class="ni-label">'+p.en+'</span></div>';
+    hb+='<div class="bni'+(p.id===ap?' on':'')+'" onclick="showPage(\''+p.id+'\')" title="'+p.en+'">'+
+       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+p.ico+'</svg>'+
+       '</div>';
   });
   document.getElementById('nav').innerHTML=h;
+  var bn=document.getElementById('bnav');if(bn)bn.innerHTML=hb;
 }
 
 
@@ -3684,43 +3706,37 @@ function fetchMsgs(){
 
 
 function buildPills(){
-  var el=document.getElementById('ov-pills');if(!el)return;
-  var h='<div class="pill on" onclick="setChFilter(\'ALL\',this)">All</div>';
-  S.channels.forEach(function(c){
-    h+='<div class="pill" onclick="setChFilter(\''+c.username+'\',this)">'+esc(c.display)+'</div>';
-  });
-  el.innerHTML=h;
-  
-  el.classList.remove('expanded');
-  setTimeout(function(){
-    var btn=document.getElementById('pills-toggle');
-    if(!btn)return;
-    var overflows=el.scrollHeight>el.offsetHeight+4;
-    btn.style.display=overflows?'inline-flex':'none';
-  },50);
+  renderChFilterChip();
 }
-
-function togglePills(){
-  var el=document.getElementById('ov-pills');
-  var btn=document.getElementById('pills-toggle');
-  var lbl=document.getElementById('pills-toggle-lbl');
-  if(!el||!btn)return;
-  var open=el.classList.toggle('expanded');
-  btn.className='pills-toggle'+(open?' open':'');
-  lbl.textContent=open?'Show less':'Show more';
+function renderChFilterChip(){
+  var el=document.getElementById('ch-filter-chip-wrap');if(!el)return;
+  if(chFilter==='ALL'){el.innerHTML='';return;}
+  var ch=S.channels.find(function(c){return c.username===chFilter;});
+  var label=ch?esc(ch.display):chFilter;
+  el.innerHTML='<div class="ch-filter-chip">&#128225; Following: <b>'+label+'</b>'
+    +'<button onclick="clearChFilter()" title="Show all channels">&times;</button></div>';
 }
-function setChFilter(val,el){
-  chFilter=val;
-  document.querySelectorAll('#ov-pills .pill').forEach(function(p){p.classList.remove('on');});
-  el.classList.add('on');
+function clearChFilter(){
+  chFilter='ALL';
+  renderChFilterChip();
   renderFeed();
+}
+function setChFilter(val){
+  chFilter=val;
+  renderChFilterChip();
+  renderFeed();
+}
+function followChannel(username){
+  setChFilter(username);
+  showPage('overview');
+  showToast('Following: '+username);
 }
 
 
 function setFeedMode(m){
   feedMode=m;
-  ['fm-all','fm-kw','fm-crit'].forEach(function(id){var b=document.getElementById(id);if(b)b.classList.remove('on');});
-  var bmap={all:'fm-all',kw:'fm-kw',crit:'fm-crit'};
+  ['fm-all','fm-kw','fm-crit','fm-loc'].forEach(function(id){var b=document.getElementById(id);if(b)b.classList.remove('on');});
+  var bmap={all:'fm-all',kw:'fm-kw',crit:'fm-crit',loc:'fm-loc'};
   var b=document.getElementById(bmap[m]);if(b)b.classList.add('on');
   if(m==='crit')fetchMsgs();else renderFeed();
 }
@@ -3819,6 +3835,9 @@ function renderFeed(){
     msgs=msgs.filter(function(m){
       return S.keywords.some(function(k){return m.text.toLowerCase().indexOf((k.word||'').toLowerCase())>=0;});
     });
+  }
+  if(feedMode==='loc'){
+    msgs=msgs.filter(function(m){return !!(m.location_coords&&m.location_name);});
   }
   
   if(geoFilter!=='ALL'){
@@ -4026,6 +4045,8 @@ function renderChannels(){
       +'<div class="chdes">'+esc(c.description||'')+'</div>'
       +'<div class="chbot"><div class="chcnt">MESSAGES<b>'+(c.msg_count||0)+'</b></div>'
       +'<div class="chacts">'
+      +'<button class="icb follow" onclick="followChannel(\''+c.username+'\')" title="Follow this channel\'s news">'
+      +'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Follow</button>'
       +'<button class="icb" onclick="openEdit('+c.id+',\''+sd+'\',\''+sc+'\',\''+su+'\')">'
       +'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
       +'<button class="icb del" onclick="delCh('+c.id+')">'
