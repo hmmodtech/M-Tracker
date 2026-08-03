@@ -34,5 +34,17 @@
     "created": "2024-01-01T00:00:00Z",
     "isBuiltIn": true,
     "isSuperAdmin": false
+  },
+  {
+    "id": "u_admin3",
+    "username": "ialsharif@pt.acfspain.org",
+    "email": "ialsharif@pt.acfspain.org",
+    "email2": "",
+    "name": "Ibrahim Alsharif",
+    "password": "303030",
+    "role": "viewer",
+    "created": "2024-01-01T00:00:00Z",
+    "isBuiltIn": true,
+    "isSuperAdmin": false
   }
 ]
