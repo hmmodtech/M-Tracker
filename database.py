@@ -124,6 +124,10 @@ DEFAULT_CHANNELS = [
 CRITICAL_KW = [
     "استهداف","قصف","شهيد","شهداء","جرحى",
     "إصابات","انتشال","تحت الأنقاض","أشلاء",
+    # Evacuation / displacement — critical
+    "اشارة اخلاء","إشارة إخلاء","أوامر اخلاء","أوامر إخلاء",
+    "اوامر اخلاء","اوامر إخلاء",
+    "evacuation order","evacuation warning","forced displacement",
 ]
 
 ALL_KEYWORDS = [
@@ -134,6 +138,11 @@ ALL_KEYWORDS = [
     "اشتباكات","مسلحين",
     "شهيد","شهداء","جرحى","إصابات","انتشال","تحت الأنقاض","أشلاء",
     "نزوح","خيام","نازحين","إيواء","مراكز الإيواء",
+    # Evacuation / displacement — standard
+    "اشارة اخلاء","إشارة إخلاء","أوامر اخلاء","أوامر إخلاء",
+    "اوامر اخلاء","اوامر إخلاء",
+    "نزوح قسري","تهجير","تهجير قسري",
+    "evacuation order","evacuation warning","forced displacement","displacement",
     "جرافات عسكرية","اعتقالات","وحدات خاصة",
     "الاعتقال","أسير","اسرى",
     "السابع من أكتوبر","صفقة تبادل","وقف إطلاق النار","مفاوضات","التهدئة",
@@ -187,19 +196,6 @@ def init_db():
             word        TEXT NOT NULL UNIQUE,
             is_critical INTEGER DEFAULT 0,
             created_at  TEXT DEFAULT (datetime('now'))
-        );
-        CREATE TABLE IF NOT EXISTS device_tokens (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            token       TEXT NOT NULL UNIQUE,
-            user_id     TEXT DEFAULT '',
-            platform    TEXT DEFAULT 'android',
-            created_at  TEXT DEFAULT (datetime('now')),
-            last_seen   TEXT DEFAULT (datetime('now'))
-        );
-        CREATE TABLE IF NOT EXISTS notified_stories (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            tokens      TEXT NOT NULL,
-            notified_at TEXT DEFAULT (datetime('now'))
         );
         CREATE INDEX IF NOT EXISTS idx_msg_ch ON messages(channel);
         CREATE INDEX IF NOT EXISTS idx_msg_sc ON messages(scraped_at);
@@ -419,39 +415,6 @@ def get_all_keyword_words():
     finally:
         conn.close()
 
-# ── Device tokens (push notifications) ──────────────────────────
-def register_device_token(token, user_id=''):
-    conn = get_conn()
-    try:
-        conn.execute(
-            '''INSERT INTO device_tokens (token, user_id, last_seen)
-               VALUES (?, ?, datetime('now'))
-               ON CONFLICT(token) DO UPDATE SET
-                 user_id=excluded.user_id, last_seen=datetime('now')''',
-            (token, user_id)
-        )
-        conn.commit()
-        return True
-    finally:
-        conn.close()
-
-def get_all_device_tokens():
-    conn = get_conn()
-    try:
-        return [r['token'] for r in conn.execute('SELECT token FROM device_tokens').fetchall()]
-    finally:
-        conn.close()
-
-def remove_device_tokens(tokens):
-    if not tokens:
-        return
-    conn = get_conn()
-    try:
-        conn.executemany('DELETE FROM device_tokens WHERE token=?', [(t,) for t in tokens])
-        conn.commit()
-    finally:
-        conn.close()
-
 # ── Stats ─────────────────────────────────────────────────────
 def get_stats():
     since7  = (datetime.utcnow() - timedelta(days=7)).isoformat()
@@ -479,115 +442,5 @@ def get_stats():
             'top_source':       dict(top) if top else {},
             'volume_by_source': [dict(r) for r in vol],
         }
-    finally:
-        conn.close()
-
-# ── Duplicate-story detection for push notifications ─────────────
-# Python port of the same logic used by the front-end feed (static/index.html:
-# normalizeArText / tokenizeForDedup / jaccardSim / groupDuplicateStories),
-# so a story reported by several channels only ever triggers ONE push,
-# whether the duplicates land in the same scrape cycle or a later one.
-import re as _re
-
-_AR_STOPWORDS = {
-    'من','في','على','الى','إلى','عن','مع','أن','ان','هذا','هذه','ذلك','التي','الذي',
-    'كما','قد','لم','لن','ما','لا','او','أو','كل','بعد','قبل','بين','حيث','حين',
-    'اليوم','امس','أمس','غدا','وقد','كان','كانت','يكون','هو','هي','هم',
-    'the','a','an','of','in','on','to','and','for','is','are','was','were','at','by','with',
-}
-_AR_DIACRITICS_RE = _re.compile(r'[\u064B-\u065F\u0670\u06D6-\u06ED]')
-_NON_WORD_RE = _re.compile(r'[^\u0600-\u06FFa-zA-Z0-9\s]')
-
-DUP_WINDOW_HOURS = 20        # same window as the front-end
-DUP_JACCARD_THRESHOLD = 0.35
-DUP_MIN_SHARED_TOKENS = 4
-
-def normalize_ar_text(t):
-    t = t or ''
-    t = _AR_DIACRITICS_RE.sub('', t)
-    t = (t.replace('إ','ا').replace('أ','ا').replace('آ','ا')
-          .replace('ى','ي').replace('ؤ','و').replace('ئ','ي').replace('ة','ه'))
-    t = _NON_WORD_RE.sub(' ', t).lower()
-    return ' '.join(t.split())
-
-def tokenize_for_dedup(t):
-    return [w for w in normalize_ar_text(t).split(' ') if len(w) >= 2 and w not in _AR_STOPWORDS]
-
-def jaccard(set_a, set_b):
-    if not set_a or not set_b:
-        return 0.0
-    inter = len(set_a & set_b)
-    union = len(set_a | set_b)
-    return (inter / union) if union else 0.0
-
-def group_similar_messages(msgs):
-    """Collapse near-duplicate messages (different channels, close in time,
-    similar wording) within a single list into representative entries.
-    Returns a list of dicts (original message dicts, the most detailed one
-    per group) — same grouping strategy as the JS version."""
-    if len(msgs) < 2:
-        return list(msgs)
-    prepared = []
-    for m in msgs:
-        toks = set(tokenize_for_dedup(m.get('text', '')))
-        prepared.append({'m': m, 'set': toks})
-    prepared.sort(key=lambda p: p['m'].get('scraped_at') or p['m'].get('msg_date') or '')
-    used = [False] * len(prepared)
-    groups = []
-    for i in range(len(prepared)):
-        if used[i]:
-            continue
-        base = prepared[i]
-        used[i] = True
-        group = [base['m']]
-        seen_channels = {base['m'].get('channel')}
-        if len(base['set']) >= DUP_MIN_SHARED_TOKENS:
-            for j in range(i + 1, len(prepared)):
-                if used[j]:
-                    continue
-                cand = prepared[j]
-                if cand['m'].get('channel') in seen_channels:
-                    continue
-                if len(cand['set']) < DUP_MIN_SHARED_TOKENS:
-                    continue
-                if jaccard(base['set'], cand['set']) >= DUP_JACCARD_THRESHOLD:
-                    group.append(cand['m'])
-                    seen_channels.add(cand['m'].get('channel'))
-                    used[j] = True
-        groups.append(group)
-    result = []
-    for g in groups:
-        rep = max(g, key=lambda x: len(x.get('text') or ''))
-        result.append(rep)
-    return result
-
-def get_recent_notified_token_sets(window_hours=DUP_WINDOW_HOURS):
-    conn = get_conn()
-    try:
-        cutoff = (datetime.utcnow() - timedelta(hours=window_hours)).isoformat()
-        rows = conn.execute(
-            'SELECT tokens FROM notified_stories WHERE notified_at >= ?', (cutoff,)
-        ).fetchall()
-        return [set(r['tokens'].split(' ')) for r in rows if r['tokens']]
-    finally:
-        conn.close()
-
-def record_notified_story(token_set):
-    conn = get_conn()
-    try:
-        conn.execute(
-            'INSERT INTO notified_stories (tokens) VALUES (?)',
-            (' '.join(sorted(token_set)),)
-        )
-        conn.commit()
-    finally:
-        conn.close()
-
-def prune_old_notified_stories(window_hours=48):
-    conn = get_conn()
-    try:
-        cutoff = (datetime.utcnow() - timedelta(hours=window_hours)).isoformat()
-        conn.execute('DELETE FROM notified_stories WHERE notified_at < ?', (cutoff,))
-        conn.commit()
     finally:
         conn.close()
