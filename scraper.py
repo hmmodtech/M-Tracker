@@ -25,15 +25,47 @@ HEADERS = {
 CRITICAL_WORDS = [
     "استهداف","قصف","شهيد","شهداء","جرحى",
     "إصابات","انتشال","تحت الأنقاض","أشلاء",
+    # Evacuation / displacement
+    "اشارة اخلاء","إشارة إخلاء","أوامر اخلاء","أوامر إخلاء",
+    "اوامر اخلاء","اوامر إخلاء",
+    "evacuation order","evacuation warning","forced displacement",
 ]
 
 def _is_critical(text):
     return 1 if any(w in text for w in CRITICAL_WORDS) else 0
 
 def _has_keyword(text):
+    """
+    Accept a message if it matches ANY of:
+    1. A hardcoded Gaza security term — ensures critical news is NEVER missed
+    2. A keyword from the DB (user-configured + code-seeded list)
+    """
+    GAZA_SECURITY = [
+        # Locations — any message mentioning these passes
+        "غزة","رفح","جباليا","خانيونس","خان يونس","دير البلح","النصيرات",
+        "البريج","المغازي","الشجاعية","بيت لاهيا","بيت حانون","الشاطئ",
+        "المواصي","تل السلطان","شابورة","بني سهيلا",
+        "صلاح الدين","الرشيد","نتساريم","فيلادلفيا","كرم أبو سالم",
+        # Security / military
+        "استهداف","قصف","غارة","مدفعية","دبابة","اقتحام","توغل",
+        "مسيرة","طائرة","زنانة","كواد","انفجار","إطلاق نار","اشتباك",
+        "دورية","قناص","عبوة","صاروخ","مدفعي",
+        # Casualties
+        "شهيد","شهداء","جرحى","إصابة","إصابات","انتشال","أنقاض","أشلاء",
+        # Displacement / evacuation
+        "نزوح","نازح","نازحين","إخلاء","اخلاء","إيواء","خيام","تهجير",
+        "أوامر إخلاء","أوامر اخلاء","اشارة اخلاء","إشارة إخلاء",
+        # Humanitarian
+        "مساعدات","إغاثة","مجاعة","وقود","أدوية","مستشفى","معبر",
+        # Operations / political
+        "عاجل","عملية","اعتقال","مداهمة","حصار","وقف إطلاق",
+        "صفقة","تبادل","أسرى","مفاوضات",
+    ]
+    if any(kw in text for kw in GAZA_SECURITY):
+        return True
     kws = db.get_all_keyword_words()
     if not kws:
-        return True  # no filter set → accept all
+        return True
     return any(k in text for k in kws)
 
 def _summarize(text, max_chars=200):
@@ -130,9 +162,14 @@ WEB_KEYWORDS = [
 ]
 
 def _has_web_keyword(text):
-    """Check if an English/Arabic website title is relevant."""
+    """Check if an English/Arabic website title is relevant.
+    Checks hardcoded WEB_KEYWORDS AND user-configured DB keywords."""
     tl = text.lower()
-    return any(k.lower() in tl for k in WEB_KEYWORDS)
+    if any(k.lower() in tl for k in WEB_KEYWORDS):
+        return True
+    # Also check DB keywords (includes user-added + code-seeded Arabic terms)
+    kws = db.get_all_keyword_words()
+    return any(k.lower() in tl for k in kws)
 
 def scrape_website(username, source_url):
     if not source_url:
