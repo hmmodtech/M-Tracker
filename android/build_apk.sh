@@ -17,8 +17,8 @@ APP="$ROOT/app"
 BUILD="$ROOT/build"
 OUT="$ROOT/out"
 NAME="m-tracker"
-VERSION_CODE=1
-VERSION_NAME="1.0.0"
+VERSION_CODE=2
+VERSION_NAME="1.0.1"
 PKG="org.acf.mtracker"
 
 # ── locate toolchain ──────────────────────────────────────────────────
@@ -119,7 +119,11 @@ PY
 "$BT/zipalign" -f -p 4 "$BUILD/unsigned.apk" "$BUILD/aligned.apk"
 
 # ── signing key ───────────────────────────────────────────────────────
-KS_DIR="$ROOT/keystore"
+# Kept OUTSIDE the repository on purpose (the repo is public): the same key
+# must sign every future build, otherwise Android refuses to update an
+# installed app. Override with KEYSTORE_DIR=... if you keep it elsewhere.
+KS_DIR="${KEYSTORE_DIR:-$HOME/mtracker-signing}"
+[ -d "$ROOT/keystore" ] && [ ! -f "$KS_DIR/$NAME-release.jks" ] && KS_DIR="$ROOT/keystore"   # legacy location
 KS="$KS_DIR/$NAME-release.jks"
 PROPS="$KS_DIR/keystore.properties"
 mkdir -p "$KS_DIR"
@@ -141,7 +145,8 @@ keyAlias=$NAME
 keyPassword=$KEYPASS
 EOF
   chmod 600 "$PROPS" "$KS"
-  echo "  created $KS (password stored in keystore/keystore.properties)"
+  echo "  created $KS (password stored in $PROPS)"
+  echo "  >>> BACK THESE TWO FILES UP: without them you cannot sign an update <<<"
 fi
 
 # shellcheck disable=SC1090
@@ -159,3 +164,4 @@ APK="$OUT/$NAME-$VERSION_NAME.apk"
 
 echo
 echo "✅ APK: $APK  ($(du -h "$APK" | cut -f1))"
+echo "   signed with: $KS"

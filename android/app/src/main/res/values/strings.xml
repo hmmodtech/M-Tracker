@@ -83,6 +83,18 @@
     <string name="test_body">إشعار تجريبي: هيك رح يطلعلك الخبر لما تكون الشاشة مقفلة.</string>
 
     <string name="state_line">الحالة: %1$s\nآخر إشعار وصل: %2$s</string>
-    <string name="about">M-TRACKER Android 1.0.0 · يرصد الأخبار من قنواتك ويعرضها على شاشة القفل.</string>
+    <string name="about">M-TRACKER Android %1$s · يرصد الأخبار من قنواتك ويعرضها على شاشة القفل.</string>
     <string name="never">—</string>
+<!-- crash / diagnostics (v1.0.1) -->
+    <string name="status_server_old">السيرفر بحاجة تحديث — انشر النسخة الجديدة</string>
+    <string name="status_blocked">النظام منع تشغيل المتابعة بالخلفية</string>
+    <string name="blocked_body">النظام وقّف خدمة المتابعة. من الإعدادات: فعّل «استثناء من توفير البطارية»، وعلى أجهزة شاومي/هواوي فعّل «تشغيل تلقائي»، وإلغاء قيود البطارية.</string>
+    <string name="fatal_body">صار خطأ لما فتحنا الواجهة. جرّب تقفل التطبيق وتفتحه، وإذا ضلّت المشكلة ابعت التقرير من الإعدادات (زر «آخر خطأ»).</string>
+    <string name="crash_title">🐞 صار خطأ بالتطبيق</string>
+    <string name="crash_intro">التطبيق سجّل هذي التفاصيل لما توقف. ابعتها للمسؤول لحتى نصلحها:</string>
+    <string name="crash_send">مشاركة / نسخ</string>
+    <string name="crash_clear">حذف السجل</string>
+    <string name="crash_none">ما في أخطاء مسجّلة ✓</string>
+    <string name="crash_view">آخر خطأ (إرسال تقرير)</string>
+    <string name="diag_title">التشخيص</string>
 </resources>

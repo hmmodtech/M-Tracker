@@ -74,6 +74,17 @@
     <string name="test_body">Test alert: this is how a story will look while the screen is locked.</string>
 
     <string name="state_line">Status: %1$s\nLast alert: %2$s</string>
-    <string name="about">M-TRACKER Android 1.0.0 · tracks your channels and shows the news on the lock screen.</string>
+    <string name="about">M-TRACKER Android %1$s · tracks your channels and shows the news on the lock screen.</string>
     <string name="never">—</string>
+<string name="status_server_old">Server needs updating — deploy the new build</string>
+    <string name="status_blocked">The system blocked background monitoring</string>
+    <string name="blocked_body">The system stopped the monitoring service. In Settings: grant “ignore battery optimizations”; on Xiaomi/Huawei/Oppo also enable “Autostart” and remove battery restrictions for M-TRACKER.</string>
+    <string name="fatal_body">Something went wrong while opening the dashboard. Close and reopen the app; if it keeps happening, send the report from Settings (“last error”).</string>
+    <string name="crash_title">🐞 The app hit an error</string>
+    <string name="crash_intro">The app recorded this when it stopped. Please send it to the maintainer:</string>
+    <string name="crash_send">Share / copy</string>
+    <string name="crash_clear">Delete log</string>
+    <string name="crash_none">No errors recorded ✓</string>
+    <string name="crash_view">Last error (send report)</string>
+    <string name="diag_title">Diagnostics</string>
 </resources>

@@ -15,6 +15,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.content.pm.PackageInfo;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -26,7 +28,7 @@ public class SettingsActivity extends Activity {
     private EditText etUrl, etToken;
     private RadioButton rbCritical, rbAll;
     private Switch swTakeover, swTakeoverAll, swSound, swLoud, swService, swBattery;
-    private Button btnNotif, btnOverlay, btnBattery, btnFsi;
+    private Button btnNotif, btnOverlay, btnBattery, btnFsi, btnCrash, btnRestart;
     private TextView txtState, txtAbout;
 
     private static final int REQ_NOTIF = 101;
@@ -34,7 +36,16 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        try {
+            setContentView(R.layout.activity_settings);
+        } catch (Throwable t) {
+            CrashLog.record(this, "settings.setContentView", t);
+            TextView tv = new TextView(this);
+            tv.setText(String.valueOf(t));
+            tv.setPadding(40, 120, 40, 40);
+            setContentView(tv);
+            return;
+        }
 
         etUrl          = findViewById(R.id.et_url);
         etToken        = findViewById(R.id.et_token);
@@ -53,7 +64,9 @@ public class SettingsActivity extends Activity {
         txtState       = findViewById(R.id.txt_state);
         txtAbout       = findViewById(R.id.txt_about);
 
-        txtAbout.setText(R.string.about);
+        btnCrash   = findViewById(R.id.btn_crash);
+        btnRestart = findViewById(R.id.btn_restart);
+        txtAbout.setText(getString(R.string.about, versionName()));
         load();
 
         // ── server ────────────────────────────────────────────────────
@@ -168,7 +181,37 @@ public class SettingsActivity extends Activity {
             }
         });
 
+        btnCrash.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                String log = CrashLog.read(SettingsActivity.this);
+                if (log == null || log.trim().isEmpty()) {
+                    toast(getString(R.string.crash_none));
+                    return;
+                }
+                MainActivity.shareText(SettingsActivity.this, log);
+            }
+        });
+
+        btnRestart.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Prefs.setServiceEnabled(SettingsActivity.this, true);
+                Prefs.setCursor(SettingsActivity.this, -1L);
+                AlertService.start(SettingsActivity.this);
+                toast(getString(R.string.status_connecting));
+                refreshState();
+            }
+        });
+
         askNotificationsIfNeeded();
+    }
+
+    private String versionName() {
+        try {
+            PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+            return pi.versionName;
+        } catch (Throwable t) {
+            return "";
+        }
     }
 
     @Override
@@ -194,10 +237,13 @@ public class SettingsActivity extends Activity {
 
     private void refreshState() {
         String status;
+        String hint = null;
         switch (Prefs.status(this)) {
             case "connected":  status = getString(R.string.status_connected); break;
             case "connecting": status = getString(R.string.status_connecting); break;
             case "token":      status = getString(R.string.status_token); break;
+            case "server_old": status = getString(R.string.status_server_old); hint = getString(R.string.status_server_old); break;
+            case "blocked":    status = getString(R.string.status_blocked); hint = getString(R.string.blocked_body); break;
             case "stopped":    status = getString(R.string.status_stopped); break;
             default:           status = getString(R.string.status_offline);
         }
@@ -206,7 +252,10 @@ public class SettingsActivity extends Activity {
         if (last > 0) {
             lastTxt = new SimpleDateFormat("HH:mm  dd/MM", Locale.US).format(new Date(last));
         }
-        txtState.setText(getString(R.string.state_line, status, lastTxt));
+        txtState.setText(getString(R.string.state_line, status, lastTxt) + (hint == null ? "" : "\n\n" + hint));
+
+        String crash = CrashLog.summary(this);
+        btnCrash.setText(crash == null ? getString(R.string.crash_none) : getString(R.string.crash_view) + "\n" + crash);
 
         // permission rows
         boolean notif = hasNotifications();

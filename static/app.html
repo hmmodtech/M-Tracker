@@ -41,8 +41,8 @@
   <p>تطبيق أندرويد بيعرض لوحة M-TRACKER كاملة، وبيبعتلك <b>إشعار فوري</b> لكل خبر جديد.
      وإذا كان الجهاز <b>مقفول</b> — الشاشة بتولّع وبيظهر الخبر بوجهك فوراً.</p>
 
-  <a class="btn" id="dl" href="/app/m-tracker-1.0.0.apk" download>⬇ تحميل التطبيق (APK)</a>
-  <div class="meta" id="meta">الإصدار 1.0.0 · ‎~400KB · أندرويد 8 وأحدث</div>
+  <a class="btn" id="dl" href="/app/m-tracker-1.0.1.apk" download>⬇ تحميل التطبيق (APK)</a>
+  <div class="meta" id="meta">الإصدار 1.0.1 · ‎~361KB · أندرويد 8 وأحدث</div>
 
   <ol>
     <li>افتح الملف بعد التحميل، وإذا طلب تسمح بـ«تثبيت من مصادر غير معروفة» اسمح لها.</li>
@@ -52,16 +52,27 @@
   </ol>
 
   <div class="warn">
+    <b>إذا كانت عندك نسخة قديمة مركّبة:</b> احذفها أولاً (إعدادات الجهاز ← التطبيقات ← M-TRACKER ← إلغاء التثبيت)،
+    وبعدها ركّب هذي النسخة.
+  </div>
+
+  <div class="warn">
     <b>مهم:</b> بدون صلاحية «الظهور فوق التطبيقات» رح يوصلك إشعار عادي بس الشاشة ما رح تولّع.
     وعلى أجهزة شاومي/هواوي/أوبو فعّل «التشغيل التلقائي / Autostart».
+  </div>
+
+  <div class="warn">
+    <b>جديد بالإصدار 1.0.1:</b> إصلاح كراش كان يطفي التطبيق فوراً على أندرويد 14 وأحدث،
+    + شاشة تشخيص بتوريك سبب أي مشكلة وزر لإرسال التقرير،
+    + رسالة واضحة إذا كان السيرفر بحاجة تحديث.
   </div>
 </div>
 <script>
   // try the assets next to the page first, fall back to the copy inside static/app
   (function(){
     var a = document.getElementById('dl');
-    var url = '/app/m-tracker-1.0.0.apk';
-    fetch(url, {method:'HEAD'}).then(function(r){ if(!r.ok) a.href='/static/app/m-tracker-1.0.0.apk'; })
+    var url = '/app/m-tracker-1.0.1.apk';
+    fetch(url, {method:'HEAD'}).then(function(r){ if(!r.ok) a.href='/static/app/m-tracker-1.0.1.apk'; })
       .catch(function(){});
   })();
 </script>

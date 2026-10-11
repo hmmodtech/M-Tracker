@@ -42,7 +42,14 @@ public class AlertActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         showOverLockScreen();
-        setContentView(R.layout.activity_alert);
+        try {
+            setContentView(R.layout.activity_alert);
+        } catch (Throwable t) {
+            // the layout is broken? show the news anyway - this screen is the
+            // whole point of the app
+            CrashLog.record(this, "alert.setContentView", t);
+            setContentView(fallbackView());
+        }
 
         tvChannel  = findViewById(R.id.alert_channel);
         tvTime     = findViewById(R.id.alert_time);
@@ -97,6 +104,29 @@ public class AlertActivity extends Activity {
     protected void onDestroy() {
         handler.removeCallbacks(autoClose);
         super.onDestroy();
+    }
+
+    /** Minimal, dependency-free version of the alert screen. */
+    private android.view.View fallbackView() {
+        android.widget.LinearLayout box = new android.widget.LinearLayout(this);
+        box.setOrientation(android.widget.LinearLayout.VERTICAL);
+        box.setBackgroundColor(0xFF0B1522);
+        int pad = (int) (20 * getResources().getDisplayMetrics().density);
+        box.setPadding(pad, pad * 3, pad, pad);
+
+        android.widget.TextView t = new android.widget.TextView(this);
+        t.setTextColor(0xFFFFFFFF);
+        t.setTextSize(22f);
+        t.setText(getString(R.string.app_name) + "\n\n" + getIntent().getStringExtra("item"));
+        box.addView(t);
+
+        Button b = new Button(this);
+        b.setText(R.string.alert_done);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(android.view.View v) { finish(); }
+        });
+        box.addView(b);
+        return box;
     }
 
     // ── helpers ───────────────────────────────────────────────────────
@@ -154,10 +184,14 @@ public class AlertActivity extends Activity {
     }
 
     private void openApp(long msgId) {
-        Intent i = new Intent(this, MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("msg_id", msgId);
-        startActivity(i);
+        try {
+            Intent i = new Intent(this, MainActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    .putExtra("msg_id", msgId);
+            startActivity(i);
+        } catch (Throwable t) {
+            CrashLog.record(this, "AlertActivity.openApp", t);
+        }
         finish();
     }
 

@@ -109,6 +109,18 @@
             android:textColor="@color/cyan"
             android:backgroundTint="#1E3049" />
 
+        <TextView style="@style/SectionTitle" android:text="@string/diag_title" />
+
+        <Button
+            android:id="@+id/btn_crash"
+            style="@style/PermBtn"
+            android:text="@string/crash_none" />
+
+        <Button
+            android:id="@+id/btn_restart"
+            style="@style/PermBtn"
+            android:text="@string/sw_service" />
+
         <!-- PERMISSIONS -->
         <TextView style="@style/SectionTitle" android:text="@string/sec_perms" />
 

@@ -110,38 +110,65 @@ public class AlertService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Notifier.ensureChannels(this);
-        screenReceiver = new BroadcastReceiver() {
-            @Override public void onReceive(Context c, Intent i) {
-                applyWakeLock();
-            }
-        };
-        IntentFilter f = new IntentFilter();
-        f.addAction(Intent.ACTION_SCREEN_ON);
-        f.addAction(Intent.ACTION_SCREEN_OFF);
-        f.addAction(Intent.ACTION_USER_PRESENT);
-        registerReceiver(screenReceiver, f);
+        try {
+            Notifier.ensureChannels(this);
+        } catch (Throwable t) {
+            CrashLog.record(this, "ensureChannels", t);
+        }
+        try {
+            screenReceiver = new BroadcastReceiver() {
+                @Override public void onReceive(Context c, Intent i) {
+                    applyWakeLock();
+                }
+            };
+            IntentFilter f = new IntentFilter();
+            f.addAction(Intent.ACTION_SCREEN_ON);
+            f.addAction(Intent.ACTION_SCREEN_OFF);
+            f.addAction(Intent.ACTION_USER_PRESENT);
+            // system broadcasts only -> no RECEIVER_* flag required (and using
+            // RECEIVER_NOT_EXPORTED here would risk missing the screen events)
+            registerReceiver(screenReceiver, f);
+        } catch (Throwable t) {
+            CrashLog.record(this, "registerReceiver(screen)", t);
+            screenReceiver = null;
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String action = intent != null ? intent.getAction() : ACTION_START;
+        try {
+            String action = intent != null ? intent.getAction() : ACTION_START;
 
-        if (ACTION_DISMISS.equals(action)) {
-            NotificationManager nm = getSystemService(NotificationManager.class);
-            int id = intent.getIntExtra("notif_id", -1);
-            if (nm != null && id >= 0) nm.cancel(id);
+            if (ACTION_DISMISS.equals(action)) {
+                NotificationManager nm = getSystemService(NotificationManager.class);
+                int id = intent.getIntExtra("notif_id", -1);
+                if (nm != null && id >= 0) nm.cancel(id);
+                return START_STICKY;
+            }
+            if (ACTION_STOP.equals(action)) {
+                stopEverything();
+                return START_NOT_STICKY;
+            }
+
+            if (!goForeground()) {
+                // the system refused the foreground service (rare): stop
+                // cleanly instead of crashing, and tell the user what to do
+                setStatus("blocked");
+                stopSelf();
+                scheduleWatchdog(this);
+                return START_NOT_STICKY;
+            }
+            if (!running) startWorker();
+            scheduleWatchdog(this);
             return START_STICKY;
-        }
-        if (ACTION_STOP.equals(action)) {
-            stopEverything();
+        } catch (Throwable t) {
+            // a service that dies silently is the worst case: log it and
+            // leave the app usable
+            CrashLog.record(this, "AlertService.onStartCommand", t);
+            setStatus("blocked");
+            stopSelf();
             return START_NOT_STICKY;
         }
-
-        startForegroundCompat();
-        if (!running) startWorker();
-        scheduleWatchdog(this);
-        return START_STICKY;
     }
 
     @Override
@@ -172,18 +199,43 @@ public class AlertService extends Service {
         releaseWakeLock();
         cancelWatchdog(this);
         setStatus("stopped");
-        stopForeground(true);
+        try {
+            if (Build.VERSION.SDK_INT >= 24) stopForeground(STOP_FOREGROUND_REMOVE);
+            else stopForeground(true);
+        } catch (Throwable ignored) {}
         stopSelf();
     }
 
-    private void startForegroundCompat() {
-        Notification n = Notifier.serviceNotification(this);
-        if (Build.VERSION.SDK_INT >= 29) {
-            startForeground(Notifier.ID_SERVICE, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
-        } else {
-            startForeground(Notifier.ID_SERVICE, n);
+    /**
+     * Tries to become a foreground service. Some devices/OEM builds refuse
+     * this (background start restrictions); we try the typed call first, then
+     * the plain one, and finally report failure instead of crashing.
+     */
+    private boolean goForeground() {
+        Notification n;
+        try {
+            n = Notifier.serviceNotification(this);
+        } catch (Throwable t) {
+            CrashLog.record(this, "serviceNotification", t);
+            return false;
         }
-        setStatus("connecting");
+        if (Build.VERSION.SDK_INT >= 29) {
+            try {
+                startForeground(Notifier.ID_SERVICE, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+                setStatus("connecting");
+                return true;
+            } catch (Throwable t) {
+                CrashLog.record(this, "startForeground(typed)", t);
+            }
+        }
+        try {
+            startForeground(Notifier.ID_SERVICE, n);
+            setStatus("connecting");
+            return true;
+        } catch (Throwable t) {
+            CrashLog.record(this, "startForeground(plain)", t);
+            return false;
+        }
     }
 
     // ── the polling loop ──────────────────────────────────────────────
@@ -229,6 +281,12 @@ public class AlertService extends Service {
                     sleep(60000);
                     continue;
                 }
+                if (r.code == 404 || r.code == 405) {
+                    // this build of the server has no /api/stream yet
+                    setStatus("server_old");
+                    sleep(120000);
+                    continue;
+                }
                 if (r.code != 200) throw new java.io.IOException("HTTP " + r.code);
 
                 JSONObject o = new JSONObject(r.body);
@@ -269,6 +327,14 @@ public class AlertService extends Service {
 
     // ── turning messages into alerts ──────────────────────────────────
     private void deliver(List<AlertItem> items) {
+        try {
+            deliverInner(items);
+        } catch (Throwable t) {
+            CrashLog.record(this, "deliver", t);
+        }
+    }
+
+    private void deliverInner(List<AlertItem> items) {
         boolean anyCritical = false;
         for (AlertItem it : items) if (it.critical) { anyCritical = true; break; }
 
@@ -285,6 +351,14 @@ public class AlertService extends Service {
     }
 
     private void showAlert(AlertItem it) {
+        try {
+            showAlertInner(it);
+        } catch (Throwable t) {
+            CrashLog.record(this, "showAlert", t);
+        }
+    }
+
+    private void showAlertInner(AlertItem it) {
         boolean locked = !isInteractive() || isKeyguardLocked();
         boolean wantTakeover = Prefs.takeover(this)
                 && locked
@@ -332,6 +406,14 @@ public class AlertService extends Service {
     }
 
     private void applyWakeLock() {
+        try {
+            applyWakeLockInner();
+        } catch (Throwable t) {
+            CrashLog.record(this, "wakelock", t);
+        }
+    }
+
+    private void applyWakeLockInner() {
         boolean want = Prefs.serviceEnabled(this)
                 && !(Prefs.batterySaver(this) && !isInteractive());
         try {
@@ -358,9 +440,11 @@ public class AlertService extends Service {
     }
 
     private void setStatus(String s) {
-        Prefs.setStatus(this, s);
-        Intent i = new Intent(ACTION_STATUS).setPackage(getPackageName()).putExtra(EXTRA_STATUS, s);
-        sendBroadcast(i);
+        try {
+            Prefs.setStatus(this, s);
+            Intent i = new Intent(ACTION_STATUS).setPackage(getPackageName()).putExtra(EXTRA_STATUS, s);
+            sendBroadcast(i);
+        } catch (Throwable ignored) {}
     }
 
     private void sleep(long ms) throws InterruptedException {

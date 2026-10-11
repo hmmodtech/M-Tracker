@@ -7,8 +7,8 @@
   injects it into a temporary copy before calling aapt2.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="1"
-    android:versionName="1.0.0">
+    android:versionCode="2"
+    android:versionName="1.0.1">
 
     <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="34" />
 
@@ -54,7 +54,8 @@
             android:launchMode="singleInstance"
             android:excludeFromRecents="true"
             android:taskAffinity="org.acf.mtracker.alert"
-            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/AlertTheme" />
 
@@ -68,6 +69,7 @@
         <service
             android:name=".AlertService"
             android:exported="false"
+            android:stopWithTask="false"
             android:foregroundServiceType="dataSync" />
 
         <receiver

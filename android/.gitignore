@@ -3,6 +3,7 @@ out/
 .gradle/
 local.properties
 keystore/
+signing/
 *.apk
 *.jks
 *.keystore

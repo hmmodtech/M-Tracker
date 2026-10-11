@@ -33,6 +33,9 @@ import android.widget.Toast;
 /**
  * The web dashboard inside an Android shell + the glue that asks for the
  * permissions the alert system needs.
+ *
+ * Every setup step is wrapped: if one part fails the app still opens and
+ * says what happened instead of closing itself.
  */
 public class MainActivity extends Activity {
 
@@ -41,52 +44,112 @@ public class MainActivity extends Activity {
     private View offline;
     private TextView statusChip;
     private View statusDot;
+    private View root;
 
     private long pendingMsgId = 0;
-    private boolean lastLoadFailed = false;
 
     private BroadcastReceiver statusReceiver;
+
+    private static final int REQ_NOTIF_FIRST = 55;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Notifier.ensureChannels(this);
-        setContentView(R.layout.activity_main);
+        try {
+            setContentView(R.layout.activity_main);
+            root = findViewById(android.R.id.content);
+        } catch (Throwable t) {
+            // even the layout failed: show something instead of a black screen
+            CrashLog.record(this, "setContentView", t);
+            setContentView(emergencyView(t));
+            return;
+        }
 
-        web      = findViewById(R.id.web);
-        progress = findViewById(R.id.progress);
-        offline  = findViewById(R.id.offline);
-        statusChip = findViewById(R.id.status_text);
-        statusDot  = findViewById(R.id.status_dot);
+        try {
+            Notifier.ensureChannels(this);
+        } catch (Throwable t) {
+            CrashLog.record(this, "ensureChannels", t);
+        }
 
-        pendingMsgId = getIntent().getLongExtra("msg_id", 0);
+        try {
+            web         = findViewById(R.id.web);
+            progress    = findViewById(R.id.progress);
+            offline     = findViewById(R.id.offline);
+            statusChip  = findViewById(R.id.status_text);
+            statusDot   = findViewById(R.id.status_dot);
 
-        findViewById(R.id.btn_refresh).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { loadFeed(true); }
-        });
-        findViewById(R.id.btn_settings).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-            }
-        });
-        findViewById(R.id.btn_retry).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { offline.setVisibility(View.GONE); loadFeed(true); }
-        });
-        findViewById(R.id.btn_settings2).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-            }
-        });
+            pendingMsgId = getIntent().getLongExtra("msg_id", 0);
 
-        setupWebView();
-        loadFeed(false);
+            findViewById(R.id.btn_refresh).setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { loadFeed(true); }
+            });
+            findViewById(R.id.btn_settings).setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { openSettings(); }
+            });
+            findViewById(R.id.btn_settings2).setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { openSettings(); }
+            });
+            findViewById(R.id.btn_retry).setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    offline.setVisibility(View.GONE);
+                    loadFeed(true);
+                }
+            });
 
-        if (Prefs.serviceEnabled(this)) AlertService.start(this);
-        else AlertService.scheduleWatchdog(this);
+            setupWebView();
+            loadFeed(false);
+        } catch (Throwable t) {
+            CrashLog.record(this, "ui-setup", t);
+            showFatal(t);
+        }
+
+        // start watching for news (never let this break the UI)
+        try {
+            if (Prefs.serviceEnabled(this)) AlertService.start(this);
+            else AlertService.scheduleWatchdog(this);
+        } catch (Throwable t) {
+            CrashLog.record(this, "service-start", t);
+            if (statusChip != null) statusChip.setText(R.string.status_stopped);
+        }
+
+        // ask for the notification permission early - without it nothing shows
+        askNotificationPermissionIfNeeded();
 
         if (!Prefs.setupSeen(this)) {
             Prefs.setSetupSeen(this, true);
             showSetupDialog();
+        }
+
+        showCrashReportIfAny();
+    }
+
+    private View emergencyView(Throwable t) {
+        TextView tv = new TextView(this);
+        tv.setText("M-TRACKER\n\n" + getString(R.string.fatal_body) + "\n\n" + t);
+        tv.setTextColor(Color.WHITE);
+        tv.setTextSize(13f);
+        tv.setPadding(40, 120, 40, 40);
+        return tv;
+    }
+
+    private void showFatal(Throwable t) {
+        try {
+            if (offline != null) offline.setVisibility(View.VISIBLE);
+        } catch (Throwable ignored) {}
+        try {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.crash_title)
+                    .setMessage(String.valueOf(t))
+                    .setPositiveButton(R.string.later, null)
+                    .show();
+        } catch (Throwable ignored) {}
+    }
+
+    private void openSettings() {
+        try {
+            startActivity(new Intent(this, SettingsActivity.class));
+        } catch (Throwable t) {
+            CrashLog.record(this, "openSettings", t);
         }
     }
 
@@ -101,30 +164,61 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        statusReceiver = new BroadcastReceiver() {
+        registerStatusReceiver();
+        try {
+            setStatusIcon(Prefs.status(this));
+        } catch (Throwable ignored) {}
+    }
+
+    @Override
+    protected void onPause() {
+        unregisterStatusReceiver();
+        super.onPause();
+    }
+
+    /**
+     * IMPORTANT (Android 14 crash fix):
+     * Since Android 14 a receiver registered for app-defined broadcasts MUST
+     * pass RECEIVER_EXPORTED / RECEIVER_NOT_EXPORTED, otherwise
+     * registerReceiver() throws SecurityException and the app dies the moment
+     * it is opened. Our two actions are private to this app, so
+     * RECEIVER_NOT_EXPORTED is the correct flag.
+     */
+    private void registerStatusReceiver() {
+        if (statusReceiver != null) return;
+        BroadcastReceiver r = new BroadcastReceiver() {
             @Override public void onReceive(Context c, Intent i) {
+                if (i == null) return;
                 if (AlertService.ACTION_NEWS.equals(i.getAction())) {
-                    // keep the open dashboard in sync with the live feed
                     runJs("if(typeof fetchMsgs==='function')fetchMsgs();");
                 } else {
-                    setStatusIcon(Prefs.status(MainActivity.this));
+                    try { setStatusIcon(Prefs.status(MainActivity.this)); } catch (Throwable ignored) {}
                 }
             }
         };
         IntentFilter f = new IntentFilter();
         f.addAction(AlertService.ACTION_STATUS);
         f.addAction(AlertService.ACTION_NEWS);
-        registerReceiver(statusReceiver, f);
-        setStatusIcon(Prefs.status(this));
-    }
-
-    @Override
-    protected void onPause() {
-        if (statusReceiver != null) {
-            try { unregisterReceiver(statusReceiver); } catch (Exception ignored) {}
+        try {
+            if (Build.VERSION.SDK_INT >= 33) {
+                registerReceiver(r, f, Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                registerReceiver(r, f);
+            }
+            statusReceiver = r;
+        } catch (Throwable t) {
+            // never crash because of this - we just lose the live refresh
+            CrashLog.record(this, "registerReceiver", t);
             statusReceiver = null;
         }
-        super.onPause();
+    }
+
+    private void unregisterStatusReceiver() {
+        if (statusReceiver == null) return;
+        try {
+            unregisterReceiver(statusReceiver);
+        } catch (Throwable ignored) {}
+        statusReceiver = null;
     }
 
     @Override
@@ -168,7 +262,6 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 progress.setVisibility(View.GONE);
-                lastLoadFailed = false;
                 offline.setVisibility(View.GONE);
                 rememberCookies();
                 if (pendingMsgId > 0) {
@@ -216,27 +309,27 @@ public class MainActivity extends Activity {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition,
                                         String mimeType, long contentLength) {
-                try {
-                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(i);
-                } catch (Exception e) {
-                    Toast.makeText(MainActivity.this, R.string.no_app_for_link, Toast.LENGTH_SHORT).show();
-                }
+                openExternally(url);
             }
         });
     }
 
+    /** true = handled here (do not load inside the app) */
     private boolean handleUrl(String url) {
         if (url == null) return false;
-        String base = Prefs.url(this);
-        String host = Uri.parse(base).getHost();
-        String targetHost = Uri.parse(url).getHost();
-        if (targetHost != null && host != null && targetHost.equalsIgnoreCase(host)) {
-            return false;   // our own dashboard: keep it inside the app
-        }
-        if (url.startsWith("http")) {
-            openExternally(url);
-            return true;
+        try {
+            String base = Prefs.url(this);
+            String host = Uri.parse(base).getHost();
+            String targetHost = Uri.parse(url).getHost();
+            if (targetHost != null && host != null && targetHost.equalsIgnoreCase(host)) {
+                return false;   // our own dashboard: keep it inside the app
+            }
+            if (url.startsWith("http")) {
+                openExternally(url);
+                return true;
+            }
+        } catch (Throwable t) {
+            CrashLog.record(this, "handleUrl", t);
         }
         return false;
     }
@@ -246,26 +339,31 @@ public class MainActivity extends Activity {
             Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             Toast.makeText(this, R.string.no_app_for_link, Toast.LENGTH_SHORT).show();
         }
     }
 
     private void loadFeed(boolean reload) {
-        web.loadUrl(Prefs.url(this));
+        try {
+            web.loadUrl(Prefs.url(this));
+        } catch (Throwable t) {
+            CrashLog.record(this, "loadUrl", t);
+            showOffline();
+        }
     }
 
     private void rememberCookies() {
         try {
             String c = CookieManager.getInstance().getCookie(Prefs.url(this));
             if (c != null && !c.isEmpty()) Prefs.setCookie(this, c);
-        } catch (Exception ignored) {}
+        } catch (Throwable ignored) {}
     }
 
     private void runJs(final String js) {
         runOnUiThread(new Runnable() {
             @Override public void run() {
-                try { web.evaluateJavascript(js, null); } catch (Exception ignored) {}
+                try { web.evaluateJavascript(js, null); } catch (Throwable ignored) {}
             }
         });
     }
@@ -282,36 +380,82 @@ public class MainActivity extends Activity {
     }
 
     private void showOffline() {
-        lastLoadFailed = true;
-        progress.setVisibility(View.GONE);
-        offline.setVisibility(View.VISIBLE);
+        try {
+            progress.setVisibility(View.GONE);
+            offline.setVisibility(View.VISIBLE);
+        } catch (Throwable ignored) {}
     }
 
     private void setStatusIcon(String status) {
         int color;
         int textId;
-        if ("connected".equals(status))      { color = 0xFF22C55E; textId = R.string.status_connected; }
-        else if ("connecting".equals(status)){ color = 0xFFF59E0B; textId = R.string.status_connecting; }
-        else if ("token".equals(status))     { color = 0xFFE53935; textId = R.string.status_token; }
-        else if ("stopped".equals(status))   { color = 0xFF9CA3AF; textId = R.string.status_stopped; }
-        else                                 { color = 0xFFE53935; textId = R.string.status_offline; }
+        if ("connected".equals(status))       { color = 0xFF22C55E; textId = R.string.status_connected; }
+        else if ("connecting".equals(status)) { color = 0xFFF59E0B; textId = R.string.status_connecting; }
+        else if ("token".equals(status))      { color = 0xFFE53935; textId = R.string.status_token; }
+        else if ("server_old".equals(status)) { color = 0xFFE53935; textId = R.string.status_server_old; }
+        else if ("blocked".equals(status))    { color = 0xFFE53935; textId = R.string.status_blocked; }
+        else if ("stopped".equals(status))    { color = 0xFF9CA3AF; textId = R.string.status_stopped; }
+        else                                  { color = 0xFFE53935; textId = R.string.status_offline; }
         if (statusDot != null) statusDot.setBackgroundColor(color);
         if (statusChip != null) statusChip.setText(textId);
     }
 
-    // ── permissions ───────────────────────────────────────────────────
-    private void showSetupDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.setup_title)
-                .setMessage(R.string.setup_body)
-                .setPositiveButton(R.string.setup_open_settings, new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface d, int w) {
-                        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-                    }
-                })
-                .setNegativeButton(R.string.later, null)
-                .show();
+    // ── permissions / dialogs ─────────────────────────────────────────
+    private void askNotificationPermissionIfNeeded() {
+        try {
+            if (Build.VERSION.SDK_INT >= 33
+                    && checkSelfPermission("android.permission.POST_NOTIFICATIONS")
+                       != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, REQ_NOTIF_FIRST);
+            }
+        } catch (Throwable t) {
+            CrashLog.record(this, "askNotifPermission", t);
+        }
     }
+
+    private void showSetupDialog() {
+        try {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.setup_title)
+                    .setMessage(R.string.setup_body)
+                    .setPositiveButton(R.string.setup_open_settings, new DialogInterface.OnClickListener() {
+                        @Override public void onClick(DialogInterface d, int w) { openSettings(); }
+                    })
+                    .setNegativeButton(R.string.later, null)
+                    .show();
+        } catch (Throwable ignored) {}
+    }
+
+    /** If the app died last time, say why and offer to send the details. */
+    private void showCrashReportIfAny() {
+        if (!CrashLog.has(this)) return;
+        try {
+            final String report = CrashLog.read(this);
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.crash_title)
+                    .setMessage(getString(R.string.crash_intro) + "\n\n" + report)
+                    .setPositiveButton(R.string.crash_send, new DialogInterface.OnClickListener() {
+                        @Override public void onClick(DialogInterface d, int w) { shareText(report); }
+                    })
+                    .setNeutralButton(R.string.crash_clear, new DialogInterface.OnClickListener() {
+                        @Override public void onClick(DialogInterface d, int w) { CrashLog.clear(MainActivity.this); }
+                    })
+                    .setNegativeButton(R.string.later, null)
+                    .show();
+        } catch (Throwable ignored) {}
+    }
+
+    static void shareText(Activity a, String text) {
+        try {
+            Intent i = new Intent(Intent.ACTION_SEND);
+            i.setType("text/plain");
+            i.putExtra(Intent.EXTRA_SUBJECT, "M-TRACKER crash report");
+            i.putExtra(Intent.EXTRA_TEXT, text);
+            a.startActivity(Intent.createChooser(i, a.getString(R.string.crash_send)));
+        } catch (Throwable ignored) {}
+    }
+
+    private void shareText(String text) { shareText(this, text); }
 
     /** Called from the settings screen "test alert" button. */
     static AlertItem sample() {
@@ -323,5 +467,11 @@ public class MainActivity extends Activity {
         it.critical = true;
         it.date = "";
         return it;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
+        super.onRequestPermissionsResult(code, perms, results);
+        try { Notifier.ensureChannels(this); } catch (Throwable ignored) {}
     }
 }
