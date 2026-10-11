@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">M-TRACKER</string>
+    <string name="settings">الإعدادات</string>
+    <string name="reload">تحديث</string>
+    <string name="later">لاحقاً</string>
+    <string name="retry">إعادة المحاولة</string>
+    <string name="no_text">(بدون نص)</string>
+    <string name="no_app_for_link">ما في تطبيق يفتح هالرابط</string>
+
+    <!-- service / status -->
+    <string name="svc_title">M-TRACKER شغّال</string>
+    <string name="svc_text">عم يرصد الأخبار وبيبعتلك إشعار فوري</string>
+    <string name="status_connected">متصل · بتوصلك الأخبار فوراً</string>
+    <string name="status_connecting">جاري الاتصال…</string>
+    <string name="status_offline">غير متصل · عم يحاول يرجع</string>
+    <string name="status_stopped">المتابعة متوقفة</string>
+    <string name="status_token">التوكن غلط — بدك تصححه بالإعدادات</string>
+
+    <!-- notification channels -->
+    <string name="ch_crit_name">تنبيهات حرجة</string>
+    <string name="ch_crit_desc">الأخبار العاجلة — بتولّع الشاشة وبتظهر الخبر فوراً</string>
+    <string name="ch_gen_name">أخبار عامة</string>
+    <string name="ch_gen_desc">كل الأخبار الجديدة من القنوات</string>
+    <string name="ch_svc_name">خدمة المتابعة</string>
+    <string name="ch_svc_desc">إشعار ثابت يبيّن إنه التطبيق عم يرصد الأخبار</string>
+
+    <!-- notification actions / burst -->
+    <string name="action_hide">إخفاء</string>
+    <string name="action_telegram">تليجرام</string>
+    <string name="burst_title">%1$d أخبار جديدة</string>
+    <string name="burst_body">وصلت %1$d رسالة جديدة دفعة واحدة — افتح التطبيق للاطلاع عليها كلها.</string>
+
+    <!-- full screen alert -->
+    <string name="alert_urgent">خبر عاجل</string>
+    <string name="alert_open_app">افتح التطبيق</string>
+    <string name="alert_next">الخبر التالي</string>
+    <string name="alert_done">تم</string>
+    <string name="alert_footer">M-TRACKER · ACF Operations</string>
+
+    <!-- main screen -->
+    <string name="offline_title">ما قدرنا نوصل للسيرفر</string>
+    <string name="offline_body">تأكد من الإنترنت ومن رابط السيرفر بالإعدادات، وبعدها جرّب مرة ثانية.</string>
+
+    <!-- setup dialog -->
+    <string name="setup_title">تفعيل الإشعارات الفورية</string>
+    <string name="setup_body">لحتى تصلك الأخبار أول بأول — وحتى لو الشاشة مقفلة — لازم تسمح للتطبيق بأربع أشياء:\n\n1) الإشعارات\n2) الظهور فوق التطبيقات (لما تكون الشاشة مقفلة)\n3) استثناء من توفير البطارية\n4) الشاشة الكاملة (أندرويد 14+)\n\nمن الإعدادات رح تلاقي زر لكل صلاحية.</string>
+    <string name="setup_open_settings">افتح الإعدادات</string>
+
+    <!-- settings -->
+    <string name="sec_server">السيرفر</string>
+    <string name="f_url">رابط السيرفر</string>
+    <string name="f_url_hint">https://m-tracker-1.onrender.com/</string>
+    <string name="f_token">توكن البث (اختياري)</string>
+    <string name="f_token_hint">سيبها فاضية إلا إذا فعّلت STREAM_TOKEN بالسيرفر</string>
+    <string name="f_save">حفظ وإعادة الاتصال</string>
+    <string name="saved">تم الحفظ ✓</string>
+
+    <string name="sec_notif">الإشعارات</string>
+    <string name="scope_critical">الأخبار الحرجة فقط (عاجل / قصف / شهداء / إخلاء…)</string>
+    <string name="scope_all">كل الأخبار الجديدة</string>
+    <string name="sw_takeover">شاشة كاملة لما يكون الجهاز مقفل</string>
+    <string name="sw_takeover_all">شاشة كاملة لكل الأخبار (مش بس الحرجة)</string>
+    <string name="sw_sound">صوت واهتزاز</string>
+    <string name="sw_loud">صوت عالي (حتى لو الجهاز صامت)</string>
+
+    <string name="sec_service">خدمة المتابعة</string>
+    <string name="sw_service">خلّي التطبيق يرصد الأخبار بالخلفية</string>
+    <string name="sw_battery">توفير البطارية (الشاشة مقفلة: تأخير ممكن يوصل دقيقتين)</string>
+    <string name="state_unknown">آخر حالة: —</string>
+
+    <string name="sec_perms">الصلاحيات المطلوبة</string>
+    <string name="perms_why">بدون هذي الصلاحيات الإشعار بيوصل، بس الشاشة ما رح تولّع لما يكون الجهاز مقفل.</string>
+    <string name="perm_notif">صلاحية الإشعارات</string>
+    <string name="perm_overlay">الظهور فوق التطبيقات (مهمة جداً)</string>
+    <string name="perm_battery">استثناء من توفير البطارية</string>
+    <string name="perm_fsi">الشاشة الكاملة (أندرويد 14+)</string>
+    <string name="perm_ok">✅ ممنوحة</string>
+    <string name="perm_missing">⚠️ غير ممنوحة — اضغط للتفعيل</string>
+    <string name="oem_hint">ملاحظة للأجهزة الصينية (شاومي/هواوي/أوبو/فيفو): من إعدادات الجهاز، فعّل «تشغيل تلقائي / Autostart» و«بدون قيود» لتطبيق M-TRACKER، وإلا النظام رح يوقف الخدمة لما تسكّر التطبيق.</string>
+
+    <string name="test_alert">تجربة إشعار + شاشة كاملة</string>
+    <string name="test_body">إشعار تجريبي: هيك رح يطلعلك الخبر لما تكون الشاشة مقفلة.</string>
+
+    <string name="state_line">الحالة: %1$s\nآخر إشعار وصل: %2$s</string>
+    <string name="about">M-TRACKER Android 1.0.0 · يرصد الأخبار من قنواتك ويعرضها على شاشة القفل.</string>
+    <string name="never">—</string>
+</resources>

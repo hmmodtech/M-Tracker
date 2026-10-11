@@ -3,7 +3,13 @@ services:
     name: mtracker
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    # -c gunicorn.conf.py is REQUIRED for the Android live-push long-poll
+    # (/api/stream holds a request open per connected phone).
+    startCommand: gunicorn app:app -c gunicorn.conf.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      # Optional: shared secret for /api/stream. If you set it here you must
+      # type the same value in the Android app (Settings -> Stream token).
+      # - key: STREAM_TOKEN
+      #   generateValue: true

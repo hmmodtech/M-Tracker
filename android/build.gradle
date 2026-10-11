@@ -1,0 +1,5 @@
+// Optional Gradle build (Android Studio). The app has ZERO dependencies,
+// so `bash build_apk.sh` works just as well and needs no downloads.
+plugins {
+    id 'com.android.application' version '8.5.2' apply false
+}
