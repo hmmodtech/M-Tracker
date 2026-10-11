@@ -217,9 +217,11 @@ public class AlertService extends Service {
                     continue;
                 }
 
+                long t0 = SystemClock.elapsedRealtime();
                 int wait = waitSeconds();
                 String url = base + "api/stream?since=" + cursor
-                        + "&scope=" + Prefs.scope(this) + "&wait=" + wait;
+                        + "&scope=" + Prefs.scope(this) + "&wait=" + wait
+                        + "&device=" + Prefs.deviceId(this);
                 Http.Res r = Http.get(url, cookie, token, (wait + 30) * 1000);
 
                 if (r.code == 401) {
@@ -236,6 +238,10 @@ public class AlertService extends Service {
                     List<AlertItem> items = new ArrayList<>();
                     for (int i = 0; i < ev.length(); i++) items.add(AlertItem.fromJson(ev.getJSONObject(i)));
                     deliver(items);
+                } else if (SystemClock.elapsedRealtime() - t0 < 1000) {
+                    // server answered instantly with nothing (e.g. first run
+                    // against an empty database) - do not spin
+                    sleep(1000);
                 }
                 fails = 0;
                 setStatus("connected");

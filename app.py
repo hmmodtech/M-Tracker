@@ -315,23 +315,44 @@ def serve_static(filename):
 STREAM_TOKEN    = os.environ.get('STREAM_TOKEN', '').strip()
 STREAM_MAX_WAIT = 120
 _stream_lock    = threading.Lock()
-_stream_seen    = []   # [[expiry_ts, token_set], ...] in-process duplicate memory
+# device key -> [[expiry_ts, token_set], ...]
+# The duplicate memory is PER DEVICE on purpose: the same story has to reach
+# every phone, it must only be collapsed once per phone.
+_stream_seen    = {}
+STREAM_DEVICES_MAX = 500
 
 
-def _stream_should_send(msg):
-    """Suppress repeat alerts for the same event (same story, 5 channels)."""
+def _device_key():
+    """Identifies the calling phone: explicit id > session cookie > IP."""
+    dev = (request.args.get('device') or '').strip()
+    if dev:
+        return 'd:' + dev[:64]
+    cookie = request.headers.get('Cookie') or ''
+    if cookie:
+        return 'c:' + hashlib.sha256(cookie.encode('utf-8')).hexdigest()[:20]
+    return 'ip:' + (request.remote_addr or '?')
+
+
+def _stream_should_send(msg, device):
+    """Suppress repeat alerts for the same event on THIS device."""
     toks = set(db.tokenize_for_dedup(msg.get('text', '')))
     if len(toks) < db.DUP_MIN_SHARED_TOKENS:
         return True
     now = time.time()
     with _stream_lock:
-        _stream_seen[:] = [s for s in _stream_seen if s[0] > now]
-        for _, other in _stream_seen:
+        seen = [s for s in _stream_seen.get(device, []) if s[0] > now]
+        for _, other in seen:
             if db.jaccard(toks, other) >= db.DUP_JACCARD_THRESHOLD:
+                _stream_seen[device] = seen
                 return False
-        _stream_seen.append([now + db.DUP_WINDOW_HOURS * 3600, toks])
-        if len(_stream_seen) > 800:
-            del _stream_seen[:-800]
+        seen.append([now + db.DUP_WINDOW_HOURS * 3600, toks])
+        if len(seen) > 800:
+            del seen[:-800]
+        _stream_seen[device] = seen
+        if len(_stream_seen) > STREAM_DEVICES_MAX:
+            # forget the device that has been idle the longest
+            oldest = max(_stream_seen.items(), key=lambda kv: kv[1][-1][0] if kv[1] else 0)
+            _stream_seen.pop(oldest[0], None)
     return True
 
 
@@ -381,9 +402,13 @@ def api_stream():
     wait     = max(0, min(_int_arg('wait', 0), STREAM_MAX_WAIT))
     limit    = max(1, min(_int_arg('limit', 40), 200))
     dedup    = (request.args.get('dedup', '1') != '0')
+    device   = _device_key()
 
     try:
-        if request.args.get('baseline') == '1' or since <= 0:
+        # `baseline=1` = "mark where we are now, do not replay history".
+        # since=0 without it is treated as a normal cursor so that an empty
+        # database still long-polls instead of returning immediately.
+        if request.args.get('baseline') == '1':
             cur = db.get_latest_message_id()
             return _stream_payload([], cur, note='baseline')
 
@@ -397,7 +422,7 @@ def api_stream():
                 cur = int(rows[-1]['id'])
                 fresh = [r for r in rows if (not crit_only) or r.get('has_critical')]
                 if dedup:
-                    fresh = [m for m in fresh if _stream_should_send(m)]
+                    fresh = [m for m in fresh if _stream_should_send(m, device)]
                 if fresh:
                     return _stream_payload(fresh, cur)
                 # everything was filtered (duplicates / below scope); keep

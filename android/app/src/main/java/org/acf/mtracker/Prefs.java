@@ -44,6 +44,17 @@ public final class Prefs {
     public static String token(Context c) { return sp(c).getString("token", ""); }
     public static void setToken(Context c, String v) { put(sp(c).edit(), "token", v == null ? "" : v.trim()); }
 
+    /** Random id for this install — lets the server de-duplicate news per
+     *  phone (so one phone getting an alert never silences another phone). */
+    public static String deviceId(Context c) {
+        String id = sp(c).getString("device_id", "");
+        if (id == null || id.isEmpty()) {
+            id = java.util.UUID.randomUUID().toString().replace("-", "");
+            put(sp(c).edit(), "device_id", id);
+        }
+        return id;
+    }
+
     /** Session cookie captured from the WebView login (forwarded to /api/stream). */
     public static String cookie(Context c) { return sp(c).getString("cookie", ""); }
     public static void setCookie(Context c, String v) { put(sp(c).edit(), "cookie", v == null ? "" : v); }
