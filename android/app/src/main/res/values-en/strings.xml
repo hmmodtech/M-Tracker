@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings">Settings</string>
+    <string name="reload">Reload</string>
+    <string name="later">Later</string>
+    <string name="retry">Retry</string>
+    <string name="no_text">(no text)</string>
+    <string name="no_app_for_link">No app can open this link</string>
+
+    <string name="svc_title">M-TRACKER is running</string>
+    <string name="svc_text">Watching the news and pushing instant alerts</string>
+    <string name="status_connected">Connected · instant alerts on</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_offline">Offline · retrying</string>
+    <string name="status_stopped">Monitoring stopped</string>
+    <string name="status_token">Bad stream token — fix it in Settings</string>
+
+    <string name="ch_crit_name">Critical alerts</string>
+    <string name="ch_crit_desc">Urgent news — wakes the screen and shows the story full screen</string>
+    <string name="ch_gen_name">General news</string>
+    <string name="ch_gen_desc">Every new message from your channels</string>
+    <string name="ch_svc_name">Monitoring service</string>
+    <string name="ch_svc_desc">Persistent notice that M-TRACKER is watching for news</string>
+
+    <string name="action_hide">Hide</string>
+    <string name="action_telegram">Telegram</string>
+    <string name="burst_title">%1$d new items</string>
+    <string name="burst_body">%1$d messages arrived at once — open the app to see them all.</string>
+
+    <string name="alert_urgent">URGENT</string>
+    <string name="alert_open_app">Open the app</string>
+    <string name="alert_next">Next</string>
+    <string name="alert_done">Done</string>
+    <string name="alert_footer">M-TRACKER · ACF Operations</string>
+
+    <string name="offline_title">Cannot reach the server</string>
+    <string name="offline_body">Check your internet connection and the server URL in Settings, then try again.</string>
+
+    <string name="setup_title">Turn on instant alerts</string>
+    <string name="setup_body">To get the news the moment it arrives — even with the screen locked — the app needs four permissions:\n\n1) Notifications\n2) Display over other apps\n3) Ignore battery optimizations\n4) Full screen intent (Android 14+)\n\nYou will find a button for each one in Settings.</string>
+    <string name="setup_open_settings">Open Settings</string>
+
+    <string name="sec_server">Server</string>
+    <string name="f_url">Server URL</string>
+    <string name="f_token">Stream token (optional)</string>
+    <string name="f_token_hint">Leave empty unless STREAM_TOKEN is set on the server</string>
+    <string name="f_save">Save &amp; reconnect</string>
+    <string name="saved">Saved ✓</string>
+
+    <string name="sec_notif">Notifications</string>
+    <string name="scope_critical">Critical news only (urgent / shelling / casualties / evacuation…)</string>
+    <string name="scope_all">Every new message</string>
+    <string name="sw_takeover">Full screen when the device is locked</string>
+    <string name="sw_takeover_all">Full screen for every item (not only critical)</string>
+    <string name="sw_sound">Sound and vibration</string>
+    <string name="sw_loud">Loud (even in silent mode)</string>
+
+    <string name="sec_service">Monitoring service</string>
+    <string name="sw_service">Keep watching for news in the background</string>
+    <string name="sw_battery">Battery saver (up to ~2 min delay when the screen is off)</string>
+    <string name="state_unknown">Last state: —</string>
+
+    <string name="sec_perms">Required permissions</string>
+    <string name="perms_why">Without these you still get the notification, but the screen will not wake up while locked.</string>
+    <string name="perm_notif">Notification permission</string>
+    <string name="perm_overlay">Display over other apps (very important)</string>
+    <string name="perm_battery">Ignore battery optimization</string>
+    <string name="perm_fsi">Full screen intent (Android 14+)</string>
+    <string name="perm_ok">✅ granted</string>
+    <string name="perm_missing">⚠️ not granted — tap to enable</string>
+    <string name="oem_hint">For Xiaomi / Huawei / Oppo / Vivo devices: in the system settings enable “Autostart” and set M-TRACKER to “Unrestricted”, otherwise the system will stop the service when the app is closed.</string>
+
+    <string name="test_alert">Test notification + full screen</string>
+    <string name="test_body">Test alert: this is how a story will look while the screen is locked.</string>
+
+    <string name="state_line">Status: %1$s\nLast alert: %2$s</string>
+    <string name="about">M-TRACKER Android %1$s · tracks your channels and shows the news on the lock screen.</string>
+    <string name="never">—</string>
+<string name="status_server_old">Server needs updating — deploy the new build</string>
+    <string name="status_blocked">The system blocked background monitoring</string>
+    <string name="blocked_body">The system stopped the monitoring service. In Settings: grant “ignore battery optimizations”; on Xiaomi/Huawei/Oppo also enable “Autostart” and remove battery restrictions for M-TRACKER.</string>
+    <string name="fatal_body">Something went wrong while opening the dashboard. Close and reopen the app; if it keeps happening, send the report from Settings (“last error”).</string>
+    <string name="crash_title">🐞 The app hit an error</string>
+    <string name="crash_intro">The app recorded this when it stopped. Please send it to the maintainer:</string>
+    <string name="crash_send">Share / copy</string>
+    <string name="crash_clear">Delete log</string>
+    <string name="crash_none">No errors recorded ✓</string>
+    <string name="crash_view">Last error (send report)</string>
+    <string name="diag_title">Diagnostics</string>
+</resources>

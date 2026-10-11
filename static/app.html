@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M-TRACKER · تطبيق الأندرويد</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:#0B1522;color:#E6EEF7;
+       min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px}
+  .card{max-width:520px;width:100%;background:linear-gradient(160deg,#101F30,#16283C);
+        border:1px solid #1F3348;border-radius:18px;padding:26px 22px}
+  .logo{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .ring{width:44px;height:44px;border-radius:50%;border:4px solid #19C3E6;
+        display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .dot{width:10px;height:10px;border-radius:50%;background:#19C3E6}
+  h1{font-size:20px;letter-spacing:2px;color:#19C3E6;font-family:ui-monospace,monospace}
+  .sub{font-size:11px;color:#8FA3B8;letter-spacing:1px;margin-top:2px}
+  p{font-size:14px;line-height:1.9;color:#C7D5E5;margin-bottom:14px}
+  ol{margin:0 18px 18px 0;font-size:13.5px;line-height:2;color:#C7D5E5}
+  b{color:#fff}
+  .btn{display:block;text-align:center;background:#19C3E6;color:#04121C;font-weight:800;
+       text-decoration:none;padding:15px;border-radius:12px;font-size:15px;margin-top:6px}
+  .btn:active{opacity:.85}
+  .meta{font-size:11px;color:#6F8299;text-align:center;margin-top:12px}
+  .warn{background:#16263A;border:1px solid #26384F;border-radius:12px;padding:12px 14px;
+        font-size:12.5px;line-height:1.9;color:#A9BBD0;margin-top:16px}
+  .warn b{color:#F5B942}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="ring"><div class="dot"></div></div>
+    <div>
+      <h1>M-TRACKER</h1>
+      <div class="sub">ANDROID APP · ACF OPERATIONS</div>
+    </div>
+  </div>
+
+  <p>تطبيق أندرويد بيعرض لوحة M-TRACKER كاملة، وبيبعتلك <b>إشعار فوري</b> لكل خبر جديد.
+     وإذا كان الجهاز <b>مقفول</b> — الشاشة بتولّع وبيظهر الخبر بوجهك فوراً.</p>
+
+  <a class="btn" id="dl" href="/app/m-tracker-1.0.1.apk" download>⬇ تحميل التطبيق (APK)</a>
+  <div class="meta" id="meta">الإصدار 1.0.1 · ‎~361KB · أندرويد 8 وأحدث</div>
+
+  <ol>
+    <li>افتح الملف بعد التحميل، وإذا طلب تسمح بـ«تثبيت من مصادر غير معروفة» اسمح لها.</li>
+    <li>افتح التطبيق واعمل دخول بنفس حساب الموقع.</li>
+    <li>من الإعدادات <b>⚙</b> فعّل: الإشعارات، الظهور فوق التطبيقات، استثناء البطارية، الشاشة الكاملة.</li>
+    <li>اضغط «تجربة إشعار + شاشة كاملة» لتتأكد إنه كل شي شغّال.</li>
+  </ol>
+
+  <div class="warn">
+    <b>إذا كانت عندك نسخة قديمة مركّبة:</b> احذفها أولاً (إعدادات الجهاز ← التطبيقات ← M-TRACKER ← إلغاء التثبيت)،
+    وبعدها ركّب هذي النسخة.
+  </div>
+
+  <div class="warn">
+    <b>مهم:</b> بدون صلاحية «الظهور فوق التطبيقات» رح يوصلك إشعار عادي بس الشاشة ما رح تولّع.
+    وعلى أجهزة شاومي/هواوي/أوبو فعّل «التشغيل التلقائي / Autostart».
+  </div>
+
+  <div class="warn">
+    <b>جديد بالإصدار 1.0.1:</b> إصلاح كراش كان يطفي التطبيق فوراً على أندرويد 14 وأحدث،
+    + شاشة تشخيص بتوريك سبب أي مشكلة وزر لإرسال التقرير،
+    + رسالة واضحة إذا كان السيرفر بحاجة تحديث.
+  </div>
+</div>
+<script>
+  // try the assets next to the page first, fall back to the copy inside static/app
+  (function(){
+    var a = document.getElementById('dl');
+    var url = '/app/m-tracker-1.0.1.apk';
+    fetch(url, {method:'HEAD'}).then(function(r){ if(!r.ok) a.href='/static/app/m-tracker-1.0.1.apk'; })
+      .catch(function(){});
+  })();
+</script>
+</body>
+</html>

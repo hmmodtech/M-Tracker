@@ -1,4 +1,4 @@
-import sqlite3, os, logging, json
+import sqlite3, os, logging, json, re
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
@@ -199,6 +199,21 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_msg_ch ON messages(channel);
         CREATE INDEX IF NOT EXISTS idx_msg_sc ON messages(scraped_at);
+        -- Near-duplicate memory: token sets of stories that were already
+        -- notified, so the same event coming from 5 channels alerts once.
+        CREATE TABLE IF NOT EXISTS notified_stories (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            tokens     TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_ns_created ON notified_stories(created_at);
+        -- FCM device tokens (Android app push registrations)
+        CREATE TABLE IF NOT EXISTS device_tokens (
+            token      TEXT PRIMARY KEY,
+            user_id    TEXT DEFAULT '',
+            platform   TEXT DEFAULT 'android',
+            created_at TEXT DEFAULT (datetime('now'))
+        );
     ''')
     conn.commit()
 
@@ -442,5 +457,242 @@ def get_stats():
             'top_source':       dict(top) if top else {},
             'volume_by_source': [dict(r) for r in vol],
         }
+    finally:
+        conn.close()
+
+
+# ══════════════════════════════════════════════════════════════════════
+#  LIVE STREAM SUPPORT  (used by the Android app / long-poll endpoint)
+# ══════════════════════════════════════════════════════════════════════
+
+def get_latest_message_id():
+    """Highest message id in the DB (0 when empty)."""
+    conn = get_conn()
+    try:
+        row = conn.execute('SELECT COALESCE(MAX(id), 0) FROM messages').fetchone()
+        return int(row[0] or 0)
+    finally:
+        conn.close()
+
+
+def get_messages_after(after_id, limit=60, critical_only=False):
+    """
+    Return up to `limit` messages with id > after_id, OLDEST FIRST.
+    Oldest-first ordering is what a notification client wants: alerts are
+    shown in the order the news actually arrived.
+    """
+    sql = '''
+        SELECT m.id, m.channel, m.text, m.summary, m.msg_date, m.link,
+               m.location_name, m.location_coords, m.location_gmaps,
+               m.has_critical, m.scraped_at,
+               ch.display AS channel_display
+        FROM messages m
+        LEFT JOIN channels ch ON ch.username = m.channel
+        WHERE m.id > ?
+    '''
+    params = [int(after_id or 0)]
+    if critical_only:
+        sql += ' AND m.has_critical = 1'
+    sql += ' ORDER BY m.id ASC LIMIT ?'
+    params.append(int(limit))
+    conn = get_conn()
+    try:
+        return [dict(r) for r in conn.execute(sql, params).fetchall()]
+    finally:
+        conn.close()
+
+
+# ── Near-duplicate detection ──────────────────────────────────────────
+DUP_JACCARD_THRESHOLD = 0.42   # how similar two texts must be to count as one story
+DUP_MIN_SHARED_TOKENS = 4      # ignore very short texts (too noisy to compare)
+DUP_WINDOW_HOURS      = 3      # how long a notified story stays "remembered"
+
+_AR_DIACRITICS = re.compile(r'[\u0610-\u061A\u064B-\u0652\u0670\u0640]')
+_UNWANTED     = re.compile(r'[^\w\u0600-\u06FF\s]+', re.UNICODE)
+
+_AR_STOPWORDS = {
+    'من','في','على','عن','الى','إلى','مع','هذا','هذه','ذلك','التي','الذي','الذين',
+    'كان','كانت','يكون','قد','ما','لا','لم','لن','هو','هي','هم','هن','انا','أنا',
+    'نحن','انت','أنت','كل','بعد','قبل','حتى','اذا','إذا','او','أو','ثم','ايضا',
+    'أيضا','ايضاً','جدا','جداً','اكثر','أكثر','اكد','أكد','عاجل','الان','الآن',
+    'يوم','اليوم','امس','أمس','صباح','مساء','خلال','حيث','بين','عند','عندما',
+    'the','and','for','with','that','this','from','have','has','was','were','are',
+    'you','not','but','its','his','her','they','been','said','says','will','would',
+    'more','than','into','after','before','over','about','there','their','which',
+}
+
+
+def _norm_token(w):
+    """Normalise a single Arabic/Latin token (same rules as tokenize_for_dedup)."""
+    w = str(w).lower()
+    w = _AR_DIACRITICS.sub('', w)
+    for a, b in (('أ', 'ا'), ('إ', 'ا'), ('آ', 'ا'), ('ى', 'ي'), ('ئ', 'ي'),
+                 ('ؤ', 'و'), ('ة', 'ه')):
+        w = w.replace(a, b)
+    return w
+
+
+_AR_STOPWORDS = {_norm_token(w) for w in _AR_STOPWORDS}
+
+
+def tokenize_for_dedup(text):
+    """
+    Normalised token list for near-duplicate comparison.
+    Arabic-aware: strips diacritics/tatweel, unifies alef/ya/ta-marbuta forms,
+    drops links, punctuation, digits-only noise and stopwords.
+    """
+    if not text:
+        return []
+    t = str(text).lower()
+    t = re.sub(r'https?://\S+', ' ', t)
+    t = re.sub(r'www\.\S+', ' ', t)
+    t = _AR_DIACRITICS.sub('', t)
+    for a, b in (('أ', 'ا'), ('إ', 'ا'), ('آ', 'ا'), ('ى', 'ي'), ('ئ', 'ي'),
+                 ('ؤ', 'و'), ('ة', 'ه')):
+        t = t.replace(a, b)
+    t = _UNWANTED.sub(' ', t)
+    out = []
+    for w in t.split():
+        if len(w) < 3:
+            continue
+        if w in _AR_STOPWORDS:
+            continue
+        if w.isdigit():
+            continue
+        out.append(w)
+    return out
+
+
+def jaccard(a, b):
+    """Jaccard similarity of two token sets (0.0 – 1.0)."""
+    a, b = set(a), set(b)
+    if not a or not b:
+        return 0.0
+    inter = len(a & b)
+    if inter == 0:
+        return 0.0
+    return inter / float(len(a | b))
+
+
+def _same_story(set_a, set_b):
+    shared = len(set_a & set_b)
+    if shared < DUP_MIN_SHARED_TOKENS:
+        return False
+    return jaccard(set_a, set_b) >= DUP_JACCARD_THRESHOLD
+
+
+def group_similar_messages(messages):
+    """
+    Collapse messages that report the SAME event (near-duplicates posted by
+    different channels) into one representative per story.
+
+    `messages` is a list of dicts sorted newest-first (as get_messages returns).
+    Returns the representatives, newest-first, each optionally enriched with a
+    location taken from one of its duplicates.
+    """
+    buckets = []          # list of {'rep': msg, 'tokens': set}
+    for m in messages or []:
+        toks = set(tokenize_for_dedup(m.get('text', '')))
+        if len(toks) < DUP_MIN_SHARED_TOKENS:
+            buckets.append({'rep': m, 'tokens': toks, 'short': True})
+            continue
+        for b in buckets:
+            if b.get('short'):
+                continue
+            if _same_story(b['tokens'], toks):
+                # keep the first (newest) as representative, but absorb a
+                # location if the representative has none
+                for f in ('location_name', 'location_coords', 'location_gmaps'):
+                    if not b['rep'].get(f) and m.get(f):
+                        b['rep'][f] = m[f]
+                b['tokens'] |= toks
+                b['dupes'] = b.get('dupes', 0) + 1
+                break
+        else:
+            buckets.append({'rep': m, 'tokens': toks})
+    return [b['rep'] for b in buckets]
+
+
+def record_notified_story(tokens):
+    """Remember a story's token set so later near-duplicates are suppressed."""
+    try:
+        toks = sorted(set(tokens or []))
+        if len(toks) < DUP_MIN_SHARED_TOKENS:
+            return
+        conn = get_conn()
+        try:
+            conn.execute('INSERT INTO notified_stories (tokens) VALUES (?)',
+                         (json.dumps(toks, ensure_ascii=False),))
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.warning(f'record_notified_story failed: {e}')
+
+
+def get_recent_notified_token_sets(hours=DUP_WINDOW_HOURS):
+    """Token sets of stories notified within the last `hours` hours."""
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            "SELECT tokens FROM notified_stories "
+            "WHERE created_at >= datetime('now', ?)",
+            (f'-{int(hours)} hours',)
+        ).fetchall()
+    finally:
+        conn.close()
+    out = []
+    for r in rows:
+        try:
+            out.append(set(json.loads(r[0])))
+        except Exception:
+            pass
+    return out
+
+
+def prune_old_notified_stories(hours=48):
+    conn = get_conn()
+    try:
+        conn.execute("DELETE FROM notified_stories WHERE created_at < datetime('now', ?)",
+                     (f'-{int(hours)} hours',))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+# ── FCM device tokens ─────────────────────────────────────────────────
+def register_device_token(token, user_id='', platform='android'):
+    if not token:
+        return False
+    conn = get_conn()
+    try:
+        conn.execute(
+            'INSERT INTO device_tokens (token, user_id, platform) VALUES (?, ?, ?) '
+            'ON CONFLICT(token) DO UPDATE SET user_id=excluded.user_id',
+            (token, user_id or '', platform or 'android')
+        )
+        conn.commit()
+        return True
+    finally:
+        conn.close()
+
+
+def get_all_device_tokens():
+    conn = get_conn()
+    try:
+        return [r[0] for r in conn.execute('SELECT token FROM device_tokens').fetchall()]
+    finally:
+        conn.close()
+
+
+def remove_device_tokens(tokens):
+    if not tokens:
+        return 0
+    conn = get_conn()
+    try:
+        conn.executemany('DELETE FROM device_tokens WHERE token = ?',
+                         [(t,) for t in tokens])
+        conn.commit()
+        return len(tokens)
     finally:
         conn.close()

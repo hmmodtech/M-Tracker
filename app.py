@@ -1,4 +1,4 @@
-import logging, os, json, hashlib, secrets, atexit
+import logging, os, json, hashlib, secrets, atexit, threading, time
 from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -299,9 +299,142 @@ def api_register_device():
 def serve_index():
     return send_from_directory('static', 'index.html')
 
+@app.route('/app')
+def serve_app_page():
+    """Landing page with the Android APK download button."""
+    return send_from_directory('static', 'app.html')
+
 @app.route('/<path:filename>')
 def serve_static(filename):
     return send_from_directory('static', filename)
+
+# ── LIVE STREAM (long-poll) ────────────────────────────────────────
+# Consumed by the Android app: one open request per device. The server holds
+# the request until a new message shows up (up to `wait` seconds), so alerts
+# land on the phone within ~1 second of being scraped.
+STREAM_TOKEN    = os.environ.get('STREAM_TOKEN', '').strip()
+STREAM_MAX_WAIT = 120
+_stream_lock    = threading.Lock()
+# device key -> [[expiry_ts, token_set], ...]
+# The duplicate memory is PER DEVICE on purpose: the same story has to reach
+# every phone, it must only be collapsed once per phone.
+_stream_seen    = {}
+STREAM_DEVICES_MAX = 500
+
+
+def _device_key():
+    """Identifies the calling phone: explicit id > session cookie > IP."""
+    dev = (request.args.get('device') or '').strip()
+    if dev:
+        return 'd:' + dev[:64]
+    cookie = request.headers.get('Cookie') or ''
+    if cookie:
+        return 'c:' + hashlib.sha256(cookie.encode('utf-8')).hexdigest()[:20]
+    return 'ip:' + (request.remote_addr or '?')
+
+
+def _stream_should_send(msg, device):
+    """Suppress repeat alerts for the same event on THIS device."""
+    toks = set(db.tokenize_for_dedup(msg.get('text', '')))
+    if len(toks) < db.DUP_MIN_SHARED_TOKENS:
+        return True
+    now = time.time()
+    with _stream_lock:
+        seen = [s for s in _stream_seen.get(device, []) if s[0] > now]
+        for _, other in seen:
+            if db.jaccard(toks, other) >= db.DUP_JACCARD_THRESHOLD:
+                _stream_seen[device] = seen
+                return False
+        seen.append([now + db.DUP_WINDOW_HOURS * 3600, toks])
+        if len(seen) > 800:
+            del seen[:-800]
+        _stream_seen[device] = seen
+        if len(_stream_seen) > STREAM_DEVICES_MAX:
+            # forget the device that has been idle the longest
+            oldest = max(_stream_seen.items(), key=lambda kv: kv[1][-1][0] if kv[1] else 0)
+            _stream_seen.pop(oldest[0], None)
+    return True
+
+
+def _stream_payload(events, cursor, note=''):
+    out = []
+    for m in events:
+        out.append({
+            'id':       m.get('id'),
+            'channel':  m.get('channel') or '',
+            'display':  m.get('channel_display') or m.get('channel') or 'M-TRACKER',
+            'text':     m.get('text') or '',
+            'summary':  m.get('summary') or '',
+            'critical': int(m.get('has_critical') or 0),
+            'link':     m.get('link') or '',
+            'date':     m.get('msg_date') or m.get('scraped_at') or '',
+            'location': m.get('location_name') or '',
+            'coords':   m.get('location_coords') or '',
+            'gmaps':    m.get('location_gmaps') or '',
+        })
+    return jsonify({'events': out, 'count': len(out), 'cursor': int(cursor),
+                    'now': int(time.time()), 'note': note})
+
+
+@app.route('/api/stream')
+def api_stream():
+    """
+    GET /api/stream?since=<cursor>&scope=critical|all&wait=25[&baseline=1]
+
+    * `baseline=1` (or since<=0): marks the current position, returns no
+      events — the phone starts from "now" instead of replaying history.
+    * otherwise: returns every message newer than `since` and a new `cursor`
+      to send next time. `cursor` advances past messages that were filtered
+      out (scope / duplicate) so nothing is ever replayed.
+    """
+    if STREAM_TOKEN and (request.args.get('token') or '') != STREAM_TOKEN:
+        return jsonify({'error': 'invalid stream token'}), 401
+
+    def _int_arg(name, default):
+        try:
+            return int(request.args.get(name, default))
+        except (TypeError, ValueError):
+            return default
+
+    since    = max(0, _int_arg('since', 0))
+    scope    = (request.args.get('scope') or 'critical').strip().lower()
+    crit_only = scope != 'all'
+    wait     = max(0, min(_int_arg('wait', 0), STREAM_MAX_WAIT))
+    limit    = max(1, min(_int_arg('limit', 40), 200))
+    dedup    = (request.args.get('dedup', '1') != '0')
+    device   = _device_key()
+
+    try:
+        # `baseline=1` = "mark where we are now, do not replay history".
+        # since=0 without it is treated as a normal cursor so that an empty
+        # database still long-polls instead of returning immediately.
+        if request.args.get('baseline') == '1':
+            cur = db.get_latest_message_id()
+            return _stream_payload([], cur, note='baseline')
+
+        deadline = time.time() + wait
+        cur      = since
+        batches  = 0
+        while True:
+            rows = db.get_messages_after(cur, limit=limit, critical_only=False)
+            batches += 1
+            if rows:
+                cur = int(rows[-1]['id'])
+                fresh = [r for r in rows if (not crit_only) or r.get('has_critical')]
+                if dedup:
+                    fresh = [m for m in fresh if _stream_should_send(m, device)]
+                if fresh:
+                    return _stream_payload(fresh, cur)
+                # everything was filtered (duplicates / below scope); keep
+                # draining the backlog without blocking the phone
+                if len(rows) >= limit and batches < 25:
+                    continue
+            if time.time() >= deadline:
+                return _stream_payload([], cur)
+            time.sleep(1.0)
+    except Exception as e:
+        logger.error(f'stream error: {e}')
+        return jsonify({'error': 'stream_failed', 'detail': str(e)}), 503
 
 # ── SCHEDULER ────────────────────────────────────────────────────
 def run_scrape():

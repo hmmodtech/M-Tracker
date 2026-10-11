@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- SERVER -->
+        <TextView style="@style/SectionTitle" android:text="@string/sec_server" />
+
+        <TextView style="@style/Label" android:text="@string/f_url" />
+
+        <EditText
+            android:id="@+id/et_url"
+            style="@style/Input"
+            android:inputType="textUri"
+            android:hint="@string/f_url_hint"
+            android:importantForAutofill="no" />
+
+        <TextView style="@style/Label" android:text="@string/f_token" />
+
+        <EditText
+            android:id="@+id/et_token"
+            style="@style/Input"
+            android:inputType="text"
+            android:hint="@string/f_token_hint"
+            android:importantForAutofill="no" />
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:text="@string/f_save"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:backgroundTint="@color/cyan" />
+
+        <!-- NOTIFICATIONS -->
+        <TextView style="@style/SectionTitle" android:text="@string/sec_notif" />
+
+        <RadioGroup
+            android:id="@+id/rg_scope"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/rb_critical"
+                style="@style/Radio"
+                android:text="@string/scope_critical" />
+
+            <RadioButton
+                android:id="@+id/rb_all"
+                style="@style/Radio"
+                android:text="@string/scope_all" />
+        </RadioGroup>
+
+        <Switch
+            android:id="@+id/sw_takeover"
+            style="@style/Sw"
+            android:text="@string/sw_takeover" />
+
+        <Switch
+            android:id="@+id/sw_takeover_all"
+            style="@style/Sw"
+            android:text="@string/sw_takeover_all" />
+
+        <Switch
+            android:id="@+id/sw_sound"
+            style="@style/Sw"
+            android:text="@string/sw_sound" />
+
+        <Switch
+            android:id="@+id/sw_loud"
+            style="@style/Sw"
+            android:text="@string/sw_loud" />
+
+        <!-- SERVICE -->
+        <TextView style="@style/SectionTitle" android:text="@string/sec_service" />
+
+        <Switch
+            android:id="@+id/sw_service"
+            style="@style/Sw"
+            android:text="@string/sw_service" />
+
+        <Switch
+            android:id="@+id/sw_battery"
+            style="@style/Sw"
+            android:text="@string/sw_battery" />
+
+        <TextView
+            android:id="@+id/txt_state"
+            style="@style/Label"
+            android:text="@string/state_unknown" />
+
+        <Button
+            android:id="@+id/btn_test"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/test_alert"
+            android:textColor="@color/cyan"
+            android:backgroundTint="#1E3049" />
+
+        <TextView style="@style/SectionTitle" android:text="@string/diag_title" />
+
+        <Button
+            android:id="@+id/btn_crash"
+            style="@style/PermBtn"
+            android:text="@string/crash_none" />
+
+        <Button
+            android:id="@+id/btn_restart"
+            style="@style/PermBtn"
+            android:text="@string/sw_service" />
+
+        <!-- PERMISSIONS -->
+        <TextView style="@style/SectionTitle" android:text="@string/sec_perms" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/perms_why"
+            android:textColor="@color/txt_dim"
+            android:textSize="12sp"
+            android:lineSpacingExtra="3dp"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btn_notif"
+            style="@style/PermBtn"
+            android:text="@string/perm_notif" />
+
+        <Button
+            android:id="@+id/btn_overlay"
+            style="@style/PermBtn"
+            android:text="@string/perm_overlay" />
+
+        <Button
+            android:id="@+id/btn_battery"
+            style="@style/PermBtn"
+            android:text="@string/perm_battery" />
+
+        <Button
+            android:id="@+id/btn_fsi"
+            style="@style/PermBtn"
+            android:text="@string/perm_fsi" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/oem_hint"
+            android:textColor="@color/txt_dim"
+            android:textSize="11sp"
+            android:lineSpacingExtra="3dp" />
+
+        <TextView
+            android:id="@+id/txt_about"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:textColor="#6F8299"
+            android:textSize="11sp" />
+    </LinearLayout>
+</ScrollView>
